@@ -1,10 +1,10 @@
-package com.example.goodsrental;
+package com.example.trend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GoodsRentalApplicationTests {
+class TrendApplicationTests {
 
     @Test
     void contextLoads() {

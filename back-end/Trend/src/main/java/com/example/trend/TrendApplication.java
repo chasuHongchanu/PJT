@@ -1,13 +1,13 @@
-package com.example.goodsrental;
+package com.example.trend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GoodsRentalApplication {
+public class TrendApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GoodsRentalApplication.class, args);
+        SpringApplication.run(TrendApplication.class, args);
     }
 
 }
