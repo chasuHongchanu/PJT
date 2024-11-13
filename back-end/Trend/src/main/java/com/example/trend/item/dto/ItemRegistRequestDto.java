@@ -5,7 +5,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public class ItemRegistRequestDto {
+    private String itemId;
     private String itemName;
+    private String userId;
     private List<MultipartFile> itemImages;
     private int itemPrice;
     private String itemCategory;
@@ -14,8 +16,9 @@ public class ItemRegistRequestDto {
     private String availableRentalStartDate;
     private String availableRentalEndDate;
 
-    public ItemRegistRequestDto(String itemName, List<MultipartFile> itemImages, int itemPrice, String itemCategory, String itemAddress, String itemContent, String availableRentalStartDate, String availableRentalEndDate) {
+    public ItemRegistRequestDto(String itemName, String userId, List<MultipartFile> itemImages, int itemPrice, String itemCategory, String itemAddress, String itemContent, String availableRentalStartDate, String availableRentalEndDate) {
         this.itemName = itemName;
+        this.userId = userId;
         this.itemImages = itemImages;
         this.itemPrice = itemPrice;
         this.itemCategory = itemCategory;
@@ -23,6 +26,21 @@ public class ItemRegistRequestDto {
         this.itemContent = itemContent;
         this.availableRentalStartDate = availableRentalStartDate;
         this.availableRentalEndDate = availableRentalEndDate;
+    }
+    public String getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(String itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getItemName() {

@@ -6,6 +6,9 @@ public enum ErrorCode {
   // 400 BAD_REQUEST
   INVALID_REQUEST_PARAMETER(HttpStatus.BAD_REQUEST, "인자값이 잘못되었습니다."),
   UNAUTHORIZED_ACCESS(HttpStatus.BAD_REQUEST, "권한이 없습니다."),
+  MISSING_ITEM_TITLE(HttpStatus.BAD_REQUEST, "제목은 필수 값입니다."),
+  MISSING_ITEM_PRICE(HttpStatus.BAD_REQUEST, "가격은 필수 값입니다."),
+  MISSING_ITEM_REGION(HttpStatus.BAD_REQUEST, "지역은 필수 값입니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
