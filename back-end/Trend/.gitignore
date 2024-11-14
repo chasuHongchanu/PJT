@@ -251,4 +251,7 @@ secret.properties
 # Windows shortcuts
 *.lnk
 secret.properties
+# Firebase Service Account key
+serviceAccountkey.json
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,intellij,maven,java

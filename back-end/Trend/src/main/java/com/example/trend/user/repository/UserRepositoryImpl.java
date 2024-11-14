@@ -20,24 +20,6 @@ public class UserRepositoryImpl implements UserRepository{
     }
 
     @Override
-    public boolean duplicateCheck(String newId) {
-        System.out.println(newId);
-        int cnt = userMapper.findDuplicatedId(newId);
-        if (cnt > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void saveUser(UserSignupRequestDto userSignupRequestDto) {
-        int cnt = userMapper.insertNewUser(userSignupRequestDto);
-        if (cnt != 1) {
-            throw new CustomException(ErrorCode.FAIL_TO_SAVE_USER);
-        }
-    }
-
-    @Override
     public String searchUserByIdAndPassword(UserLoginRequestDto userLoginRequestDto) {
         UserEntity userEntity = userMapper.findUserByIdAndPassword(userLoginRequestDto);
         if (userEntity == null) {

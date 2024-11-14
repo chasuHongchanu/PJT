@@ -1,0 +1,123 @@
+package com.example.trend.item.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+public class ItemRegistRequestDto {
+    private String itemId;
+
+    @NotBlank(message="이름은 필수 값입니다.")
+    private String itemName;
+
+    private String userId;
+
+    private List<MultipartFile> itemImages;
+
+    private int itemPrice;
+
+    private String itemCategory;
+
+    @NotBlank(message="지역은 필수 값입니다.")
+    private String itemAddress;
+
+    private String itemContent;
+
+    @NotBlank(message="시작 날짜는 필수 값입니다.")
+    private String availableRentalStartDate;
+
+    @NotBlank(message="종료 날짜는 필수 값입니다.")
+    private String availableRentalEndDate;
+
+    public ItemRegistRequestDto(String itemName, String userId, List<MultipartFile> itemImages, int itemPrice, String itemCategory, String itemAddress, String itemContent, String availableRentalStartDate, String availableRentalEndDate) {
+        this.itemName = itemName;
+        this.userId = userId;
+        this.itemImages = itemImages;
+        this.itemPrice = itemPrice;
+        this.itemCategory = itemCategory;
+        this.itemAddress = itemAddress;
+        this.itemContent = itemContent;
+        this.availableRentalStartDate = availableRentalStartDate;
+        this.availableRentalEndDate = availableRentalEndDate;
+    }
+    public String getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(String itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public List<MultipartFile> getItemImages() {
+        return itemImages;
+    }
+
+    public void setItemImages(List<MultipartFile> itemImages) {
+        this.itemImages = itemImages;
+    }
+
+    public int getItemPrice() {
+        return itemPrice;
+    }
+
+    public void setItemPrice(int itemPrice) {
+        this.itemPrice = itemPrice;
+    }
+
+    public String getItemCategory() {
+        return itemCategory;
+    }
+
+    public void setItemCategory(String itemCategory) {
+        this.itemCategory = itemCategory;
+    }
+
+    public String getItemAddress() {
+        return itemAddress;
+    }
+
+    public void setItemAddress(String itemAddress) {
+        this.itemAddress = itemAddress;
+    }
+
+    public String getItemContent() {
+        return itemContent;
+    }
+
+    public void setItemContent(String itemContent) {
+        this.itemContent = itemContent;
+    }
+
+    public String getAvailableRentalStartDate() {
+        return availableRentalStartDate;
+    }
+
+    public void setAvailableRentalStartDate(String availableRentalStartDate) {
+        this.availableRentalStartDate = availableRentalStartDate;
+    }
+
+    public String getAvailableRentalEndDate() {
+        return availableRentalEndDate;
+    }
+
+    public void setAvailableRentalEndDate(String availableRentalEndDate) {
+        this.availableRentalEndDate = availableRentalEndDate;
+    }
+}
