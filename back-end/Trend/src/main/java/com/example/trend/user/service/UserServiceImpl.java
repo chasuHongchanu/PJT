@@ -6,18 +6,19 @@ import com.example.trend.user.dto.TokenResponseDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
 import com.example.trend.user.repository.UserRepository;
+import com.example.trend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -43,19 +44,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public TokenResponseDto login(UserLoginRequestDto userLoginRequestDto) {
         String userId = userRepository.searchUserByIdAndPassword(userLoginRequestDto);
-        if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
 
         String accessToken = jwtUtil.generateAccessToken(userId);
         String refreshToken = jwtUtil.generateRefreshToken(userId);
 
-        userService.saveRefreshToken(userId, refreshToken);
-        return null;
-    }
+        userRepository.saveRefreshToken(userId, refreshToken);
 
-    @Override
-    public void saveRefreshToken(String userId, String refreshToken) {
-
+        TokenResponseDto tokenResponseDto = new TokenResponseDto(accessToken, refreshToken);
+        return tokenResponseDto;
     }
 }

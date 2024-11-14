@@ -4,13 +4,11 @@ import com.example.trend.user.dto.TokenResponseDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
 import com.example.trend.user.service.UserService;
-import com.example.trend.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +22,10 @@ import java.util.Map;
 @Tag(name = "User API", description = "API for user operations")
 public class UserController {
     private final UserService userService;
-    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserController(UserService userService, JwtUtil jwtUtil) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -64,7 +60,7 @@ public class UserController {
         TokenResponseDto tokenResponseDto = userService.login(userLoginRequestDto);
 
         //refresh token 쿠키 설정
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokenResponseDto.getRefreshToken())
                 .httpOnly(true)
                 .secure(true) // HTTPS 환경에서만 전송
                 .path("/")
@@ -74,7 +70,7 @@ public class UserController {
 
         // 토큰들을 헤더에 담아 반환
         return ResponseEntity.ok()
-                .header("Authorization", "bearer " + accessToken)
+                .header("Authorization", "bearer " + tokenResponseDto.getAccessToken())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body("Login Successful");
     }

@@ -1,9 +1,14 @@
 package com.example.trend.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import lombok.*;
 
 import java.sql.Timestamp;
 
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
 public class UserEntity {
     private String userId;
     private String userNickname;

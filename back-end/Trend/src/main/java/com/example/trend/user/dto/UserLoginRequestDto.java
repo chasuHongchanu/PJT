@@ -6,7 +6,7 @@ public class UserLoginRequestDto {
     @NotBlank(message = "ID는 필수 입력값입니다.")
     private String userId;
     @NotBlank(message = "비밀번호는 필수 입력값입니다.")
-    private String password;
+    private String userPassword;
 
     public String getUserId() {
         return userId;
@@ -16,11 +16,11 @@ public class UserLoginRequestDto {
         this.userId = userId;
     }
 
-    public String getPassword() {
-        return password;
+    public String getUserPassword() {
+        return userPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
     }
 }

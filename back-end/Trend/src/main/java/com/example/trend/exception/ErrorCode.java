@@ -14,7 +14,8 @@ public enum ErrorCode {
   // 유저
   // - 로그인
   USER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 아이디입니다."),
-  FAIL_TO_SAVE_USER(HttpStatus.BAD_REQUEST, "회원 가입에 실패했습니다.");
+  FAIL_TO_SAVE_USER(HttpStatus.BAD_REQUEST, "회원 가입에 실패했습니다."),
+  NOT_FOUND_MATCHED_USER(HttpStatus.BAD_REQUEST, "아이디 혹은 비밀번호가 틀렸습니다.");
 
 
   private final HttpStatus status;

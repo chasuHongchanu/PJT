@@ -12,5 +12,4 @@ public interface UserService {
 
     TokenResponseDto login(@Valid UserLoginRequestDto userLoginRequestDto);
 
-    void saveRefreshToken(String userId, String refreshToken);
 }
