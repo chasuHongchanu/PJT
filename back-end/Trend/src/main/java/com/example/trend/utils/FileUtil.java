@@ -19,10 +19,9 @@ public class FileUtil {
     }
 
     public void saveFileIntoStorage(String id, String userId, String controller, List<MultipartFile> files) {
-        String blob = controller + "/" +
-                    userId + "/" +
+        String blob = userId + "/" +
+                    controller + "/" +
                     id + "/";
-
 
         for(MultipartFile file: files) {
             try {
