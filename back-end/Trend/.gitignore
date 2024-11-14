@@ -250,7 +250,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
+secret.properties
 # Firebase Service Account key
 serviceAccountkey.json
 
