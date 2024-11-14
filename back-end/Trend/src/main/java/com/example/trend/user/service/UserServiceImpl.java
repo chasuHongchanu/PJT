@@ -5,16 +5,23 @@ import com.example.trend.exception.ErrorCode;
 import com.example.trend.user.dto.TokenResponseDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
+import com.example.trend.user.entity.UserEntity;
 import com.example.trend.user.mapper.UserMapper;
-import com.example.trend.user.repository.UserRepository;
 import com.example.trend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
+
+    @Value("jwt.refreshToken-validity")
+    private long refreshTokenValidity;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper, JwtUtil jwtUtil) {
@@ -49,13 +56,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public TokenResponseDto login(UserLoginRequestDto userLoginRequestDto) {
-        String userId = userRepository.searchUserByIdAndPassword(userLoginRequestDto);
+        // 유저 확인
+        UserEntity userEntity = userMapper.findUserByIdAndPassword(userLoginRequestDto);
+        if (userEntity == null) {
+            throw new CustomException(ErrorCode.NOT_FOUND_MATCHED_USER);
+        }
+        String userId = userEntity.getUserId();
 
+        // 토큰 생성
         String accessToken = jwtUtil.generateAccessToken(userId);
         String refreshToken = jwtUtil.generateRefreshToken(userId);
 
-        userRepository.saveRefreshToken(userId, refreshToken);
+        // refresh token 저장
+        new Timestamp(System.currentTimeMillis() + refreshTokenValidity);
 
+        int result = userMapper.insertRefreshToken(userId, refreshToken, new Timestamp(System.currentTimeMillis() + refreshTokenValidity));
+
+        // 생성한 토큰 반환
         TokenResponseDto tokenResponseDto = new TokenResponseDto(accessToken, refreshToken);
         return tokenResponseDto;
     }

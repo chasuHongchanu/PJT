@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.sql.Timestamp;
+
 @Mapper
 public interface UserMapper {
     @Select("SELECT count(*) FROM `user` WHERE user_id= #{newId}")
@@ -20,5 +22,5 @@ public interface UserMapper {
     UserEntity findUserByIdAndPassword(UserLoginRequestDto userLoginRequestDto);
 
     @Insert("INSERT INTO `refresh_token` ")
-    int insertRefreshToken(String userId, String refreshToken);
+    int insertRefreshToken(String userId, String refreshToken, Timestamp expireTime);
 }
