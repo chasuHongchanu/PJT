@@ -18,7 +18,7 @@ CREATE TABLE `user`
     `user_profile_img`    varchar(100) NULL,
     `user_introduction`   varchar(300) NULL,
     `user_registed_date`  timestamp NULL,
-    `user_activity_score` int NULL,
+    `user_activity_score` double NULL,
     `user_rating` double NULL
 );
 

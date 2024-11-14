@@ -9,8 +9,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository{
+
+    private final UserMapper userMapper;
+
     @Autowired
-    private UserMapper userMapper;
+    public UserRepositoryImpl(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
 
     @Override
     public boolean duplicateCheck(String newId) {
