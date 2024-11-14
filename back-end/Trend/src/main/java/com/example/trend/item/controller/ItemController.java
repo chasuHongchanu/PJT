@@ -25,7 +25,7 @@ public class ItemController {
     }
 
     @PostMapping("/rent")
-    public ResponseEntity<?> regist(@Validated @ModelAttribute("itemRegistDto") ItemRegistRequestDto itemRegistDto) {
+    public ResponseEntity<?> regist(@Valid @ModelAttribute("itemRegistDto") ItemRegistRequestDto itemRegistDto) {
         // 가격이 비어있는 경우
         if(itemRegistDto.getItemPrice() == 0) {
             throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);

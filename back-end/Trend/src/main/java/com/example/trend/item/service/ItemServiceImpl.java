@@ -33,14 +33,6 @@ public class ItemServiceImpl implements ItemService{
         String userId = itemRegistDto.getUserId();
         List<MultipartFile> files = itemRegistDto.getItemImages();
 
-        System.out.println(files);
-        System.out.println(files.get(0));
-
-        // 이미지가 들어온 경우 storage에 이미지 저장
-        if(files != null) {
-            fileUtil.saveFileIntoStorage(itemId, userId, "item", files);
-        }
-
         // 시작일이 종료일보다 늦은 경우
         String availableRentalStartDate = itemRegistDto.getAvailableRentalStartDate();
         String availableRentalEndDate = itemRegistDto.getAvailableRentalEndDate();
@@ -51,6 +43,12 @@ public class ItemServiceImpl implements ItemService{
 
         if(startDate.isAfter(endDate)) {
             throw new CustomException(ErrorCode.INVALID_RENTAL_PERIOD);
+        }
+
+        // 아무런 예외도 발생하지 않은 경우 이미지 저장
+        // 이미지가 정상적으로 1개 이상 들어온 경우 storage에 이미지 저장
+        if(!(files.size() == 1 && files.get(0).isEmpty())) {
+            fileUtil.saveFileIntoStorage(itemId, userId, "item", files);
         }
 
         // TODO: 입력받은 지역을 토대로 지역 JSON을 이용해 위/경도 추출
