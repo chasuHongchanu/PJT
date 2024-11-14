@@ -7,9 +7,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class ItemRepositoryImpl implements ItemRepository{
+    private final ItemMapper itemMapper;
 
     @Autowired
-    private ItemMapper itemMapper;
+    public ItemRepositoryImpl(ItemMapper itemMapper) {
+        this.itemMapper = itemMapper;
+    }
 
     @Override
     public int regist(ItemRegistRequestDto itemRegistDto) {

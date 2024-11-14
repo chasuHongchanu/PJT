@@ -1,19 +1,33 @@
 package com.example.trend.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public class ItemRegistRequestDto {
     private String itemId;
+
+    @NotBlank(message="이름은 필수 값입니다.")
     private String itemName;
+
     private String userId;
+
     private List<MultipartFile> itemImages;
+
     private int itemPrice;
+
     private String itemCategory;
+
+    @NotBlank(message="지역은 필수 값입니다.")
     private String itemAddress;
+
     private String itemContent;
+
+    @NotBlank(message="시작 날짜는 필수 값입니다.")
     private String availableRentalStartDate;
+
+    @NotBlank(message="종료 날짜는 필수 값입니다.")
     private String availableRentalEndDate;
 
     public ItemRegistRequestDto(String itemName, String userId, List<MultipartFile> itemImages, int itemPrice, String itemCategory, String itemAddress, String itemContent, String availableRentalStartDate, String availableRentalEndDate) {

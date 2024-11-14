@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class FileUtil {
 
-    private Bucket bucket;
+    private final Bucket bucket;
 
     @Autowired
     public FileUtil(Bucket bucket) {
@@ -26,13 +26,14 @@ public class FileUtil {
 
         for(MultipartFile file: files) {
             try {
-                // 이미 존재하면 파일 삭제
-                if(bucket.get(blob) != null) {
-                    bucket.get(blob).delete();
-                }
-
                 // 파일 버켓에 저장
                 String filePath = blob + file.getOriginalFilename();
+
+                // 이미 존재하면 파일 삭제
+                if(bucket.get(filePath) != null) {
+                    bucket.get(filePath).delete();
+                }
+
                 bucket.create(filePath, file.getBytes(), file.getContentType());
 
             } catch (IOException e) {
