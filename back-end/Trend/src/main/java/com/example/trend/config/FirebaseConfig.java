@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.StorageClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,13 +15,16 @@ import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
+    @Value("${firebase.storage-url}")
+    private String firebaseUrl;
+
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         InputStream serviceAccountkey = getClass().getClassLoader().getResourceAsStream("serviceAccountkey.json");
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccountkey))
-                .setStorageBucket("trend-74942.firebasestorage.app")
+                .setStorageBucket(firebaseUrl)
                 .build();
 
         return FirebaseApp.initializeApp(options);

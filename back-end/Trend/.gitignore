@@ -250,8 +250,10 @@ $RECYCLE.BIN/
 secret.properties
 # Windows shortcuts
 *.lnk
-secret.properties
+# jwt key
+jwt.properties
 # Firebase Service Account key
 serviceAccountkey.json
+firebase.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,intellij,maven,java
