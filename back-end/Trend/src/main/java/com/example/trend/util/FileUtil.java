@@ -18,7 +18,7 @@ public class FileUtil {
         this.bucket = bucket;
     }
 
-    public void saveFileIntoStorage(String id, String userId, String controller, List<MultipartFile> files) {
+    public void saveFileIntoStorage(String userId, int id, String controller, List<MultipartFile> files) {
         String blob = userId + "/" +
                     controller + "/" +
                     id + "/";

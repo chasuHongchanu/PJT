@@ -7,8 +7,15 @@ import org.apache.ibatis.annotations.Options;
 
 @Mapper
 public interface ItemMapper {
-    @Insert("INSERT INTO item (item_name, user_id, item_category, item_price, item_address, item_content, available_rental_start_date, available_rental_end_date) " +
-            "VALUES (#{itemName}, #{userId}, #{itemCategory}, #{itemPrice}, #{itemAddress}, #{itemContent}, #{availableRentalStartDate}, #{availableRentalEndDate})")
+    @Insert("""
+            INSERT INTO item (user_id, item_name, main_category, sub_category, sub_subcategory, item_price, province, district, town, item_content, available_rental_start_date, available_rental_end_date, item_status)
+                      VALUES (#{userId}, #{itemName}, #{itemMainCategory}, #{itemSubCategory}, #{itemSubsubCategory},
+                                      #{itemPrice}, #{itemProvince}, #{itemDistrict}, #{itemTown}, #{itemContent},
+                                      #{availableRentalStartDate}, #{availableRentalEndDate}, #{itemStatus})
+            """)
     @Options(useGeneratedKeys = true, keyProperty = "itemId")
     int insertItem(ItemRegistRequestDto itemRegistDto);
+
+    @Insert("")
+    int insertItemImageName(int itemId, String itemImageName);
 }
