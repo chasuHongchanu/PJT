@@ -2,6 +2,7 @@ package com.example.trend.item.controller;
 
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
+import com.example.trend.item.dto.ItemDetailResponseDto;
 import com.example.trend.item.dto.ItemRegistRequestDto;
 import com.example.trend.item.service.ItemService;
 import jakarta.validation.Valid;
@@ -41,5 +42,13 @@ public class ItemController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping("/rent/{itemId}")
+    public ResponseEntity<?> detail(@PathVariable int itemId) {
+        ItemDetailResponseDto itemDetailResponseDto = itemService.detail(itemId, "user3");
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(itemDetailResponseDto);
     }
 }

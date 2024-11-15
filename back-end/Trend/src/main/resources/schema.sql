@@ -42,7 +42,8 @@ CREATE TABLE `item`
     `available_rental_start_date` timestamp   NULL,
     `available_rental_end_date`   timestamp   NULL,
     `item_status`                 varchar(50) NULL COMMENT '공개, 비공개, 대여 중',
-    `item_registed_at`            timestamp   NULL DEFAULT CURRENT_TIMESTAMP
+    `item_registed_at`            timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
+    `view_count`				  int		  default 0
 );
 
 CREATE TABLE `item_trade`
