@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemRegistRequestDto {
     private Integer itemId;
 

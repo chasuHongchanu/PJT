@@ -2,7 +2,9 @@ package com.example.trend.item.service;
 
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
+import com.example.trend.item.dto.ItemDetailResponseDto;
 import com.example.trend.item.dto.ItemRegistRequestDto;
+import com.example.trend.item.dto.ItemSimpleInfo;
 import com.example.trend.item.mapper.ItemMapper;
 import com.example.trend.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,18 +32,17 @@ public class ItemServiceImpl implements ItemService{
     @Transactional
     @Override
     public int regist(ItemRegistRequestDto itemRegistDto) {
-        // 파일 이름을 추출하여 itemImageNames 리스트에 추가
-        List<String> itemImageNames = itemRegistDto.getItemImages().stream()
-                .map(MultipartFile::getOriginalFilename)
-                .collect(Collectors.toList());
-        itemRegistDto.setItemImageNames(itemImageNames);
-
         // db에 물품 정보 insert
         int result = itemMapper.insertItem(itemRegistDto);
+
         // itemId를 반환받아 이미지는 storage의 userId/item/itemId/ 경로에 저장
         int itemId = itemRegistDto.getItemId();
-        System.out.println("###########" + itemId);
         String userId = itemRegistDto.getUserId();
+
+        // 파일 이름을 추출하여 itemImageNames 리스트에 추가
+        List<String> itemImageNames = itemRegistDto.getItemImages().stream()
+                .map(file -> userId + "/item/" + itemId + "/" + file.getOriginalFilename())
+                .toList();
 
         // 시작일이 종료일보다 늦은 경우
         String availableRentalStartDate = itemRegistDto.getAvailableRentalStartDate();
@@ -72,5 +74,37 @@ public class ItemServiceImpl implements ItemService{
         // TODO: 입력받은 지역을 토대로 지역 JSON을 이용해 위/경도 추출
 
         return result;
+    }
+
+    @Override
+    public ItemDetailResponseDto detail(int itemId, String userId) {
+        ItemDetailResponseDto itemDetailResponseDto = itemMapper.selectDetailByItemId(itemId);
+
+        // item image 이름들을 추출해 저장
+        String lessorId = itemDetailResponseDto.getLessorId();
+        List<String> itemNameImages = itemMapper.selectItemNameImagesByItemId(itemId, lessorId);
+        itemDetailResponseDto.setItemImageNames(itemNameImages);
+
+        // 로그인 한 유저가 해당 물품을 wishlist에 담아놨는가에 대한 정보 저장
+        boolean isWishList = itemMapper.isWishListItem(itemId, userId) == 1;
+        itemDetailResponseDto.setWishList(isWishList);
+
+        // 유사 물품 정보 추출
+        // 판매자 활동 점수에 맞게 sql에서 활동 점수로 내림차순 후, 5개만 추출
+        String subSubCategory = itemDetailResponseDto.getSubSubCategory();
+        List<ItemSimpleInfo> similarItems = itemMapper.selectSimilarItems(itemId, subSubCategory);
+        itemDetailResponseDto.setSimilarItems(similarItems);
+
+        // 인근 물품 정보 추출
+        // 판매자 활동 점수에 맞게 sql에서 활동 점수로 내림차순 후, 5개만 추출
+        String district = itemDetailResponseDto.getItemDistrict();
+        String town = itemDetailResponseDto.getItemTown();
+        List<ItemSimpleInfo> peripheralItems = itemMapper.selectPeripheralItems(itemId, district, town);
+        itemDetailResponseDto.setPeripheralItems(peripheralItems);
+
+        // 게시물 조회수 증가
+        itemMapper.updateViewCount(itemId);
+
+        return itemDetailResponseDto;
     }
 }

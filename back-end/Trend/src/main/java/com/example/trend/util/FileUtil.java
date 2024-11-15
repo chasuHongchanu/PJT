@@ -41,9 +41,4 @@ public class FileUtil {
             }
         }
     }
-
-    // 물품, 코스, 프로필 등 이미지의 경로를 반환
-    public List<String> getImageLinks(String id, String userId, String controller) {
-        return null;
-    }
 }
