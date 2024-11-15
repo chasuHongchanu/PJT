@@ -9,18 +9,18 @@ USE
 
 CREATE TABLE `user`
 (
-    `user_id`             varchar(50) NOT NULL PRIMARY KEY,
-    `user_password`       varchar(128) NULL,
-    `user_nickname`       varchar(50) NULL,
-    `user_address`        varchar(100) NULL,
-    `user_email`          varchar(50) NULL,
-    `user_phone_number`   varchar(50) NULL,
-    `user_profile_img`    varchar(100) NULL,
-    `user_introduction`   varchar(300) NULL,
-    `user_activity_score` int NULL,
+    `user_id`           varchar(50) NOT NULL PRIMARY KEY,
+    `user_password`     varchar(128) NULL,
+    `user_nickname`     varchar(50) NULL,
+    `user_address`      varchar(100) NULL,
+    `user_email`        varchar(50) NULL,
+    `user_phone_number` varchar(50) NULL,
+    `user_profile_img`  varchar(100) NULL,
+    `user_introduction` varchar(300) NULL,
+    `user_activity_score` double NULL,
     `user_rating` double NULL,
-    `country`             varchar(30) NULL,
-    `user_created_at`     timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    `country`           varchar(30) NULL,
+    `user_created_at`   timestamp NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `item`
@@ -42,7 +42,8 @@ CREATE TABLE `item`
     `available_rental_start_date` timestamp NULL,
     `available_rental_end_date`   timestamp NULL,
     `item_status`                 varchar(50) NULL COMMENT '공개, 비공개, 대여 중',
-    `item_registed_at`            timestamp NULL DEFAULT CURRENT_TIMESTAMP
+    `item_registed_at`            timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    `view_count`                  int default 0
 );
 
 CREATE TABLE `item_trade`

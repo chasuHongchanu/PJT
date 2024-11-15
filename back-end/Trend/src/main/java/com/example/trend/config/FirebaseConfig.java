@@ -20,14 +20,19 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
-        InputStream serviceAccountkey = getClass().getClassLoader().getResourceAsStream("serviceAccountkey.json");
+        if (FirebaseApp.getApps().isEmpty()) {
+            InputStream serviceAccountkey = getClass().getClassLoader().getResourceAsStream("serviceAccountkey.json");
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccountkey))
-                .setStorageBucket(firebaseUrl)
-                .build();
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccountkey))
+                    .setStorageBucket(firebaseUrl)
+                    .build();
 
-        return FirebaseApp.initializeApp(options);
+            return FirebaseApp.initializeApp(options);
+        }
+        else {
+            return FirebaseApp.getInstance();
+        }
     }
 
     @Bean

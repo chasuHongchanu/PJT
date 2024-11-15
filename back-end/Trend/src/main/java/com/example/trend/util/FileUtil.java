@@ -18,7 +18,7 @@ public class FileUtil {
         this.bucket = bucket;
     }
 
-    public void saveFileIntoStorage(String id, String userId, String controller, List<MultipartFile> files) {
+    public void saveFileIntoStorage(String userId, int id, String controller, List<MultipartFile> files) {
         String blob = userId + "/" +
                     controller + "/" +
                     id + "/";
@@ -40,10 +40,5 @@ public class FileUtil {
                 e.printStackTrace();
             }
         }
-    }
-
-    // 물품, 코스, 프로필 등 이미지의 경로를 반환
-    public List<String> getImageLinks(String id, String userId, String controller) {
-        return null;
     }
 }
