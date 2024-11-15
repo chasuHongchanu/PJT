@@ -20,7 +20,7 @@ public class FirebaseConfig {
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccountkey))
-                .setStorageBucket("trend-74942.firebasestorage.app")
+                .setStorageBucket("trend-ba3ac.firebasestorage.app")
                 .build();
 
         return FirebaseApp.initializeApp(options);
