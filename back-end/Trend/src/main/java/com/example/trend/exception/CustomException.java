@@ -1,5 +1,8 @@
 package com.example.trend.exception;
 
+import lombok.Getter;
+
+@Getter
 public class CustomException extends RuntimeException {
 
     private ErrorCode errorCode;
@@ -11,9 +14,5 @@ public class CustomException extends RuntimeException {
     @Override
     public String toString() {
         return errorCode + " : " + errorCode.getMessage();
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
     }
 }

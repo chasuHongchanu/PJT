@@ -1,13 +1,17 @@
 package com.example.trend.user.controller;
 
-import com.example.trend.user.dto.TokenResponseDto;
+import com.example.trend.exception.CustomException;
+import com.example.trend.exception.ErrorCode;
+import com.example.trend.user.dto.TokenDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
 import com.example.trend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +21,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController("/api/user")
-@RequestMapping("/api/v1")
+@RestController
+@RequestMapping("/api/user")
+@Slf4j
 @Tag(name = "User API", description = "API for user operations")
 public class UserController {
     private final UserService userService;
+    // jwt.refreshToken-validity=604800000
+    @Value("${jwt.refreshToken-validity}")
+    private long refreshTokenValidity;
 
     @Autowired
     public UserController(UserService userService) {
@@ -56,22 +64,48 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "아이디, 비밀번호로 로그인 후 JWT 반환")
-    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) {
-        TokenResponseDto tokenResponseDto = userService.login(userLoginRequestDto);
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) throws Exception {
+        log.info("로그인 메서드 실행");
+        // 사용자 로그인 처리
+        TokenDto tokenDto = userService.login(userLoginRequestDto);
 
-        //refresh token 쿠키 설정
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokenResponseDto.getRefreshToken())
+        // 액세스 토큰을 헤더에 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + tokenDto.getAccessToken());
+
+        // 리프레시 토큰을 HttpOnly 쿠키에 추가
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenDto.getRefreshToken())
                 .httpOnly(true)
-                .secure(true) // HTTPS 환경에서만 전송
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 1주일
-                .sameSite("Strict")
+                .path("/api/user/refresh") // 리프레시 토큰을 사용할 엔드포인트로 경로 제한
+                .maxAge(refreshTokenValidity) // 7일 (초 단위)
+                .secure(true) // HTTPS에서만 전송
+                .sameSite("Strict") // CSRF 방지
                 .build();
+        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        // 토큰들을 헤더에 담아 반환
+        // 성공 응답 반환
         return ResponseEntity.ok()
-                .header("Authorization", "bearer " + tokenResponseDto.getAccessToken())
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body("Login Successful");
+                .headers(headers)
+                .body("Login successful");
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "AccessToken 재발급", description = "refresh token을 이용해 access token 재발급")
+    public ResponseEntity<?> refreshAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) throws Exception {
+        if (refreshToken == null) {
+            throw new CustomException(ErrorCode.MISSING_REFRESH_TOKEN);
+        }
+        // 액세스 토큰 갱신
+        String newAccessToken = userService.refreshAccessToken(refreshToken);
+
+        // 새 액세스 토큰을 헤더에 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + newAccessToken);
+
+        // 성공 응답 반환
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body("Access token refreshed");
+
     }
 }

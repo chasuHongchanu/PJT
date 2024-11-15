@@ -256,4 +256,8 @@ jwt.properties
 serviceAccountkey.json
 firebase.properties
 
+# logger
+logs/
+*.log
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,intellij,maven,java

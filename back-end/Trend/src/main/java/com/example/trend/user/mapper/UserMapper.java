@@ -2,7 +2,7 @@ package com.example.trend.user.mapper;
 
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
-import com.example.trend.user.entity.UserEntity;
+import com.example.trend.user.entity.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -18,9 +18,9 @@ public interface UserMapper {
             "VALUES (#{userId}, #{userPassword}, #{userNickname}, #{userAddress}, #{userEmail}, #{userPhoneNumber})")
     int insertNewUser(UserSignupRequestDto userSignupRequestDto);
 
-    @Select("SELECT * FROM `user` WHERE user_id = #{userId} AND user_password = #{userPassword}")
-    UserEntity findUserByIdAndPassword(UserLoginRequestDto userLoginRequestDto);
+    @Select("SELECT * FROM users WHERE user_id = #{userId}")
+    User selectUserByUserId(String userId);
 
-    @Insert("INSERT INTO `refresh_token` ")
-    int insertRefreshToken(String userId, String refreshToken, Timestamp expireTime);
+    @Select("SELECT * FROM `user` WHERE user_id = #{userId} AND user_password = #{userPassword}")
+    User selectUserByIdAndPassword(UserLoginRequestDto userLoginRequestDto);
 }

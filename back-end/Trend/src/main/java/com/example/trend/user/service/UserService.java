@@ -1,15 +1,16 @@
 package com.example.trend.user.service;
 
-import com.example.trend.user.dto.TokenResponseDto;
+import com.example.trend.user.dto.TokenDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
-import jakarta.validation.Valid;
 
 public interface UserService {
     void signUp(UserSignupRequestDto userSignupRequestDto);
 
     boolean duplicateCheck(String newId);
 
-    TokenResponseDto login(@Valid UserLoginRequestDto userLoginRequestDto);
+    TokenDto login(UserLoginRequestDto userLoginRequestDto) throws Exception;
+
+    String refreshAccessToken(String refreshToken) throws Exception;
 
 }

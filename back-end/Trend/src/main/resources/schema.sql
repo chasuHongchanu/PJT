@@ -9,18 +9,18 @@ USE
 
 CREATE TABLE `user`
 (
-    `user_id`             varchar(50)  NOT NULL PRIMARY KEY,
+    `user_id`             varchar(50) NOT NULL PRIMARY KEY,
     `user_password`       varchar(128) NULL,
-    `user_nickname`       varchar(50)  NULL,
+    `user_nickname`       varchar(50) NULL,
     `user_address`        varchar(100) NULL,
-    `user_email`          varchar(50)  NULL,
-    `user_phone_number`   varchar(50)  NULL,
+    `user_email`          varchar(50) NULL,
+    `user_phone_number`   varchar(50) NULL,
     `user_profile_img`    varchar(100) NULL,
     `user_introduction`   varchar(300) NULL,
-    `user_activity_score` int          NULL,
-    `user_rating`         double       NULL,
-    `country`             varchar(30)  NULL,
-    `user_created_at`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP
+    `user_activity_score` int NULL,
+    `user_rating` double NULL,
+    `country`             varchar(30) NULL,
+    `user_created_at`     timestamp NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `item`
@@ -31,18 +31,18 @@ CREATE TABLE `item`
     `main_category`               varchar(30) NULL,
     `sub_category`                varchar(30) NULL,
     `sub_subcategory`             varchar(30) NULL,
-    `item_price`                  int         NULL,
+    `item_price`                  int NULL,
     `country`                     varchar(30) NULL,
     `province`                    varchar(30) NULL,
     `district`                    varchar(30) NULL,
     `town`                        varchar(30) NULL,
-    `item_latitude`               double      NULL,
-    `item_longitude`              double      NULL,
-    `item_content`                text        NULL,
-    `available_rental_start_date` timestamp   NULL,
-    `available_rental_end_date`   timestamp   NULL,
+    `item_latitude` double NULL,
+    `item_longitude` double NULL,
+    `item_content`                text NULL,
+    `available_rental_start_date` timestamp NULL,
+    `available_rental_end_date`   timestamp NULL,
     `item_status`                 varchar(50) NULL COMMENT '공개, 비공개, 대여 중',
-    `item_registed_at`            timestamp   NULL DEFAULT CURRENT_TIMESTAMP
+    `item_registed_at`            timestamp NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `item_trade`
@@ -51,15 +51,15 @@ CREATE TABLE `item_trade`
     `item_id`                int         NOT NULL,
     `lessor_id`              varchar(50) NOT NULL,
     `lessee_id`              varchar(50) NOT NULL,
-    `trade_price`            int         NULL,
-    `trade_deposit`          int         NULL,
-    `payment_account_number` int         NULL,
-    `rental_start_date`      timestamp   NULL,
-    `rental_end_date`        timestamp   NULL,
+    `trade_price`            int NULL,
+    `trade_deposit`          int NULL,
+    `payment_account_number` int NULL,
+    `rental_start_date`      timestamp NULL,
+    `rental_end_date`        timestamp NULL,
     `trade_state`            varchar(10) NULL COMMENT '"대여 전", "대여 중", "반납 완료"',
     `payment_status`         varchar(10) NULL COMMENT '"입금 전", "입금 완료"',
-    `payment_created_at`     timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
-    `status_updated_at`      timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `payment_created_at`     timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    `status_updated_at`      timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `wishlist`
@@ -71,19 +71,19 @@ CREATE TABLE `wishlist`
 
 CREATE TABLE `trade_review`
 (
-    `trade_review_id`      int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `trade_id`             int          NOT NULL,
-    `author_user_id`       varchar(50)  NOT NULL,
-    `lessor_id`            varchar(50)  NOT NULL,
-    `lessee_id`            varchar(50)  NOT NULL,
+    `trade_review_id`      int         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `trade_id`             int         NOT NULL,
+    `author_user_id`       varchar(50) NOT NULL,
+    `lessor_id`            varchar(50) NOT NULL,
+    `lessee_id`            varchar(50) NOT NULL,
     `trade_review_content` varchar(500) NULL,
-    `trade_review_rating`  double       NULL,
-    `review_created_at`    timestamp    NULL DEFAULT CURRENT_TIMESTAMP
+    `trade_review_rating` double NULL,
+    `review_created_at`    timestamp NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `spot`
 (
-    `spot_id`   int         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `spot_id`   int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `spot_name` varchar(50) NULL
 );
 
@@ -95,20 +95,20 @@ CREATE TABLE `course`
     `province`          varchar(30) NULL,
     `district`          varchar(30) NULL,
     `town`              varchar(30) NULL,
-    `view_count`        int         NULL,
-    `course_created_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
-    `course_updated_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `view_count`        int NULL,
+    `course_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    `course_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `course_comment`
 (
-    `course_comment_id`         int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `course_id`                 int          NOT NULL,
-    `comment_writer_id`         varchar(50)  NOT NULL,
-    `parents_comment_id`        int          NULL,
+    `course_comment_id`         int         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `course_id`                 int         NOT NULL,
+    `comment_writer_id`         varchar(50) NOT NULL,
+    `parents_comment_id`        int NULL,
     `course_comment_content`    varchar(500) NULL,
-    `course_comment_created_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP,
-    `course_comment_updated_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `course_comment_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    `course_comment_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `course_like`
@@ -120,11 +120,11 @@ CREATE TABLE `course_like`
 
 CREATE TABLE `payment_status_history`
 (
-    `status_history_id` int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `status`            varchar(50)  NULL COMMENT '결제대기, 결제완료, 환불대기, 환불완료',
-    `changed_at`        timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 일자',
+    `status_history_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `status`            varchar(50) NULL COMMENT '결제대기, 결제완료, 환불대기, 환불완료',
+    `changed_at`        timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 일자',
     `remark`            varchar(100) NULL COMMENT '상태 변경 설명 (예: 환불 사유)',
-    `trade_id`          int          NOT NULL
+    `trade_id`          int NOT NULL
 );
 
 CREATE TABLE `course_spot`
@@ -140,21 +140,21 @@ CREATE TABLE `article`
     `article_id`         int         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `writer_id`          varchar(50) NOT NULL,
     `article_title`      varchar(50) NULL,
-    `article_content`    text        NULL,
-    `view_count`         int         NULL,
-    `article_created_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
-    `article_updated_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `article_content`    text NULL,
+    `view_count`         int NULL,
+    `article_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    `article_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `article_comment`
 (
-    `article_comment_id`         int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `article_id`                 int          NOT NULL,
-    `comment_writer_id`          varchar(50)  NOT NULL,
-    `parent_comment_id`          int          NULL,
+    `article_comment_id`         int         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `article_id`                 int         NOT NULL,
+    `comment_writer_id`          varchar(50) NOT NULL,
+    `parent_comment_id`          int NULL,
     `article_comment_content`    varchar(500) NULL,
-    `article_comment_created_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP,
-    `article_comment_updated_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `article_comment_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    `article_comment_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `article_like`
@@ -170,53 +170,53 @@ CREATE TABLE `chat_room`
     `item_id`         int         NOT NULL,
     `lessor_id`       varchar(50) NOT NULL,
     `lessee_id`       varchar(50) NOT NULL,
-    `room_created_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP
+    `room_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `chat_message`
 (
-    `message_id`      int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `room_id`         int          NOT NULL,
-    `sender_id`       varchar(50)  NOT NULL,
-    `message_content` text         NULL,
+    `message_id`      int         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `room_id`         int         NOT NULL,
+    `sender_id`       varchar(50) NOT NULL,
+    `message_content` text NULL,
     `message_img`     varchar(100) NULL,
-    `chat_created_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP
+    `chat_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `refresh_token`
 (
-    `token_id`        bigint       NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `user_id`         varchar(50)  NOT NULL,
-    `refresh_token`   varchar(255) NULL,
-    `experation_date` timestamp    NULL,
-    `created_at`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP
+    `token_id`      bigint      NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `user_id`       varchar(50) NOT NULL,
+    `refresh_token` varchar(255) NULL,
+    `expires_at`    timestamp NULL,
+    `created_at`    timestamp NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `item_image`
 (
-    `item_img_id` int         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `item_id`     int         NOT NULL,
+    `item_img_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `item_id`     int NOT NULL,
     `item_img`    varchar(50) NULL
 );
 
 CREATE TABLE `course_image`
 (
-    `course_img_id` int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `course_id`     int          NOT NULL,
+    `course_img_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `course_id`     int NOT NULL,
     `course_img`    varchar(100) NULL
 );
 
 CREATE TABLE `article_image`
 (
-    `article_img_id` int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `article_id`     int          NOT NULL,
+    `article_img_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `article_id`     int NOT NULL,
     `article_image`  varchar(100) NULL
 );
 
 CREATE TABLE `item_condition_image`
 (
-    `condition_image_id` int          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `trade_id`           int          NOT NULL,
+    `condition_image_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `trade_id`           int NOT NULL,
     `condition_img`      varchar(100) NULL
 );
 -- ----------------------------------- SET FOREIGN KEY -----------------------------------
@@ -486,7 +486,8 @@ ALTER TABLE `item_condition_image`
 
 
 ----------------------------------- INSERT DUMMY DATAS INTO TABLES ---------------------------------
-use trend;
+use
+trend;
 
 -- Step 1: Insert data into `user` table
 INSERT INTO `user` (`user_id`, `user_password`, `user_nickname`, `user_address`, `user_email`, `user_phone_number`,
