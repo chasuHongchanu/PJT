@@ -15,7 +15,7 @@ import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
-    @Value("firebase.storage-url")
+    @Value("${firebase.storage-url}")
     private String firebaseUrl;
 
     @Bean

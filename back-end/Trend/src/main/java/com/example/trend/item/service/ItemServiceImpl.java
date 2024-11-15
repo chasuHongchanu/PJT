@@ -3,9 +3,8 @@ package com.example.trend.item.service;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.item.dto.ItemRegistRequestDto;
-import com.example.trend.item.repository.ItemRepository;
-import com.example.trend.item.repository.ItemRepositoryImpl;
-import com.example.trend.utils.FileUtil;
+import com.example.trend.item.mapper.ItemMapper;
+import com.example.trend.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,18 +15,18 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 public class ItemServiceImpl implements ItemService{
-    private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
     private final FileUtil fileUtil;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, FileUtil fileUtil) {
-        this.itemRepository = itemRepository;
+    public ItemServiceImpl(ItemMapper itemMapper, FileUtil fileUtil) {
+        this.itemMapper = itemMapper;
         this.fileUtil = fileUtil;
     }
 
     @Override
     public int regist(ItemRegistRequestDto itemRegistDto) {
-        int result = itemRepository.regist(itemRegistDto);
+        int result = itemMapper.insertItem(itemRegistDto);
         // itemId를 반환받아 이미지는 storage의 item/user/itemId/ 경로에 저장
         String itemId = itemRegistDto.getItemId();
         String userId = itemRegistDto.getUserId();
