@@ -1,12 +1,17 @@
 package com.example.trend.item.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
 public class ItemRegistRequestDto {
-    private String itemId;
+    private Integer itemId;
 
     @NotBlank(message="이름은 필수 값입니다.")
     private String itemName;
@@ -17,10 +22,23 @@ public class ItemRegistRequestDto {
 
     private int itemPrice;
 
-    private String itemCategory;
+    private String itemMainCategory;
+
+    private String itemSubCategory;
+
+    private String itemSubsubCategory;
+
+    @NotBlank(message="국가는 필수 값입니다.")
+    private String itemCountry;
 
     @NotBlank(message="지역은 필수 값입니다.")
-    private String itemAddress;
+    private String itemProvince;
+
+    @NotBlank(message="도시는 필수 값입니다.")
+    private String itemDistrict;
+
+    @NotBlank(message="마을은 필수 값입니다.")
+    private String itemTown;
 
     private String itemContent;
 
@@ -30,94 +48,7 @@ public class ItemRegistRequestDto {
     @NotBlank(message="종료 날짜는 필수 값입니다.")
     private String availableRentalEndDate;
 
-    public ItemRegistRequestDto(String itemName, String userId, List<MultipartFile> itemImages, int itemPrice, String itemCategory, String itemAddress, String itemContent, String availableRentalStartDate, String availableRentalEndDate) {
-        this.itemName = itemName;
-        this.userId = userId;
-        this.itemImages = itemImages;
-        this.itemPrice = itemPrice;
-        this.itemCategory = itemCategory;
-        this.itemAddress = itemAddress;
-        this.itemContent = itemContent;
-        this.availableRentalStartDate = availableRentalStartDate;
-        this.availableRentalEndDate = availableRentalEndDate;
-    }
-    public String getItemId() {
-        return itemId;
-    }
+    private List<String> itemImageNames;
 
-    public void setItemId(String itemId) {
-        this.itemId = itemId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getItemName() {
-        return itemName;
-    }
-
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
-    }
-
-    public List<MultipartFile> getItemImages() {
-        return itemImages;
-    }
-
-    public void setItemImages(List<MultipartFile> itemImages) {
-        this.itemImages = itemImages;
-    }
-
-    public int getItemPrice() {
-        return itemPrice;
-    }
-
-    public void setItemPrice(int itemPrice) {
-        this.itemPrice = itemPrice;
-    }
-
-    public String getItemCategory() {
-        return itemCategory;
-    }
-
-    public void setItemCategory(String itemCategory) {
-        this.itemCategory = itemCategory;
-    }
-
-    public String getItemAddress() {
-        return itemAddress;
-    }
-
-    public void setItemAddress(String itemAddress) {
-        this.itemAddress = itemAddress;
-    }
-
-    public String getItemContent() {
-        return itemContent;
-    }
-
-    public void setItemContent(String itemContent) {
-        this.itemContent = itemContent;
-    }
-
-    public String getAvailableRentalStartDate() {
-        return availableRentalStartDate;
-    }
-
-    public void setAvailableRentalStartDate(String availableRentalStartDate) {
-        this.availableRentalStartDate = availableRentalStartDate;
-    }
-
-    public String getAvailableRentalEndDate() {
-        return availableRentalEndDate;
-    }
-
-    public void setAvailableRentalEndDate(String availableRentalEndDate) {
-        this.availableRentalEndDate = availableRentalEndDate;
-    }
+    private String itemStatus;
 }
