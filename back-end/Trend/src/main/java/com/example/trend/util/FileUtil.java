@@ -1,4 +1,4 @@
-package com.example.trend.utils;
+package com.example.trend.util;
 
 import com.google.cloud.storage.Bucket;
 import org.springframework.beans.factory.annotation.Autowired;
