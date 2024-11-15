@@ -32,6 +32,7 @@ CREATE TABLE `item`
     `sub_category`                varchar(30) NULL,
     `sub_subcategory`             varchar(30) NULL,
     `item_price`                  int         NULL,
+    `country`                     varchar(30) NULL,
     `province`                    varchar(30) NULL,
     `district`                    varchar(30) NULL,
     `town`                        varchar(30) NULL,
@@ -485,89 +486,92 @@ ALTER TABLE `item_condition_image`
 
 
 ----------------------------------- INSERT DUMMY DATAS INTO TABLES ---------------------------------
+use trend;
+
 -- Step 1: Insert data into `user` table
-INSERT INTO `user` (`user_id`, `user_password`, `user_nickname`, `user_address`, `user_email`, `user_phone_number`, `user_profile_img`, `user_introduction`, `user_activity_score`, `user_rating`, `country`)
-VALUES
-    ('user1', 'password1', 'nickname1', '서울시 강서구 등촌동', 'user1@example.com', '010-1111-1111', 'profile1.jpg', 'Introduction 1', 10, 4.5, '대한민국'),
-    ('user2', 'password2', 'nickname2', '서울시 강남구 역삼동', 'user2@example.com', '010-2222-2222', 'profile2.jpg', 'Introduction 2', 20, 4.0, '대한민국'),
-    ('user3', 'password3', 'nickname3', '인천시 연수구 송도동', 'user3@example.com', '010-3333-3333', 'profile3.jpg', 'Introduction 3', 15, 3.8, '미쿡');
+INSERT INTO `user` (`user_id`, `user_password`, `user_nickname`, `user_address`, `user_email`, `user_phone_number`,
+                    `user_profile_img`, `user_introduction`, `user_activity_score`, `user_rating`, `country`)
+VALUES ('user1', 'password1', 'nickname1', '서울시 강서구 등촌동', 'user1@example.com', '010-1111-1111', 'profile1.jpg',
+        'Introduction 1', 10, 4.5, '대한민국'),
+       ('user2', 'password2', 'nickname2', '서울시 강남구 역삼동', 'user2@example.com', '010-2222-2222', 'profile2.jpg',
+        'Introduction 2', 20, 4.0, '대한민국'),
+       ('user3', 'password3', 'nickname3', '인천시 연수구 송도동', 'user3@example.com', '010-3333-3333', 'profile3.jpg',
+        'Introduction 3', 15, 3.8, '미쿡');
 
 -- Step 2: Insert data into `item` table
-INSERT INTO `item` (`user_id`, `item_name`, `main_category`, `sub_category`, `sub_subcategory`, `item_price`, `province`, `district`, `town`, `item_latitude`, `item_longitude`, `item_content`, `available_rental_start_date`, `available_rental_end_date`, `item_status`)
-VALUES
-    ('user1', 'item1', 'Electronics', 'Camera', 'Digital', 10000, 'Seoul', 'Gangnam', 'Apgujeong', 37.5272, 127.0276, 'Item 1 description', '2023-01-01', '2023-01-10', '공개'),
-    ('user2', 'item2', 'Sports', 'Bike', 'Mountain', 15000, 'Incheon', 'Bupyeong', 'Bupyeong Market', 37.5074, 126.7218, 'Item 2 description', '2023-02-01', '2023-02-10', '공개'),
-    ('user3', 'item3', 'Fashion', 'Clothes', 'Jacket', 8000, 'Busan', 'Haeundae', 'Haeundae Beach', 35.1587, 129.1604, 'Item 3 description', '2023-03-01', '2023-03-10', '대여 중');
+INSERT INTO `item` (`user_id`, `item_name`, `main_category`, `sub_category`, `sub_subcategory`, `item_price`, `country`,
+                    `province`, `district`, `town`, `item_latitude`, `item_longitude`, `item_content`,
+                    `available_rental_start_date`, `available_rental_end_date`, `item_status`)
+VALUES ('user1', 'item1', 'Electronics', 'Camera', 'Digital', 10000, '대한민국', 'Seoul', 'Gangnam', 'Apgujeong', 37.5272,
+        127.0276,
+        'Item 1 description', '2023-01-01', '2023-01-10', '공개'),
+       ('user2', 'item2', 'Sports', 'Bike', 'Mountain', 15000, '대한민국', 'Incheon', 'Bupyeong', 'Bupyeong Market',
+        37.5074,
+        126.7218, 'Item 2 description', '2023-02-01', '2023-02-10', '공개'),
+       ('user3', 'item3', 'Fashion', 'Clothes', 'Jacket', 8000, '대한민국', 'Busan', 'Haeundae', 'Haeundae Beach', 35.1587,
+        129.1604, 'Item 3 description', '2023-03-01', '2023-03-10', '대여 중');
 
 -- Step 3: Insert data into `item_trade` table
-INSERT INTO `item_trade` (`item_id`, `lessor_id`, `lessee_id`, `trade_price`, `trade_deposit`, `payment_account_number`, `rental_start_date`, `rental_end_date`, `trade_state`, `payment_status`)
-VALUES
-    (1, 'user1', 'user2', 12000, 5000, 123456, '2023-01-02', '2023-01-08', '대여 중', '입금 완료'),
-    (2, 'user2', 'user3', 13000, 6000, 234567, '2023-02-02', '2023-02-08', '대여 전', '입금 전'),
-    (3, 'user3', 'user1', 9000, 3000, 345678, '2023-03-02', '2023-03-08', '반납 완료', '입금 완료');
+INSERT INTO `item_trade` (`item_id`, `lessor_id`, `lessee_id`, `trade_price`, `trade_deposit`, `payment_account_number`,
+                          `rental_start_date`, `rental_end_date`, `trade_state`, `payment_status`)
+VALUES (1, 'user1', 'user2', 12000, 5000, 123456, '2023-01-02', '2023-01-08', '대여 중', '입금 완료'),
+       (2, 'user2', 'user3', 13000, 6000, 234567, '2023-02-02', '2023-02-08', '대여 전', '입금 전'),
+       (3, 'user3', 'user1', 9000, 3000, 345678, '2023-03-02', '2023-03-08', '반납 완료', '입금 완료');
 
 -- Step 4: Insert data into `wishlist` table
 INSERT INTO `wishlist` (`user_id`, `item_id`)
-VALUES
-    ('user1', 2),
-    ('user2', 3),
-    ('user3', 1);
+VALUES ('user1', 2),
+       ('user2', 3),
+       ('user3', 1);
 
 -- Step 5: Insert data into `trade_review` table
-INSERT INTO `trade_review` (`trade_id`, `author_user_id`, `lessor_id`, `lessee_id`, `trade_review_content`, `trade_review_rating`)
-VALUES
-    (1, 'user2', 'user1', 'user2', '좋은 거래였습니다.', 4.5),
-    (2, 'user3', 'user2', 'user3', '만족스러운 거래였습니다.', 4.0),
-    (3, 'user1', 'user3', 'user1', '최상의 경험.', 5.0);
+INSERT INTO `trade_review` (`trade_id`, `author_user_id`, `lessor_id`, `lessee_id`, `trade_review_content`,
+                            `trade_review_rating`)
+VALUES (1, 'user2', 'user1', 'user2', '좋은 거래였습니다.', 4.5),
+       (2, 'user3', 'user2', 'user3', '만족스러운 거래였습니다.', 4.0),
+       (3, 'user1', 'user3', 'user1', '최상의 경험.', 5.0);
 
 -- Step 6: Insert data into `spot` table
 INSERT INTO `spot` (`spot_name`)
-VALUES
-    ('Namsan Tower'),
-    ('Han River Park'),
-    ('Gyeongbok Palace');
+VALUES ('Namsan Tower'),
+       ('Han River Park'),
+       ('Gyeongbok Palace');
 
 -- Step 7: Insert data into `course` table
 INSERT INTO `course` (`course_writer_id`, `course_title`, `province`, `district`, `town`, `view_count`)
-VALUES
-    ('user1', 'Seoul Tour', 'Seoul', 'Jongno', 'Gwanghwamun', 100),
-    ('user2', 'Busan Adventure', 'Busan', 'Haeundae', 'Haeundae Beach', 200),
-    ('user3', 'Incheon Day Trip', 'Incheon', 'Songdo', 'Central Park', 150);
+VALUES ('user1', 'Seoul Tour', 'Seoul', 'Jongno', 'Gwanghwamun', 100),
+       ('user2', 'Busan Adventure', 'Busan', 'Haeundae', 'Haeundae Beach', 200),
+       ('user3', 'Incheon Day Trip', 'Incheon', 'Songdo', 'Central Park', 150);
 
 -- Step 8: Insert data into `course_comment` table
 INSERT INTO `course_comment` (`course_id`, `comment_writer_id`, `course_comment_content`)
-VALUES
-    (1, 'user2', 'Great tour!'),
-    (2, 'user3', 'Loved it!'),
-    (3, 'user1', 'Had a fantastic time.');
+VALUES (1, 'user2', 'Great tour!'),
+       (2, 'user3', 'Loved it!'),
+       (3, 'user1', 'Had a fantastic time.');
 
 -- Step 9: Insert data into `course_like` table
 INSERT INTO `course_like` (`course_id`, `user_id`)
-VALUES
-    (1, 'user3'),
-    (2, 'user1'),
-    (3, 'user2');
+VALUES (1, 'user3'),
+       (2, 'user1'),
+       (3, 'user2');
 
 -- Step 10: Insert data into `payment_status_history` table
 INSERT INTO `payment_status_history` (`status`, `remark`, `trade_id`)
-VALUES
-    ('결제완료', 'Paid in full', 1),
-    ('결제대기', 'Awaiting payment', 2),
-    ('환불대기', 'Refund requested', 3);
+VALUES ('결제완료', 'Paid in full', 1),
+       ('결제대기', 'Awaiting payment', 2),
+       ('환불대기', 'Refund requested', 3);
 
 -- Step 11: Insert data into `article` table
 INSERT INTO `article` (`writer_id`, `article_title`, `article_content`, `view_count`)
-VALUES
-    ('user1', 'My First Post', 'Content of the first post', 10),
-    ('user2', 'Seoul Travel Tips', 'Content of Seoul travel tips', 20),
-    ('user3', 'Best Cafes in Busan', 'Content about cafes in Busan', 15);
+VALUES ('user1', 'My First Post', 'Content of the first post', 10),
+       ('user2', 'Seoul Travel Tips', 'Content of Seoul travel tips', 20),
+       ('user3', 'Best Cafes in Busan', 'Content about cafes in Busan', 15);
 
 -- Step 12: Insert data into `chat_room` table
 INSERT INTO `chat_room` (`item_id`, `lessor_id`, `lessee_id`)
-VALUES
-    (1, 'user1', 'user2'),
-    (2, 'user2', 'user3'),
-    (3, 'user3', 'user1');
+VALUES (1, 'user1', 'user2'),
+       (2, 'user2', 'user3'),
+       (3, 'user3', 'user1');
 
 -- ----------------------------------- CHECK DATAS IN TABLE -----------------------------------
 SELECT *
