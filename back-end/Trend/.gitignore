@@ -247,7 +247,7 @@ $RECYCLE.BIN/
 *.msix
 *.msm
 *.msp
-
+secret.properties
 # Windows shortcuts
 *.lnk
 # jwt key
@@ -255,5 +255,9 @@ jwt.properties
 # Firebase Service Account key
 serviceAccountkey.json
 firebase.properties
+
+# logger
+logs/
+*.log
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,intellij,maven,java
