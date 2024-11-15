@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class ItemRegistRequestDto {
-    private int itemId;
+    private Integer itemId;
 
     @NotBlank(message="이름은 필수 값입니다.")
     private String itemName;
@@ -26,7 +26,7 @@ public class ItemRegistRequestDto {
 
     private String itemSubCategory;
 
-    private String itemSubSubCategory;
+    private String itemSubsubCategory;
 
     @NotBlank(message="국가는 필수 값입니다.")
     private String itemCountry;
@@ -49,4 +49,6 @@ public class ItemRegistRequestDto {
     private String availableRentalEndDate;
 
     private List<String> itemImageNames;
+
+    private String itemStatus;
 }
