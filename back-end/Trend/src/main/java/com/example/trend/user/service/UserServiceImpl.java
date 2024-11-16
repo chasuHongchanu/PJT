@@ -40,13 +40,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void signUp(UserSignupRequestDto userSignupRequestDto) {
+    public void signUp(UserSignupRequestDto userSignupRequestDto) throws Exception {
         // ID 중복 확인
         boolean isDuplicated = duplicateCheck(userSignupRequestDto.getUserId());
         if (isDuplicated) {
             // 에러 반환
             throw new CustomException(ErrorCode.USER_ALREADY_EXISTS);
         }
+        String hashedPassword = hashPassword(userSignupRequestDto.getUserPassword());
+
+        userSignupRequestDto.setUserPassword(hashedPassword);
 
         // 정보 저장
         int cnt = userMapper.insertNewUser(userSignupRequestDto);
