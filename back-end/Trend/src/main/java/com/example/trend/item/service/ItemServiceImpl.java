@@ -15,8 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class ItemServiceImpl implements ItemService{
@@ -35,13 +33,13 @@ public class ItemServiceImpl implements ItemService{
         // db에 물품 정보 insert
         int result = itemMapper.insertItem(itemRegistDto);
 
-        // itemId를 반환받아 이미지는 storage의 userId/item/itemId/ 경로에 저장
+        // itemId를 반환받아 이미지는 storage의 items/itemId/ 경로에 저장
         int itemId = itemRegistDto.getItemId();
         String userId = itemRegistDto.getUserId();
 
         // 파일 이름을 추출하여 itemImageNames 리스트에 추가
         List<String> itemImageNames = itemRegistDto.getItemImages().stream()
-                .map(file -> userId + "/item/" + itemId + "/" + file.getOriginalFilename())
+                .map(file -> "items/" + itemId + "/" + file.getOriginalFilename())
                 .toList();
 
         // 시작일이 종료일보다 늦은 경우
@@ -60,7 +58,7 @@ public class ItemServiceImpl implements ItemService{
         // 이미지가 정상적으로 1개 이상 들어온 경우 storage에 이미지 저장
         List<MultipartFile> files = itemRegistDto.getItemImages();
         if(!(files.size() == 1 && files.get(0).isEmpty())) {
-            fileUtil.saveFileIntoStorage(userId, itemId,"item", files);
+            fileUtil.saveFilesIntoStorage("items", itemId, files);
         }
 
         // db에 물품 이미지 이름 정보 insert

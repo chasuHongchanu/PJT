@@ -2,21 +2,20 @@ package com.example.trend.user.service;
 
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
-import com.example.trend.user.dto.TokenDto;
-import com.example.trend.user.dto.UserInfoResponseDto;
-import com.example.trend.user.dto.UserLoginRequestDto;
-import com.example.trend.user.dto.UserSignupRequestDto;
+import com.example.trend.user.dto.*;
 import com.example.trend.user.entity.RefreshToken;
 import com.example.trend.user.entity.User;
 import com.example.trend.user.mapper.RefreshTokenMapper;
 import com.example.trend.user.mapper.UserMapper;
 import com.example.trend.user.jwt.JwtUtil;
+import com.example.trend.util.FileUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -29,18 +28,21 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
     private final RefreshTokenMapper refreshTokenMapper;
+    private final FileUtil fileUtil;
 
     @Value("${jwt.refreshToken-validity}")
     private long MAX_REFRESH_TOKEN_AGE_MS;
 
     @Autowired
-    public UserServiceImpl(UserMapper userMapper, JwtUtil jwtUtil, RefreshTokenMapper refreshTokenMapper) {
+    public UserServiceImpl(UserMapper userMapper, JwtUtil jwtUtil, RefreshTokenMapper refreshTokenMapper, FileUtil fileUtil) {
         this.userMapper = userMapper;
         this.jwtUtil = jwtUtil;
         this.refreshTokenMapper = refreshTokenMapper;
+        this.fileUtil = fileUtil;
     }
 
     @Override
+    @Transactional
     public void signUp(UserSignupRequestDto userSignupRequestDto) throws Exception {
         // ID 중복 확인
         boolean isDuplicated = duplicateCheck(userSignupRequestDto.getUserId());
@@ -70,7 +72,8 @@ public class UserServiceImpl implements UserService {
 
     // 사용자 로그인 처리: 유저 정보 확인 후 토큰 반환
     @Override
-    public TokenDto login(UserLoginRequestDto userLoginRequestDto) throws Exception {
+    @Transactional
+    public TokenDto login(UserLoginRequestDto userLoginRequestDto) {
         // 비밀번호 해싱
         String hashedPassword = hashPassword(userLoginRequestDto.getUserPassword());
         log.info("hashedPassword: {}", hashedPassword);
@@ -112,7 +115,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // 비밀번호 해싱 함수
-    private String hashPassword(String password) throws Exception {
+    private String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
             byte[] hashedBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
@@ -123,13 +126,14 @@ public class UserServiceImpl implements UserService {
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new Exception("Error hashing password", e);
+            throw new CustomException(ErrorCode.FAIL_TO_HASING_PASSWORD);
         }
     }
 
     // refresh token을 이용해 새 access token 생성
     @Override
-    public String refreshAccessToken(String refreshToken) throws Exception {
+    @Transactional
+    public String refreshAccessToken(String refreshToken) {
         // 리프레시 토큰 검증
         Claims claims = jwtUtil.validateToken(refreshToken);
         String userId = claims.getSubject();
@@ -176,5 +180,33 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         return userInfoResponseDto;
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(UserUpdateRequestDto userUpdateRequestDto){
+        // 비밀번호 해싱
+        String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
+        userUpdateRequestDto.setUserPassword(hashedPassword);
+
+        //image file의 이름을 경로를 추가한 이름으로 변경
+        String userId = userUpdateRequestDto.getUserId();
+        log.info("userId: {}", userId);
+        String imgUrl =
+                "users/"
+                + userId +"/"
+                + userUpdateRequestDto.getUserProfileImg().getOriginalFilename();
+        log.info("imgUrl: {}", imgUrl);
+
+        // storage에 이미지 저장
+        fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
+
+        // DB에 유저 정보와 이미지 이름을 저장
+        try {
+            userMapper.updateUser(userUpdateRequestDto, imgUrl);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CustomException(ErrorCode.FAIL_TO_UPDATE_USER);
+        }
     }
 }

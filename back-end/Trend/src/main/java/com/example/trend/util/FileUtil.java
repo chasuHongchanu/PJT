@@ -18,18 +18,24 @@ public class FileUtil {
         this.bucket = bucket;
     }
 
-    public void saveFileIntoStorage(String userId, int id, String controller, List<MultipartFile> files) {
-        String blob = userId + "/" +
-                    controller + "/" +
-                    id + "/";
+    /**
+     * 여러 개의 파일을 저장하는 경우
+     *
+     * @param controller
+     * @param id         <= 저장할 컨트롤러 항목의 id
+     * @param files
+     */
+    public void saveFilesIntoStorage(String controller, int id, List<MultipartFile> files) {
+        String blob = controller + "/" +
+                id + "/";
 
-        for(MultipartFile file: files) {
+        for (MultipartFile file : files) {
             try {
                 // 파일 버켓에 저장
                 String filePath = blob + file.getOriginalFilename();
 
                 // 이미 존재하면 파일 삭제
-                if(bucket.get(filePath) != null) {
+                if (bucket.get(filePath) != null) {
                     bucket.get(filePath).delete();
                 }
 
@@ -39,6 +45,37 @@ public class FileUtil {
                 // custom exception 만들어야 할듯
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * 하나의 파일을 저장하는 경우
+     * @param controller
+     * @param id <= 저장할 컨트롤러 항목의 id
+     * @param file
+     */
+    public void saveFileIntoStorage(String controller, int id, MultipartFile file) {
+        saveFileIntoStorage(controller, String.valueOf(id), file);
+    }
+
+    public void saveFileIntoStorage(String controller, String id, MultipartFile file) {
+        String blob = controller + "/" +
+                id + "/";
+
+        try {
+            // 파일 버켓에 저장
+            String filePath = blob + file.getOriginalFilename();
+
+            // 이미 존재하면 파일 삭제
+            if (bucket.get(blob) != null) {
+                bucket.get(blob).delete();
+            }
+
+            bucket.create(filePath, file.getBytes(), file.getContentType());
+
+        } catch (IOException e) {
+            // custom exception 만들어야 할듯
+            e.printStackTrace();
         }
     }
 }
