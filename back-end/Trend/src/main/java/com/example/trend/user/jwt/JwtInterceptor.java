@@ -54,7 +54,6 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         } catch (JwtException e) {
             // 액세스 토큰이 유효하지 않거나 만료됨
-            log.error("토큰이 유효하지 않거나 만료되었습니다.");
             throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
     }

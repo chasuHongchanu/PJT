@@ -1,6 +1,6 @@
 package com.example.trend.exception;
 
-import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,10 +11,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<?> customExceptionHandler(CustomException e) {
+        log.error(e.toString());
         return ResponseEntity.status(e.getErrorCode().getStatus()).body(e.toString());
     }
 
@@ -27,15 +29,17 @@ public class GlobalExceptionHandler {
                     String errorCode = "Error_" + fieldName;
                     String errorMessage = error.getDefaultMessage();
                     errors.put(errorCode, errorMessage);
-
+                    log.error(errorMessage);
                 }
         );
+
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> exceptionHandler(Exception e) {
         e.printStackTrace();
+        log.error(e.toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 }

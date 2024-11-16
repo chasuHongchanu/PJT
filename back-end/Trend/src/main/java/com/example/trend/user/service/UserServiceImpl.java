@@ -3,6 +3,7 @@ package com.example.trend.user.service;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.user.dto.TokenDto;
+import com.example.trend.user.dto.UserInfoResponseDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
 import com.example.trend.user.entity.RefreshToken;
@@ -79,8 +80,7 @@ public class UserServiceImpl implements UserService {
         // 유저 확인
         User user = userMapper.selectUserByIdAndPassword(userLoginRequestDto);
         if (user == null) {
-            log.error("일치하는 유저 정보 없음");
-            throw new CustomException(ErrorCode.NOT_FOUND_MATCHED_USER);
+            throw new CustomException(ErrorCode.NOT_FOUND_LOGIN_USER);
         }
 
         // 토큰 생성
@@ -130,35 +130,51 @@ public class UserServiceImpl implements UserService {
     // refresh token을 이용해 새 access token 생성
     @Override
     public String refreshAccessToken(String refreshToken) throws Exception {
-        try {
-            // 리프레시 토큰 검증
-            Claims claims = jwtUtil.validateToken(refreshToken);
-            String userId = claims.getSubject();
+        // 리프레시 토큰 검증
+        Claims claims = jwtUtil.validateToken(refreshToken);
+        String userId = claims.getSubject();
 
-            // 사용자 정보 조회
-            User user = userMapper.selectUserByUserId(userId);
-            if (user == null) {
-                throw new CustomException(ErrorCode.NOT_FOUND_USER);
-            }
-
-            // 데이터베이스에서 리프레시 토큰 조회
-            RefreshToken storedRefreshToken = refreshTokenMapper.selectRefreshToken(userId, refreshToken);
-            if (storedRefreshToken == null) {
-                throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
-            }
-
-            // 추가 유효기간 검증 (예: 7일)
-            long tokenAge = System.currentTimeMillis() - storedRefreshToken.getCreatedAt().getTime();
-            if (tokenAge > MAX_REFRESH_TOKEN_AGE_MS) { // MAX_REFRESH_TOKEN_AGE_MS는 설정된 최대 유효기간
-                refreshTokenMapper.deleteRefreshToken(userId);
-                throw new CustomException(ErrorCode.REFRESH_TOKEN_EXPIRED);
-            }
-
-            // 새로운 액세스 토큰 반환
-            return jwtUtil.generateAccessToken(user.getUserId(), user.getUserNickname());
-
-        } catch (JwtException e) {
-            throw new JwtException("유효한 토큰값이 아닙니다.", e);
+        // 사용자 정보 조회
+        User user = userMapper.selectUserByUserId(userId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.NOT_FOUND_USER);
         }
+
+        // 데이터베이스에서 리프레시 토큰 조회
+        RefreshToken storedRefreshToken = refreshTokenMapper.selectRefreshToken(userId, refreshToken);
+        if (storedRefreshToken == null) {
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 추가 유효기간 검증 (예: 7일)
+        long tokenAge = System.currentTimeMillis() - storedRefreshToken.getCreatedAt().getTime();
+        if (tokenAge > MAX_REFRESH_TOKEN_AGE_MS) { // MAX_REFRESH_TOKEN_AGE_MS는 설정된 최대 유효기간
+            refreshTokenMapper.deleteRefreshToken(userId);
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+        }
+
+        // 새로운 액세스 토큰 반환
+        return jwtUtil.generateAccessToken(user.getUserId(), user.getUserNickname());
+
+    }
+
+    @Override
+    public UserInfoResponseDto findUserInfo(String userId) {
+        User user = userMapper.selectUserByUserId(userId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.NOT_FOUND_USER);
+        }
+        UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.builder()
+                .userProfileImg(user.getUserProfileImg())
+                .userNickname(user.getUserNickname())
+                .userAddress(user.getUserAddress())
+                .userEmail(user.getUserEmail())
+                .userPhoneNumber(user.getUserPhoneNumber())
+                .userIntroduction(user.getUserIntroduction())
+                .userRating(user.getUserRating())
+                .userCreatedAt(user.getUserCreatedAt())
+                .build();
+
+        return userInfoResponseDto;
     }
 }
