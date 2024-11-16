@@ -132,4 +132,9 @@ public class ItemServiceImpl implements ItemService{
 
         return itemLessorInfoDto;
     }
+
+    @Override
+    public List<ItemRetrieveResponseDto> getLessorItems(String lessorId) {
+        return itemMapper.selectLessorItemsByLessorId(lessorId);
+    }
 }

@@ -235,4 +235,18 @@ public interface ItemMapper {
             WHERE article_id = #{articleId}
             """)
     List<String> selectArticleImagesByArticleId(int articleId);
+
+    @Select("""
+            SELECT i.item_id, im.item_img AS item_image, i.item_name, item_price, country, province, district, town
+            FROM item i
+            LEFT JOIN item_image im
+            ON i.item_id = im.item_id
+               AND im.item_img_id = (
+                   SELECT MIN(item_img_id)
+                   FROM item_image
+                   WHERE item_id = i.item_id
+               )
+            WHERE user_id = #{lessorId}
+            """)
+    List<ItemRetrieveResponseDto> selectLessorItemsByLessorId(String lessorId);
 }
