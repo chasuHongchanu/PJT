@@ -45,13 +45,13 @@ public class UserController {
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "신규 회원 가입 서비스")
     @Transactional
-    public ResponseEntity<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) throws Exception {
         userService.signUp(userSignupRequestDto);
 
         return ResponseEntity.ok("Success Sign Up");
     }
 
-    @GetMapping("/duplicateCheck/{newId}")
+    @GetMapping("/duplicate-check/{newId}")
     @Operation(summary = "아이디 중복 체크", description = "회원가입 화면에서 중복체크 클릭 시 실행")
     public ResponseEntity<?> duplicateCheck(@PathVariable("newId") String newId) {
         boolean isDuplicated = userService.duplicateCheck(newId);

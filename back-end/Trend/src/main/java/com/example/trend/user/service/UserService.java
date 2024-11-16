@@ -5,7 +5,7 @@ import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
 
 public interface UserService {
-    void signUp(UserSignupRequestDto userSignupRequestDto);
+    void signUp(UserSignupRequestDto userSignupRequestDto) throws Exception;
 
     boolean duplicateCheck(String newId);
 
