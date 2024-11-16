@@ -13,7 +13,7 @@ public interface RefreshTokenMapper {
     int insertRefreshToken(RefreshToken refreshToken);
 
     // 요청받은 id와 token으로 refresh token 조회
-    @Select("SELECT * FROM refresh_tokens WHERE user_id = #{userId} AND refresh_token = #{refreshToken} AND expires_at > NOW()")
+    @Select("SELECT * FROM refresh_token WHERE user_id = #{userId} AND refresh_token = #{refreshToken} AND expires_at > NOW()")
     RefreshToken selectRefreshToken(String userId, String refreshToken);
 
     // 사용자 id로 모든 refresh token 삭제 (로그아웃)

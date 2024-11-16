@@ -30,7 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/configuration/**",
                         "/api/user/login",
                         "/api/user/signup",
-                        "/api/user/refresh"
+                        "/api/user/refresh-token"
                 );
     }
 
