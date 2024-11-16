@@ -1,9 +1,6 @@
 package com.example.trend.user.service;
 
-import com.example.trend.user.dto.TokenDto;
-import com.example.trend.user.dto.UserInfoResponseDto;
-import com.example.trend.user.dto.UserLoginRequestDto;
-import com.example.trend.user.dto.UserSignupRequestDto;
+import com.example.trend.user.dto.*;
 
 public interface UserService {
     void signUp(UserSignupRequestDto userSignupRequestDto) throws Exception;
@@ -15,4 +12,6 @@ public interface UserService {
     String refreshAccessToken(String refreshToken) throws Exception;
 
     UserInfoResponseDto findUserInfo(String userId);
+
+    void updateUser(UserUpdateRequestDto userUpdateRequestDto) throws Exception;
 }
