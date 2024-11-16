@@ -32,7 +32,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/user/signup",
                         "/api/user/refresh-token",
                         "/api/item/rent/list",
-                        "/api/item/rent/search"
+                        "/api/item/rent/search",
+                        "/api/item/rent/lessor/**"
                 );
     }
 

@@ -2,10 +2,7 @@ package com.example.trend.item.controller;
 
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
-import com.example.trend.item.dto.ItemDetailResponseDto;
-import com.example.trend.item.dto.ItemRegistRequestDto;
-import com.example.trend.item.dto.ItemRetrieveResponseDto;
-import com.example.trend.item.dto.ItemSearchCriteria;
+import com.example.trend.item.dto.*;
 import com.example.trend.item.service.ItemService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -79,5 +76,12 @@ public class ItemController {
         List<ItemRetrieveResponseDto> itemList = itemService.searchItems(itemSearchCriteria);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(itemList);
+    }
+
+    @GetMapping("/rent/lessor/{lessorId}")
+    public ResponseEntity<?> lessor(@PathVariable String lessorId) {
+        ItemLessorInfoDto itemLessorInfoDto = itemService.getLessorInfo(lessorId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(itemLessorInfoDto);
     }
 }

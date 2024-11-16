@@ -9,10 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 public class ItemRetrieveResponseDto {
     private int itemId;
-    private String itemImageName;
+    private String itemImage;
     private String itemName;
     private int itemPrice;
-    private String mainCategory;
-    private String subCategory;
-    private String subSubCategory;
+    private String country;
+    private String province;
+    private String district;
+    private String town;
 }
