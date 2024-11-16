@@ -14,7 +14,7 @@ public interface ItemMapper {
                                       #{availableRentalStartDate}, #{availableRentalEndDate}, #{itemStatus})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "itemId")
-    int insertItem(ItemRegistRequestDto itemRegistDto);
+    int insertItem(ItemRequestDto itemRegistDto);
 
     @Insert("""
             INSERT INTO item_image (item_id, item_img)
@@ -249,4 +249,30 @@ public interface ItemMapper {
             WHERE user_id = #{lessorId}
             """)
     List<ItemRetrieveResponseDto> selectLessorItemsByLessorId(String lessorId);
+
+    @Delete("""
+            DELETE
+            FROM item_image
+            WHERE item_id = #{itemId}
+            """)
+    void deleteItemImage(int itemId);
+
+    @Update("""
+            UPDATE item
+            SET item_name = #{itemName},
+                main_category = #{itemMainCategory},
+                sub_category = #{itemSubCategory},
+                sub_subcategory = #{itemSubsubCategory},
+                item_price = #{itemPrice},
+                country = #{itemCountry},
+                province = #{itemProvince},
+                district = #{itemDistrict},
+                town = #{itemTown},
+                item_content = #{itemContent},
+                available_rental_start_date = #{availableRentalStartDate},
+                available_rental_end_date = #{availableRentalEndDate},
+                item_status = #{itemStatus}
+            WHERE item_id = #{itemId}
+            """)
+    int updateItem(ItemRequestDto itemUpdateDto);
 }

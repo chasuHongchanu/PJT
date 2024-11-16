@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemRegistRequestDto {
+public class ItemRequestDto {
     private Integer itemId;
 
     @NotBlank(message="이름은 필수 값입니다.")

@@ -32,7 +32,7 @@ public class ItemServiceImpl implements ItemService{
 
     @Transactional
     @Override
-    public int regist(ItemRegistRequestDto itemRegistDto) {
+    public int regist(ItemRequestDto itemRegistDto) {
         // db에 물품 정보 insert
         int result = itemMapper.insertItem(itemRegistDto);
 
@@ -73,6 +73,59 @@ public class ItemServiceImpl implements ItemService{
         itemMapper.updateUserActivityScore(userId);
 
         // TODO: 입력받은 지역을 토대로 지역 JSON을 이용해 위/경도 추출
+
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public int update(ItemRequestDto itemUpdateDto) {
+        // db에 물품 정보 update
+        int result = itemMapper.updateItem(itemUpdateDto);
+        int itemId = itemUpdateDto.getItemId();
+
+        // 시작일이 종료일보다 늦은 경우
+        String availableRentalStartDate = itemUpdateDto.getAvailableRentalStartDate();
+        String availableRentalEndDate = itemUpdateDto.getAvailableRentalEndDate();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(availableRentalStartDate, formatter);
+        LocalDate endDate = LocalDate.parse(availableRentalEndDate, formatter);
+
+        if(startDate.isAfter(endDate)) {
+            throw new CustomException(ErrorCode.INVALID_RENTAL_PERIOD);
+        }
+
+        // 파일 이름을 추출하여 itemImageNames 리스트에 추가
+        List<String> itemImageNames = itemUpdateDto.getItemImages().stream()
+                .map(file -> "items/" + itemId + "/" + file.getOriginalFilename())
+                .toList();
+
+        for(String i: itemImageNames) {
+            System.out.println(i);
+        }
+
+        // updateDto로 넘어온 사진과, 현재 저장된 사진들 중 다른 것이 있다면 이전에 저장된 사진은 삭제해야 함
+        // DB에서 삭제 (다 날리고 다시 새로 삽입)
+        itemMapper.deleteItemImage(itemId);
+
+        // Storage에서 삭제 (다 날리고 다시 새로 삽입)
+        fileUtil.deleteFiles(itemId);
+
+        // 아무런 예외도 발생하지 않은 경우 이미지 저장
+        // 이미지가 정상적으로 1개 이상 들어온 경우 storage에 이미지 업데이트
+        List<MultipartFile> files = itemUpdateDto.getItemImages();
+        
+        if(!(files.size() == 1 && files.get(0).isEmpty())) {
+            fileUtil.saveFilesIntoStorage("items", itemId, files);
+
+            // db에 물품 이미지 이름 정보 insert
+            for(String itemImageName: itemImageNames) {
+                itemMapper.insertItemImageName(itemId, itemImageName);
+            }
+        }
+
+        // TODO: 업데이트된 지역을 토대로 지역 JSON을 이용해 위/경도 업데이트
 
         return result;
     }
@@ -137,4 +190,5 @@ public class ItemServiceImpl implements ItemService{
     public List<ItemRetrieveResponseDto> getLessorItems(String lessorId) {
         return itemMapper.selectLessorItemsByLessorId(lessorId);
     }
+
 }
