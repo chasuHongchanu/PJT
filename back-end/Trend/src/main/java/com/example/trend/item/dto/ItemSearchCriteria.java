@@ -12,6 +12,10 @@ public class ItemSearchCriteria {
     private Double longitude;
     private Integer maxPrice;
     private Integer minPrice;
+    private String country;
+    private String province;
+    private String district;
+    private String town;
     private String mainCategory;
     private String subCategory;
     private String subSubCategory;

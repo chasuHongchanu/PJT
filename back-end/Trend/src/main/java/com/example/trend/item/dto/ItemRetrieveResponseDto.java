@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 public class ItemRetrieveResponseDto {
+    private int itemId;
     private String itemImageName;
     private String itemName;
     private int itemPrice;

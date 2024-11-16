@@ -67,17 +67,15 @@ public class ItemController {
                 .body(itemDetailResponseDto);
     }
 
-    @GetMapping("/rent?mainCategory={mainCategory}&subCategory={subCategory}&subSubCategory={subSubCategory}&maxPrice={maxPrice}&minPrice={minPrice}")
-    public ResponseEntity<?> filter(@ModelAttribute ItemSearchCriteria itemSearchCriteria) {
+    @GetMapping("/rent/search")
+    public ResponseEntity<?> search(@ModelAttribute ItemSearchCriteria itemSearchCriteria) {
         // 최대 가격이 최소 가격보다 작으면 예외 발생
+        Integer minPrice = itemSearchCriteria.getMinPrice();
+        Integer maxPrice = itemSearchCriteria.getMaxPrice();
+        if(minPrice != null && maxPrice != null && minPrice > maxPrice) {
+            throw new CustomException(ErrorCode.INVALID_PRICE_RANGE);
+        }
 
-        List<ItemRetrieveResponseDto> itemList = itemService.searchItems(itemSearchCriteria);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(itemList);
-    }
-
-    @GetMapping("/rent?keyword={keyword}")
-    public ResponseEntity<?> searchByKeyword(@ModelAttribute ItemSearchCriteria itemSearchCriteria) {
         List<ItemRetrieveResponseDto> itemList = itemService.searchItems(itemSearchCriteria);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(itemList);

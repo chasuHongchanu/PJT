@@ -117,39 +117,57 @@ public interface ItemMapper {
     void updateViewCount(int itemId);
 
     @Select("""
-        <script>
-        SELECT item_name, item_price, main_category, sub_category, sub_subcategory
-        FROM item
-        JOIN item_image im
-        WHERE 1=1
-        <if test="latitude != null and longitude != null">
-            AND ST_Distance_Sphere(
-                POINT(#{longitude}, #{latitude}),
-                POINT(item.item_longitude, item.item_latitude)
-            ) &lt;= 300000
-        </if>
-        <if test="minPrice != null">
-            AND item.price &gt;= #{minPrice}
-        </if>
-        <if test="maxPrice != null">
-            AND item.price &lt;= #{maxPrice}
-        </if>
-        <if test="mainCategory != null">
-            AND item.main_category = #{mainCategory}
-        </if>
-        <if test="subCategory != null">
-            AND item.sub_category = #{subCategory}
-        </if>
-        <if test="subSubCategory != null">
-            AND item.sub_subcategory = #{subSubCategory}
-        </if>
-        <if test="keyword != null and keyword != ''">
-            AND (
-                item.item_name LIKE CONCAT('%', #{keyword}, '%')
-                OR item.item_content LIKE CONCAT('%', #{keyword}, '%')
-            )
-        </if>
-        </script>
-        """)
+            <script>
+                SELECT item.item_id, item_img AS itemImageName, item_name, item_price, main_category, sub_category, sub_subcategory
+                FROM item
+                LEFT JOIN item_image im
+                ON item.item_id = im.item_id
+                   AND im.item_img_id = (
+                       SELECT MIN(item_img_id)
+                       FROM item_image
+                       WHERE item_id = item.item_id
+                   )
+                WHERE 1=1
+                <if test="latitude != null and longitude != null">
+                    AND ST_Distance_Sphere(
+                        POINT(#{longitude}, #{latitude}),
+                        POINT(item.item_longitude, item.item_latitude)
+                    ) &lt;= 300000
+                </if>
+                <if test="minPrice != null">
+                    AND item.item_price &gt;= #{minPrice}
+                </if>
+                <if test="maxPrice != null">
+                    AND item.item_price &lt;= #{maxPrice}
+                </if>
+                <if test="mainCategory != null">
+                    AND item.main_category = #{mainCategory}
+                </if>
+                <if test="subCategory != null">
+                    AND item.sub_category = #{subCategory}
+                </if>
+                <if test="subSubCategory != null">
+                    AND item.sub_subcategory = #{subSubCategory}
+                </if>
+                <if test="country != null">
+                    AND item.country = #{country}
+                </if>
+                <if test="province != null">
+                    AND item.province = #{province}
+                </if>
+                <if test="district != null">
+                    AND item.district = #{district}
+                </if>
+                <if test="town != null">
+                    AND item.town = #{town}
+                </if>
+                <if test="keyword != null and keyword != ''">
+                    AND (
+                        item.item_name LIKE CONCAT('%', #{keyword}, '%')
+                        OR item.item_content LIKE CONCAT('%', #{keyword}, '%')
+                    )
+                </if>
+            </script>
+            """)
     List<ItemRetrieveResponseDto> searchItems(ItemSearchCriteria itemSearchCriteria);
 }
