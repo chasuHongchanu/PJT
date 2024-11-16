@@ -2,10 +2,7 @@ package com.example.trend.user.controller;
 
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
-import com.example.trend.user.dto.TokenDto;
-import com.example.trend.user.dto.UserInfoResponseDto;
-import com.example.trend.user.dto.UserLoginRequestDto;
-import com.example.trend.user.dto.UserSignupRequestDto;
+import com.example.trend.user.dto.*;
 import com.example.trend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,7 +48,7 @@ public class UserController {
     public ResponseEntity<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) throws Exception {
         userService.signUp(userSignupRequestDto);
 
-        return ResponseEntity.ok("Success Sign Up");
+        return ResponseEntity.ok("Sign Up Successful");
     }
 
     @GetMapping("/duplicate-check/{newId}")
@@ -120,5 +117,14 @@ public class UserController {
         log.info(userId);
         UserInfoResponseDto userInfoResponseDto = userService.findUserInfo(userId);
         return ResponseEntity.ok(userInfoResponseDto);
+    }
+
+    @PutMapping("/userinfo")
+    @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
+    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto, HttpServletRequest request) throws Exception {
+        String userId = request.getAttribute("userId").toString();
+        userUpdateRequestDto.setUserId(userId);
+        userService.updateUser(userUpdateRequestDto);
+        return ResponseEntity.ok("Update Successful");
     }
 }
