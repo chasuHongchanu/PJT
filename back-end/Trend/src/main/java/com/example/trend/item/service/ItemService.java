@@ -16,4 +16,6 @@ public interface ItemService {
     List<ItemRetrieveResponseDto> getLessorItems(String lessorId);
 
     int update(ItemRequestDto itemUpdateDto);
+
+    void delete(int itemId);
 }

@@ -130,6 +130,21 @@ public class ItemServiceImpl implements ItemService{
         return result;
     }
 
+    @Transactional
+    @Override
+    public void delete(int itemId) {
+        // DB에서 삭제
+        int result = itemMapper.deleteByItemId(itemId);
+
+        // 제대로 삭제되지 않은 경우 예외 처리
+        if(result != 1 ) {
+            throw new CustomException(ErrorCode.FAIL_TO_DELETE_ITEM);
+        }
+
+        // DB에서 아무 이상 없을 경우 Storage에서 이미지 삭제
+        fileUtil.deleteFiles(itemId);
+    }
+
     @Override
     public ItemDetailResponseDto detail(int itemId, String userId) {
         ItemDetailResponseDto itemDetailResponseDto = itemMapper.selectDetailByItemId(itemId);
