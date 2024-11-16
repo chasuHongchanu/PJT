@@ -209,4 +209,11 @@ public class UserServiceImpl implements UserService {
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_USER);
         }
     }
+
+    @Override
+    @Transactional
+    public void logout(String requestUserId) {
+        refreshTokenMapper.deleteRefreshToken(requestUserId);
+
+    }
 }

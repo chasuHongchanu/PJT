@@ -48,7 +48,7 @@ public class UserController {
     public ResponseEntity<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) throws Exception {
         userService.signUp(userSignupRequestDto);
 
-        return ResponseEntity.ok("Sign Up Successful");
+        return ResponseEntity.ok("SignUp Successful");
     }
 
     @GetMapping("/duplicate-check/{newId}")
@@ -112,19 +112,38 @@ public class UserController {
 
     @GetMapping("/userinfo")
     @Operation(summary = "유저 정보 조회", description = "accesstoken으로 userId 확인 후 해당 유저 정보 반환")
-    public ResponseEntity<?> userInfo(HttpServletRequest request) throws Exception {
-        String userId = request.getAttribute("userId").toString();
-        log.info(userId);
-        UserInfoResponseDto userInfoResponseDto = userService.findUserInfo(userId);
+    public ResponseEntity<?> userInfo(@RequestAttribute("userId") String requestUserId) throws Exception {
+        log.info(requestUserId);
+        UserInfoResponseDto userInfoResponseDto = userService.findUserInfo(requestUserId);
         return ResponseEntity.ok(userInfoResponseDto);
     }
 
     @PutMapping("/userinfo")
     @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
-    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto, HttpServletRequest request) throws Exception {
-        String userId = request.getAttribute("userId").toString();
-        userUpdateRequestDto.setUserId(userId);
+    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto, @RequestAttribute("userId") String requestUserId) throws Exception {
+        userUpdateRequestDto.setUserId(requestUserId);
         userService.updateUser(userUpdateRequestDto);
         return ResponseEntity.ok("Update Successful");
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
+    public ResponseEntity<?> logout(@RequestAttribute("userId") String requestUserId) throws Exception {
+        // 리프레시 토큰 삭제
+        userService.logout(requestUserId);
+
+        // 리프레시 토큰 쿠키 삭제
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .path("/api/user/refresh-token")
+                .maxAge(0) // 쿠키 만료
+                .secure(true)
+                .sameSite("Strict")
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        return ResponseEntity.ok().headers(headers).body("Logout successful");
     }
 }
