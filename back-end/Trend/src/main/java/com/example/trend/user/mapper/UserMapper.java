@@ -14,11 +14,11 @@ public interface UserMapper {
     @Select("SELECT count(*) FROM `user` WHERE user_id= #{newId}")
     int findDuplicatedId(String newId);
 
-    @Insert("INSERT INTO user (user_id, user_password, user_nickname, user_address, user_email, user_phone_number) " +
+    @Insert("INSERT INTO `user` (user_id, user_password, user_nickname, user_address, user_email, user_phone_number) " +
             "VALUES (#{userId}, #{userPassword}, #{userNickname}, #{userAddress}, #{userEmail}, #{userPhoneNumber})")
     int insertNewUser(UserSignupRequestDto userSignupRequestDto);
 
-    @Select("SELECT * FROM users WHERE user_id = #{userId}")
+    @Select("SELECT * FROM `user` WHERE user_id = #{userId}")
     User selectUserByUserId(String userId);
 
     @Select("SELECT * FROM `user` WHERE user_id = #{userId} AND user_password = #{userPassword}")

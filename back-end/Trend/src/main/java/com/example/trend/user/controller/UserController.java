@@ -3,16 +3,19 @@ package com.example.trend.user.controller;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.user.dto.TokenDto;
+import com.example.trend.user.dto.UserInfoResponseDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
 import com.example.trend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,13 +48,13 @@ public class UserController {
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "신규 회원 가입 서비스")
     @Transactional
-    public ResponseEntity<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) throws Exception {
         userService.signUp(userSignupRequestDto);
 
         return ResponseEntity.ok("Success Sign Up");
     }
 
-    @GetMapping("/duplicateCheck/{newId}")
+    @GetMapping("/duplicate-check/{newId}")
     @Operation(summary = "아이디 중복 체크", description = "회원가입 화면에서 중복체크 클릭 시 실행")
     public ResponseEntity<?> duplicateCheck(@PathVariable("newId") String newId) {
         boolean isDuplicated = userService.duplicateCheck(newId);
@@ -76,7 +79,7 @@ public class UserController {
         // 리프레시 토큰을 HttpOnly 쿠키에 추가
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokenDto.getRefreshToken())
                 .httpOnly(true)
-                .path("/api/user/refresh") // 리프레시 토큰을 사용할 엔드포인트로 경로 제한
+                .path("/api/user/refresh-token") // 리프레시 토큰을 사용할 엔드포인트로 경로 제한
                 .maxAge(refreshTokenValidity) // 7일 (초 단위)
                 .secure(true) // HTTPS에서만 전송
                 .sameSite("Strict") // CSRF 방지
@@ -89,7 +92,7 @@ public class UserController {
                 .body("Login successful");
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("/refresh-token")
     @Operation(summary = "AccessToken 재발급", description = "refresh token을 이용해 access token 재발급")
     public ResponseEntity<?> refreshAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) throws Exception {
         if (refreshToken == null) {
@@ -103,9 +106,19 @@ public class UserController {
         headers.add("Authorization", "Bearer " + newAccessToken);
 
         // 성공 응답 반환
+        log.info("accesstoken 재발급 성공");
         return ResponseEntity.ok()
                 .headers(headers)
                 .body("Access token refreshed");
 
+    }
+
+    @GetMapping("/userinfo")
+    @Operation(summary = "유저 정보 조회", description = "accesstoken으로 userId 확인 후 해당 유저 정보 반환")
+    public ResponseEntity<?> userInfo(HttpServletRequest request) throws Exception {
+        String userId = request.getAttribute("userId").toString();
+        log.info(userId);
+        UserInfoResponseDto userInfoResponseDto = userService.findUserInfo(userId);
+        return ResponseEntity.ok(userInfoResponseDto);
     }
 }
