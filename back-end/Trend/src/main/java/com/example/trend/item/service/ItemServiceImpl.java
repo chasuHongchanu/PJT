@@ -108,4 +108,28 @@ public class ItemServiceImpl implements ItemService{
 
         return itemDetailResponseDto;
     }
+
+    @Override
+    public ItemLessorInfoDto getLessorInfo(String lessorId) {
+        ItemLessorInfoDto itemLessorInfoDto = itemMapper.selectItemLessorInfoByLessorId(lessorId);
+        List<TradeReviewDto> tradeReviewDtos = itemMapper.selectTradeReviewsByLessorId(lessorId);
+        List<ItemRetrieveResponseDto> lendItems = itemMapper.selectLendItemsByLessorId(lessorId);
+        List<ArticleSimpleInfo> articles = itemMapper.selectArticlesByLessorId(lessorId);
+
+        // 게시글을 한 개 이상 작성한 경우
+        if(!articles.isEmpty()) {
+            // articleId를 매핑했으니, 그 값을 토대로 article image를 저장
+            for (ArticleSimpleInfo articleSimpleInfo : articles) {
+                int articleId = articleSimpleInfo.getArticleId();
+                List<String> articleImages = itemMapper.selectArticleImagesByArticleId(articleId);
+                articleSimpleInfo.setArticleImages(articleImages);
+            }
+        }
+
+        itemLessorInfoDto.setTradeReviews(tradeReviewDtos);
+        itemLessorInfoDto.setLessorLendItems(lendItems);
+        itemLessorInfoDto.setLessorArticles(articles);
+
+        return itemLessorInfoDto;
+    }
 }

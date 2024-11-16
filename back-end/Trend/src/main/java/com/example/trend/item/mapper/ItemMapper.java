@@ -49,7 +49,7 @@ public interface ItemMapper {
     ItemDetailResponseDto selectDetailByItemId(int itemId);
 
     @Select("""
-            SELECT CONCAT(#{userId}, '/item/', #{itemId}, '/', item_img)
+            SELECT item_img
             FROM item_image
             WHERE item_id = #{itemId}
             """)
@@ -67,15 +67,15 @@ public interface ItemMapper {
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
-            JOIN item_image im
+            LEFT JOIN item_image im
             ON i.item_id = im.item_id
+               AND im.item_img_id = (
+                   SELECT MIN(item_img_id)
+                   FROM item_image
+                   WHERE item_id = i.item_id
+               )
             WHERE sub_subcategory = #{subSubCategory}
               AND i.item_id != #{itemId}
-              AND im.item_img_id = (
-                  SELECT MIN(item_img_id)
-                  FROM item_image
-                  WHERE item_id = i.item_id
-              )
             ORDER BY u.user_activity_score DESC
             LIMIT 5;
             """)
@@ -90,16 +90,16 @@ public interface ItemMapper {
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
-            JOIN item_image im
+            LEFT JOIN item_image im
             ON i.item_id = im.item_id
+               AND im.item_img_id = (
+                   SELECT MIN(item_img_id)
+                   FROM item_image
+                   WHERE item_id = i.item_id
+               )
             WHERE district = #{district}
               AND town = #{town}
               AND i.item_id != #{itemId}
-              AND im.item_img_id = (
-                  SELECT MIN(item_img_id)
-                  FROM item_image
-                  WHERE item_id = i.item_id
-              )
             ORDER BY u.user_activity_score DESC
             LIMIT 5;
             """)
@@ -118,7 +118,7 @@ public interface ItemMapper {
 
     @Select("""
             <script>
-                SELECT item.item_id, item_img AS itemImageName, item_name, item_price, main_category, sub_category, sub_subcategory
+                SELECT item.item_id, item_img AS itemImageName, item_name, item_price, country, province, district, town
                 FROM item
                 LEFT JOIN item_image im
                 ON item.item_id = im.item_id
@@ -170,4 +170,69 @@ public interface ItemMapper {
             </script>
             """)
     List<ItemRetrieveResponseDto> searchItems(ItemSearchCriteria itemSearchCriteria);
+
+
+    @Select("""
+            SELECT
+                u.user_id AS lessorId,
+                u.user_nickname AS lessorNickname,
+                u.user_rating AS lessorReputation,
+                u.user_profile_img AS lessorProfileImg,
+                COALESCE(t.trade_count, 0) AS lessorTradeCount,
+                COALESCE(r.review_count, 0) AS lessorReviewCount
+            FROM user u
+            LEFT JOIN (
+                SELECT lessor_id, COUNT(*) AS trade_count
+                FROM item_trade
+                GROUP BY lessor_id
+            ) t ON u.user_id = t.lessor_id
+            LEFT JOIN (
+                SELECT lessor_id, COUNT(*) AS review_count
+                FROM trade_review
+                GROUP BY lessor_id
+            ) r ON u.user_id = r.lessor_id
+            
+            WHERE u.user_id = #{userId};
+            """)
+    ItemLessorInfoDto selectItemLessorInfoByLessorId(String lessorId);
+
+    @Select("""
+            SELECT user_profile_img AS lesseeProfileImg,
+                   user_nickname AS lesseeNickname,
+                   review_created_at,
+                   trade_review_content AS reviewContent
+            FROM user u
+            JOIN trade_review r
+            ON u.user_id = r.lessee_id
+            WHERE r.lessor_id = #{lessorId}
+            """)
+    List<TradeReviewDto> selectTradeReviewsByLessorId(String lessorId);
+
+    @Select("""
+            SELECT i.item_id, im.item_img AS item_image, i.item_name, item_price
+            FROM item i
+            LEFT JOIN item_image im
+            ON i.item_id = im.item_id
+               AND im.item_img_id = (
+                   SELECT MIN(item_img_id)
+                   FROM item_image
+                   WHERE item_id = i.item_id
+               )
+            WHERE user_id = #{lessorId}
+            """)
+    List<ItemRetrieveResponseDto> selectLendItemsByLessorId(String lessorId);
+
+    @Select("""
+            SELECT article_id, article_title
+            FROM article
+            WHERE writer_id = #{lessorId}
+            """)
+    List<ArticleSimpleInfo> selectArticlesByLessorId(String lessorId);
+
+    @Select("""
+            SELECT article_image
+            FROM article_image
+            WHERE article_id = #{articleId}
+            """)
+    List<String> selectArticleImagesByArticleId(int articleId);
 }
