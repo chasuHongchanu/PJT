@@ -235,7 +235,8 @@ ALTER TABLE `item_trade`
         )
         REFERENCES `item` (
                            `item_id`
-            );
+            )
+            ON DELETE CASCADE;
 
 ALTER TABLE `item_trade`
     ADD CONSTRAINT `FK_user_TO_item_trade_1` FOREIGN KEY (
@@ -267,7 +268,8 @@ ALTER TABLE `wishlist`
         )
         REFERENCES `item` (
                            `item_id`
-            );
+            )
+            ON DELETE CASCADE;
 
 ALTER TABLE `trade_review`
     ADD CONSTRAINT `FK_item_trade_TO_trade_review_1` FOREIGN KEY (
@@ -411,7 +413,8 @@ ALTER TABLE `chat_room`
         )
         REFERENCES `item` (
                            `item_id`
-            );
+            )
+            ON DELETE CASCADE;
 
 ALTER TABLE `chat_room`
     ADD CONSTRAINT `FK_user_TO_chat_room_1` FOREIGN KEY (
@@ -459,7 +462,8 @@ ALTER TABLE `item_image`
         )
         REFERENCES `item` (
                            `item_id`
-            );
+            )
+            ON DELETE CASCADE;
 
 ALTER TABLE `course_image`
     ADD CONSTRAINT `FK_course_TO_course_image_1` FOREIGN KEY (

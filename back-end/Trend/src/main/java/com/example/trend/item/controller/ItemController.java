@@ -73,6 +73,17 @@ public class ItemController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
     }
+    
+    @DeleteMapping("/rent")
+    public ResponseEntity<?> delete(@RequestParam("itemId") int itemId) {
+        itemService.delete(itemId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "성공적으로 삭제되었습니다.");
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(response);
+    }
 
     @GetMapping("/rent/{itemId}")
     public ResponseEntity<?> detail(@PathVariable int itemId) {

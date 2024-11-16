@@ -275,4 +275,10 @@ public interface ItemMapper {
             WHERE item_id = #{itemId}
             """)
     int updateItem(ItemRequestDto itemUpdateDto);
+
+    @Delete("""
+            DELETE FROM item
+            WHERE item_id = #{itemId}
+            """)
+    int deleteByItemId(int itemId);
 }
