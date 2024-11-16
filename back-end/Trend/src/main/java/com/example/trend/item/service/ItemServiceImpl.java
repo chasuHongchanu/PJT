@@ -2,9 +2,7 @@ package com.example.trend.item.service;
 
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
-import com.example.trend.item.dto.ItemDetailResponseDto;
-import com.example.trend.item.dto.ItemRegistRequestDto;
-import com.example.trend.item.dto.ItemSimpleInfo;
+import com.example.trend.item.dto.*;
 import com.example.trend.item.mapper.ItemMapper;
 import com.example.trend.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class ItemServiceImpl implements ItemService{
@@ -27,6 +23,11 @@ public class ItemServiceImpl implements ItemService{
     public ItemServiceImpl(ItemMapper itemMapper, FileUtil fileUtil) {
         this.itemMapper = itemMapper;
         this.fileUtil = fileUtil;
+    }
+
+    @Override
+    public List<ItemRetrieveResponseDto> searchItems(ItemSearchCriteria itemSearchCriteria) {
+        return itemMapper.searchItems(itemSearchCriteria);
     }
 
     @Transactional
