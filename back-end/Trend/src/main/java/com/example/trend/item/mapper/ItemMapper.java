@@ -118,20 +118,15 @@ public interface ItemMapper {
 
     @Select("""
         <script>
-        SELECT item_img AS itemImageName, item_name, item_price, main_category, sub_category, sub_subcategory
+        SELECT item_name, item_price, main_category, sub_category, sub_subcategory
         FROM item
         JOIN item_image im
         WHERE 1=1
-        AND im.item_img_id = (
-          SELECT MIN(item_img_id)
-          FROM item_image
-          WHERE item_id = item.item_id
-        )
         <if test="latitude != null and longitude != null">
             AND ST_Distance_Sphere(
                 POINT(#{longitude}, #{latitude}),
-                POINT(items.longitude, items.latitude)
-            ) &lt;= 1000
+                POINT(item.item_longitude, item.item_latitude)
+            ) &lt;= 300000
         </if>
         <if test="minPrice != null">
             AND item.price &gt;= #{minPrice}
