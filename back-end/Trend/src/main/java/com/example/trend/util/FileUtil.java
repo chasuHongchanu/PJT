@@ -1,11 +1,14 @@
 package com.example.trend.util;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -67,8 +70,8 @@ public class FileUtil {
             String filePath = blob + file.getOriginalFilename();
 
             // 이미 존재하면 파일 삭제
-            if (bucket.get(blob) != null) {
-                bucket.get(blob).delete();
+            if (bucket.get(filePath) != null) {
+                bucket.get(filePath).delete();
             }
 
             bucket.create(filePath, file.getBytes(), file.getContentType());
@@ -76,6 +79,12 @@ public class FileUtil {
         } catch (IOException e) {
             // custom exception 만들어야 할듯
             e.printStackTrace();
+        }
+    }
+
+    public void deleteFiles(int itemId) {
+        for (Blob blob : bucket.list(Storage.BlobListOption.prefix("items/" + itemId + "/")).iterateAll()) {
+            blob.delete();
         }
     }
 }

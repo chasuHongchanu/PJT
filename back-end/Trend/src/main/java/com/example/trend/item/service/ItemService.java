@@ -7,11 +7,13 @@ import java.util.List;
 public interface ItemService {
     List<ItemRetrieveResponseDto> searchItems(ItemSearchCriteria itemSearchCriteria);
 
-    int regist(ItemRegistRequestDto itemRegistDto);
+    int regist(ItemRequestDto itemRegistDto);
 
     ItemDetailResponseDto detail(int itemId, String userId);
 
     ItemLessorInfoDto getLessorInfo(String lessorId);
 
     List<ItemRetrieveResponseDto> getLessorItems(String lessorId);
+
+    int update(ItemRequestDto itemUpdateDto);
 }

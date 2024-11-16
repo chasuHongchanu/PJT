@@ -39,7 +39,7 @@ public class ItemController {
     }
 
     @PostMapping("/rent")
-    public ResponseEntity<?> regist(@Valid @ModelAttribute("itemRegistDto") ItemRegistRequestDto itemRegistDto, HttpServletRequest request) {
+    public ResponseEntity<?> regist(@Valid @ModelAttribute("itemRegistDto") ItemRequestDto itemRegistDto, HttpServletRequest request) {
         itemRegistDto.setUserId(request.getAttribute("userId").toString());
         // 가격이 비어있는 경우
         if(itemRegistDto.getItemPrice() == 0) {
@@ -51,6 +51,24 @@ public class ItemController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "성공적으로 등록되었습니다.");
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(response);
+    }
+
+    @PutMapping("/rent")
+    public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto, HttpServletRequest request) {
+        itemUpdateDto.setUserId(request.getAttribute("userId").toString());
+        // 가격이 비어있는 경우
+        if(itemUpdateDto.getItemPrice() == 0) {
+            throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);
+        }
+
+        // 정상적인 데이터 DB에 등록
+        int result = itemService.update(itemUpdateDto);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "성공적으로 수정되었습니다.");
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
