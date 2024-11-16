@@ -12,4 +12,6 @@ public interface ItemService {
     ItemDetailResponseDto detail(int itemId, String userId);
 
     ItemLessorInfoDto getLessorInfo(String lessorId);
+
+    List<ItemRetrieveResponseDto> getLessorItems(String lessorId);
 }

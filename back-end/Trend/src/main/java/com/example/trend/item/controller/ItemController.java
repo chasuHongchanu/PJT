@@ -84,4 +84,12 @@ public class ItemController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(itemLessorInfoDto);
     }
+
+    @GetMapping("/rent/lessor/{lessorId}/items")
+    public ResponseEntity<?> lessorItems(@PathVariable String lessorId) {
+        List<ItemRetrieveResponseDto> lessorLendItems = itemService.getLessorItems(lessorId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(lessorLendItems);
+    }
 }
