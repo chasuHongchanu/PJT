@@ -1,5 +1,6 @@
 package com.example.trend.item.controller;
 
+import com.example.trend.config.SkipJwt;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.item.dto.*;
@@ -27,6 +28,7 @@ public class ItemController {
         this.itemService = itemService;
     }
 
+    @SkipJwt
     @GetMapping("/rent/list")
     public ResponseEntity<?> list() {
         ItemSearchCriteria itemSearchCriteria = new ItemSearchCriteria();
@@ -39,8 +41,8 @@ public class ItemController {
     }
 
     @PostMapping("/rent")
-    public ResponseEntity<?> regist(@Valid @ModelAttribute("itemRegistDto") ItemRequestDto itemRegistDto, HttpServletRequest request) {
-        itemRegistDto.setUserId(request.getAttribute("userId").toString());
+    public ResponseEntity<?> regist(@Valid @ModelAttribute("itemRegistDto") ItemRequestDto itemRegistDto, @RequestAttribute("userId") String userId) {
+        itemRegistDto.setUserId(userId);
         // 가격이 비어있는 경우
         if(itemRegistDto.getItemPrice() == 0) {
             throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);
@@ -57,8 +59,8 @@ public class ItemController {
     }
 
     @PutMapping("/rent")
-    public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto, HttpServletRequest request) {
-        itemUpdateDto.setUserId(request.getAttribute("userId").toString());
+    public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto, @RequestAttribute("userId") String userId) {
+        itemUpdateDto.setUserId(userId);
         // 가격이 비어있는 경우
         if(itemUpdateDto.getItemPrice() == 0) {
             throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);
@@ -85,14 +87,21 @@ public class ItemController {
                 .body(response);
     }
 
-    @GetMapping("/rent/{itemId}")
-    public ResponseEntity<?> detail(@PathVariable int itemId) {
-        ItemDetailResponseDto itemDetailResponseDto = itemService.detail(itemId, "user3");
+    @SkipJwt
+    @GetMapping("/rent")
+    public ResponseEntity<?> detail(@RequestParam("itemId") int itemId, HttpServletRequest request) {
+        String userId = null;
+        if(request.getAttribute("userId") != null) {
+            userId = request.getAttribute("userId").toString();
+        }
+
+        ItemDetailResponseDto itemDetailResponseDto = itemService.detail(itemId, userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(itemDetailResponseDto);
     }
 
+    @SkipJwt
     @GetMapping("/rent/search")
     public ResponseEntity<?> search(@ModelAttribute ItemSearchCriteria itemSearchCriteria) {
         // 최대 가격이 최소 가격보다 작으면 예외 발생
