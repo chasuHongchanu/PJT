@@ -349,6 +349,10 @@ ALTER TABLE `article_like`
     ADD CONSTRAINT `FK_user_TO_article_like` FOREIGN KEY (`user_id`)
         REFERENCES `user` (`user_id`) ON DELETE CASCADE;
 
+ALTER TABLE `item_image`
+    ADD CONSTRAINT `FK_item_TO_item_image_1` FOREIGN KEY (`item_id`)
+        REFERENCES `item` (`item_id`) ON DELETE CASCADE;
+
 ----------------------------------- INSERT DUMMY DATAS INTO TABLES ---------------------------------
 use trend;
 
