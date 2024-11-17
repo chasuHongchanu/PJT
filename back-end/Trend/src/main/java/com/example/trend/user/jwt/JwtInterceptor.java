@@ -69,7 +69,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
             return true;
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN, e);
         }
     }
 

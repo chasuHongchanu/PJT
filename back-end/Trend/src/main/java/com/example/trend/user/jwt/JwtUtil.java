@@ -64,7 +64,7 @@ public class JwtUtil {
 
     // 토큰 검증 메서드: 검증할 토큰을 입력받아 Claims 반환
     // Claims: token의 payload에 포함된 정보 조각(subject(user id), 닉네임, 만료 시간 등)
-    public Claims validateToken(String token) throws JwtException {
+    public Claims validateToken(String token) {
         try{
             return Jwts.parserBuilder()
                     .setSigningKey(key)
