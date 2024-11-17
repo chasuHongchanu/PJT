@@ -5,9 +5,11 @@ import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.item.dto.*;
 import com.example.trend.item.service.ItemService;
+import com.example.trend.user.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +22,14 @@ import java.util.Map;
 @RequestMapping("/api/item")
 public class ItemController {
     private final ItemService itemService;
+    private final JwtUtil jwtUtil;
+
     private final double DEFAULT_LATITUDE = 37.5074;
     private final double DEFAULT_LONGITUDE = 126.7218;
 
     @Autowired
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemService itemService, JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
         this.itemService = itemService;
     }
 
@@ -90,11 +95,14 @@ public class ItemController {
     @SkipJwt
     @GetMapping("/rent")
     public ResponseEntity<?> detail(@RequestParam("itemId") int itemId, HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String userId = null;
-        if(request.getAttribute("userId") != null) {
-            userId = request.getAttribute("userId").toString();
-        }
 
+        if (jwtUtil.hasAuthHeader(authHeader)) {
+            // jwt token 있이 요청된 경우
+            userId = jwtUtil.getUserId(authHeader);
+        }
+        System.out.println(userId);
         ItemDetailResponseDto itemDetailResponseDto = itemService.detail(itemId, userId);
 
         return ResponseEntity.status(HttpStatus.OK)
