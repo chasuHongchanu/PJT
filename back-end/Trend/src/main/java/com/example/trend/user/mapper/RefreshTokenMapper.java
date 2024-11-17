@@ -3,8 +3,8 @@ package com.example.trend.user.mapper;
 import com.example.trend.user.entity.RefreshToken;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface RefreshTokenMapper {

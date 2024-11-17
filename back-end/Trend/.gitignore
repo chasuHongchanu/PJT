@@ -255,6 +255,8 @@ jwt.properties
 # Firebase Service Account key
 serviceAccountkey.json
 firebase.properties
+# mail id, password
+mail.properties
 
 # logger
 logs/

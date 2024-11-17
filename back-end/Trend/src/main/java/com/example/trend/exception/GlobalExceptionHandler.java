@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<?> customExceptionHandler(CustomException e) {
+        log.error("An unexpected error occurred: ", e);
         log.error(e.toString());
         return ResponseEntity.status(e.getErrorCode().getStatus()).body(e.toString());
     }
@@ -38,8 +39,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> exceptionHandler(Exception e) {
-        e.printStackTrace();
-        log.error(e.toString());
+        log.error("An unexpected error occurred: ", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 }

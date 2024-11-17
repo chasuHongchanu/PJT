@@ -3,7 +3,6 @@ package com.example.trend.user.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @Getter

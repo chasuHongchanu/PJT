@@ -18,4 +18,6 @@ public interface UserService {
     void logout(String requestUserId);
 
     void deleteUser(String requestUserId);
+
+    void resetPassword(UserResetPwRequestDto userResetPwRequestDto);
 }
