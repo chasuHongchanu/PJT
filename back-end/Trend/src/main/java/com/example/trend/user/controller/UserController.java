@@ -1,18 +1,17 @@
 package com.example.trend.user.controller;
 
+import com.example.trend.config.SkipJwt;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.user.dto.*;
 import com.example.trend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,6 @@ import java.util.Map;
 @Tag(name = "User API", description = "API for user operations")
 public class UserController {
     private final UserService userService;
-    // jwt.refreshToken-validity=604800000
     @Value("${jwt.refreshToken-validity}")
     private long refreshTokenValidity;
 
@@ -42,15 +40,17 @@ public class UserController {
      * @param userSignupRequestDto
      * @return
      */
+    @SkipJwt
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "신규 회원 가입 서비스")
     @Transactional
     public ResponseEntity<?> signUp(@Valid @RequestBody UserSignupRequestDto userSignupRequestDto) throws Exception {
         userService.signUp(userSignupRequestDto);
 
-        return ResponseEntity.ok("Sign Up Successful");
+        return ResponseEntity.ok("SignUp Successful");
     }
 
+    @SkipJwt
     @GetMapping("/duplicate-check/{newId}")
     @Operation(summary = "아이디 중복 체크", description = "회원가입 화면에서 중복체크 클릭 시 실행")
     public ResponseEntity<?> duplicateCheck(@PathVariable("newId") String newId) {
@@ -62,6 +62,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @SkipJwt
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "아이디, 비밀번호로 로그인 후 JWT 반환")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) throws Exception {
@@ -89,6 +90,7 @@ public class UserController {
                 .body("Login successful");
     }
 
+    @SkipJwt
     @PostMapping("/refresh-token")
     @Operation(summary = "AccessToken 재발급", description = "refresh token을 이용해 access token 재발급")
     public ResponseEntity<?> refreshAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) throws Exception {
@@ -112,19 +114,38 @@ public class UserController {
 
     @GetMapping("/userinfo")
     @Operation(summary = "유저 정보 조회", description = "accesstoken으로 userId 확인 후 해당 유저 정보 반환")
-    public ResponseEntity<?> userInfo(HttpServletRequest request) throws Exception {
-        String userId = request.getAttribute("userId").toString();
-        log.info(userId);
-        UserInfoResponseDto userInfoResponseDto = userService.findUserInfo(userId);
+    public ResponseEntity<?> userInfo(@RequestAttribute("userId") String requestUserId) throws Exception {
+        log.info(requestUserId);
+        UserInfoResponseDto userInfoResponseDto = userService.findUserInfo(requestUserId);
         return ResponseEntity.ok(userInfoResponseDto);
     }
 
     @PutMapping("/userinfo")
     @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
-    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto, HttpServletRequest request) throws Exception {
-        String userId = request.getAttribute("userId").toString();
-        userUpdateRequestDto.setUserId(userId);
+    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto, @RequestAttribute("userId") String requestUserId) throws Exception {
+        userUpdateRequestDto.setUserId(requestUserId);
         userService.updateUser(userUpdateRequestDto);
         return ResponseEntity.ok("Update Successful");
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
+    public ResponseEntity<?> logout(@RequestAttribute("userId") String requestUserId) throws Exception {
+        // 리프레시 토큰 삭제
+        userService.logout(requestUserId);
+
+        // 리프레시 토큰 쿠키 삭제
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .path("/api/user/refresh-token")
+                .maxAge(0) // 쿠키 만료
+                .secure(true)
+                .sameSite("Strict")
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        return ResponseEntity.ok().headers(headers).body("Logout successful");
     }
 }

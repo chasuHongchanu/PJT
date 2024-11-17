@@ -28,9 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/swagger-resources/**",
                         "/webjars/**",
                         "/configuration/**",
-                        "/api/user/login",
-                        "/api/user/signup",
-                        "/api/user/refresh-token",
+                        "/api/user/duplicate-check/**",
                         "/api/item/rent/list",
                         "/api/item/rent/search",
                         "/api/item/rent/lessor/**"
