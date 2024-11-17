@@ -1,13 +1,12 @@
 package com.example.trend.trade.mapper;
 
-import com.example.trend.trade.dto.TradeReservationRegistRequestDto;
-import com.example.trend.trade.dto.TradeReservationRequestDto;
-import com.example.trend.trade.dto.TradeReservationResponseDto;
-import com.example.trend.trade.dto.TradeReservationUpdateRequestDto;
+import com.example.trend.trade.dto.*;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 @Mapper
 public interface TradeMapper {
@@ -36,4 +35,41 @@ public interface TradeMapper {
             WHERE trade_id = #{tradeId}
             """)
     int updateReservation(TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto);
+
+    @Select("""
+            SELECT
+                i.item_id,
+                i.item_name,
+                i.item_price,
+                i.country,
+                i.province,
+                i.district,
+                i.town,
+                i.thumbnail,
+
+                t.trade_rental_start_date,
+                t.trade_rental_end_date,
+                t.trade_price,
+                t.trade_deposit,
+                t.payment_account_number,
+                t.trade_status,
+                t.payment_status,
+
+                u1.user_nickname AS lessor_nickname,
+                u2.user_nickname AS lessee_nickname,
+      
+            FROM trade t
+            JOIN item i ON t.item_id = i.item_id
+            JOIN user u1 ON t.lessor_id = u1.user_id
+            JOIN user u2 ON t.lessee_id = u2.user_id
+            WHERE t.trade_id = #{tradeId}
+            """)
+    TradeDetailResponseDto selectTradeDetail(int tradeId);
+
+    @Select("""
+            SELECT condition_img
+            FROM item_condition_image
+            WHERE trade_id = #{tradeId}
+            """)
+    List<String> selectItemConditionImages(int tradeId);
 }

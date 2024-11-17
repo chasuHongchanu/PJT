@@ -2,10 +2,7 @@ package com.example.trend.trade.service;
 
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
-import com.example.trend.trade.dto.TradeReservationRegistRequestDto;
-import com.example.trend.trade.dto.TradeReservationRequestDto;
-import com.example.trend.trade.dto.TradeReservationResponseDto;
-import com.example.trend.trade.dto.TradeReservationUpdateRequestDto;
+import com.example.trend.trade.dto.*;
 import com.example.trend.trade.mapper.TradeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -67,5 +65,14 @@ public class TradeServiceImpl implements TradeService{
         }
 
         return tradeMapper.updateReservation(tradeReservationUpdateRequestDto);
+    }
+
+    @Override
+    public TradeDetailResponseDto getTradeDetailInfo(int tradeId) {
+        TradeDetailResponseDto tradeDetailResponseDto = tradeMapper.selectTradeDetail(tradeId);
+        List<String> itemConditionImages = tradeMapper.selectItemConditionImages(tradeId);
+        tradeDetailResponseDto.setItemConditionImages(itemConditionImages);
+
+        return tradeDetailResponseDto;
     }
 }
