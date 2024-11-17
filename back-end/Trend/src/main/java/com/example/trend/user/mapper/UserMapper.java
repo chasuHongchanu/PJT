@@ -1,5 +1,6 @@
 package com.example.trend.user.mapper;
 
+import com.example.trend.course.dto.CourseRegistRequestDto;
 import com.example.trend.user.dto.UserLoginRequestDto;
 import com.example.trend.user.dto.UserResetPwRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;

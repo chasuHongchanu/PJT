@@ -47,6 +47,7 @@ CREATE TABLE `item`
     `view_count`                  int         NULL,
     `item_created_at`             timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
     `item_deleted_at`             timestamp   NULL,
+    `thumbnail`					  varchar(50),
     PRIMARY KEY (`item_id`)
 );
 
@@ -61,9 +62,9 @@ CREATE TABLE `item_trade`
     `payment_account_number` int         NULL,
     `rental_start_date`      timestamp   NULL,
     `rental_end_date`        timestamp   NULL,
-    `trade_state`            varchar(10) NULL COMMENT '"대여 전", "대여 중", "반납 완료"',
-    `payment_status`         varchar(10) NULL COMMENT '"입금 전", "입금 완료"',
-    `status_updated_at`      timestamp   NULL,
+    `trade_state`            varchar(10) DEFAULT "대여 전" NULL COMMENT '"대여 전", "대여 중", "반납 완료"',
+    `payment_status`         varchar(10) DEFAULT "입금 전" NULL COMMENT '"입금 전", "입금 완료"',
+    `status_updated_at`      timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `payment_created_at`     timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`trade_id`)
 );
@@ -101,12 +102,13 @@ CREATE TABLE `course`
     `course_id`         int         NOT NULL AUTO_INCREMENT,
     `course_writer_id`  varchar(50) NOT NULL,
     `course_title`      varchar(50) NULL,
+    `course_content`    text        NULL,
     `province`          varchar(30) NULL,
     `district`          varchar(30) NULL,
     `town`              varchar(30) NULL,
     `view_count`        int         NULL,
     `course_created_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
-    `course_updated_at` timestamp   NULL,
+    `course_updated_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `course_deleted_at` timestamp   NULL,
     PRIMARY KEY (`course_id`)
 );
@@ -119,7 +121,7 @@ CREATE TABLE `course_comment`
     `parents_comment_id`        int          NULL,
     `course_comment_content`    varchar(500) NULL,
     `course_comment_created_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP,
-    `course_comment_updated_at` timestamp    NULL,
+    `course_comment_updated_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`course_comment_id`)
 );
 
@@ -135,7 +137,7 @@ CREATE TABLE `payment_status_history`
 (
     `status_history_id` int          NOT NULL AUTO_INCREMENT,
     `status`            varchar(50)  NULL COMMENT '결제대기, 결제완료, 환불대기, 환불완료',
-    `changed_at`        timestamp    NULL COMMENT '상태 변경 일자',
+    `changed_at`        timestamp    NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 일자',
     `remark`            varchar(100) NULL COMMENT '상태 변경 설명 (예: 환불 사유)',
     `trade_id`          int          NOT NULL,
     PRIMARY KEY (`status_history_id`)
@@ -158,7 +160,7 @@ CREATE TABLE `article`
     `article_content`    text        NULL,
     `view_count`         int         NULL,
     `article_created_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
-    `article_updated_at` timestamp   NULL,
+    `article_updated_at` timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `article_deleted_at` timestamp   NULL,
     PRIMARY KEY (`article_id`)
 );
@@ -171,7 +173,7 @@ CREATE TABLE `article_comment`
     `parent_comment_id`          int          NULL,
     `article_comment_content`    varchar(500) NULL,
     `article_comment_created_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP,
-    `article_comment_updated_at` timestamp    NULL,
+    `article_comment_updated_at` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`article_comment_id`)
 );
 
