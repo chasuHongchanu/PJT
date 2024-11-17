@@ -129,7 +129,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
+    @Operation(summary = "유저 로그아웃", description = "refresh token을 삭제하여 로그아웃 처리")
     public ResponseEntity<?> logout(@RequestAttribute("userId") String requestUserId) throws Exception {
         // 리프레시 토큰 삭제
         userService.logout(requestUserId);
@@ -147,5 +147,12 @@ public class UserController {
         headers.add(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
         return ResponseEntity.ok().headers(headers).body("Logout successful");
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "유저 정보 삭제", description = "유저 정보를 삭제하여 회원 탈퇴 기능 구현")
+    public ResponseEntity<?> delete(@RequestAttribute("userId") String requestUserId) throws Exception {
+        userService.deleteUser(requestUserId);
+        return ResponseEntity.ok("Delete Successful");
     }
 }
