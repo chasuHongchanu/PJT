@@ -62,6 +62,8 @@ public class ItemServiceImpl implements ItemService{
         List<MultipartFile> files = itemRegistDto.getItemImages();
         if(!(files.size() == 1 && files.get(0).isEmpty())) {
             fileUtil.saveFilesIntoStorage("items", itemId, files);
+            // 썸네일 저장 (첫 번째로 들어온 사진을 썸네일로 지정)
+            itemMapper.insertThumbnail(itemImageNames.get(0), itemId);
         }
 
         // db에 물품 이미지 이름 정보 insert
@@ -114,6 +116,7 @@ public class ItemServiceImpl implements ItemService{
         
         if(!(files.size() == 1 && files.get(0).isEmpty())) {
             fileUtil.saveFilesIntoStorage("items", itemId, files);
+            itemMapper.insertThumbnail(itemImageNames.get(0), itemId);
 
             // db에 물품 이미지 이름 정보 insert
             for(String itemImageName: itemImageNames) {

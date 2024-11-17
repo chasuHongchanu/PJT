@@ -63,17 +63,10 @@ public interface ItemMapper {
     int isWishListItem(int itemId, String userId);
 
     @Select("""
-            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude, i.item_longitude, im.item_img
+            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude, i.item_longitude, i.thumbnail
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
-            LEFT JOIN item_image im
-            ON i.item_id = im.item_id
-               AND im.item_img_id = (
-                   SELECT MIN(item_img_id)
-                   FROM item_image
-                   WHERE item_id = i.item_id
-               )
             WHERE sub_subcategory = #{subSubCategory}
               AND i.item_id != #{itemId}
               AND i.item_deleted_at IS NULL
@@ -82,22 +75,15 @@ public interface ItemMapper {
             """)
     @Results({
             @Result(property = "lessorActivityScore", column = "user_activity_score"),
-            @Result(property = "itemImage", column = "item_img")
+            @Result(property = "itemImage", column = "thumbnail")
     })
     List<ItemSimpleInfo> selectSimilarItems(int itemId, String subSubCategory);
 
     @Select("""
-            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude, i.item_longitude, im.item_img
+            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude, i.item_longitude, i.thumbnail
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
-            LEFT JOIN item_image im
-            ON i.item_id = im.item_id
-               AND im.item_img_id = (
-                   SELECT MIN(item_img_id)
-                   FROM item_image
-                   WHERE item_id = i.item_id
-               )
             WHERE district = #{district}
               AND town = #{town}
               AND i.item_id != #{itemId}
@@ -107,7 +93,7 @@ public interface ItemMapper {
             """)
     @Results({
             @Result(property = "lessorActivityScore", column = "user_activity_score"),
-            @Result(property = "itemImage", column = "item_img")
+            @Result(property = "itemImage", column = "thumbnail")
     })
     List<ItemSimpleInfo> selectPeripheralItems(int itemId, String district, String town);
 
@@ -120,15 +106,8 @@ public interface ItemMapper {
 
     @Select("""
             <script>
-                SELECT item.item_id, item_img AS itemImageName, item_name, item_price, country, province, district, town
+                SELECT item.item_id, item.thumbnail AS itemImage, item_name, item_price, country, province, district, town
                 FROM item
-                LEFT JOIN item_image im
-                ON item.item_id = im.item_id
-                   AND im.item_img_id = (
-                       SELECT MIN(item_img_id)
-                       FROM item_image
-                       WHERE item_id = item.item_id
-                   )
                 WHERE 1=1
                 AND item.item_deleted_at IS NULL
                 <if test="latitude != null and longitude != null">
@@ -212,15 +191,8 @@ public interface ItemMapper {
     List<TradeReviewDto> selectTradeReviewsByLessorId(String lessorId);
 
     @Select("""
-            SELECT i.item_id, im.item_img AS item_image, i.item_name, item_price
+            SELECT i.item_id, i.item_name, item_price, i.thumbnail AS itemImage
             FROM item i
-            LEFT JOIN item_image im
-            ON i.item_id = im.item_id
-               AND im.item_img_id = (
-                   SELECT MIN(item_img_id)
-                   FROM item_image
-                   WHERE item_id = i.item_id
-               )
             WHERE user_id = #{lessorId}
             AND i.item_deleted_at IS NULL
             """)
@@ -241,15 +213,8 @@ public interface ItemMapper {
     List<String> selectArticleImagesByArticleId(int articleId);
 
     @Select("""
-            SELECT i.item_id, im.item_img AS item_image, i.item_name, item_price, country, province, district, town
+            SELECT i.item_id, i.thumbnail AS itemImage, i.item_name, item_price, country, province, district, town
             FROM item i
-            LEFT JOIN item_image im
-            ON i.item_id = im.item_id
-               AND im.item_img_id = (
-                   SELECT MIN(item_img_id)
-                   FROM item_image
-                   WHERE item_id = i.item_id
-               )
             WHERE user_id = #{lessorId}
             AND i.item_deleted_at IS NULL
             """)
@@ -287,4 +252,11 @@ public interface ItemMapper {
             WHERE item_id = #{itemId}
             """)
     int deleteByItemId(int itemId);
+
+    @Update("""
+            UPDATE item
+            SET thumbnail = #{thumbnail}
+            WHERE item_id = #{itemId}
+            """)
+    void insertThumbnail(String thumbnail, int itemId);
 }
