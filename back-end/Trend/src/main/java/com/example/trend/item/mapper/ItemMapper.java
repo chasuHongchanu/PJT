@@ -76,6 +76,7 @@ public interface ItemMapper {
                )
             WHERE sub_subcategory = #{subSubCategory}
               AND i.item_id != #{itemId}
+              AND i.item_deleted_at IS NULL
             ORDER BY u.user_activity_score DESC
             LIMIT 5;
             """)
@@ -100,6 +101,7 @@ public interface ItemMapper {
             WHERE district = #{district}
               AND town = #{town}
               AND i.item_id != #{itemId}
+              AND i.item_deleted_at IS NULL
             ORDER BY u.user_activity_score DESC
             LIMIT 5;
             """)
@@ -128,6 +130,7 @@ public interface ItemMapper {
                        WHERE item_id = item.item_id
                    )
                 WHERE 1=1
+                AND item.item_deleted_at IS NULL
                 <if test="latitude != null and longitude != null">
                     AND ST_Distance_Sphere(
                         POINT(#{longitude}, #{latitude}),
@@ -219,6 +222,7 @@ public interface ItemMapper {
                    WHERE item_id = i.item_id
                )
             WHERE user_id = #{lessorId}
+            AND i.item_deleted_at IS NULL
             """)
     List<ItemRetrieveResponseDto> selectLendItemsByLessorId(String lessorId);
 
@@ -247,6 +251,7 @@ public interface ItemMapper {
                    WHERE item_id = i.item_id
                )
             WHERE user_id = #{lessorId}
+            AND i.item_deleted_at IS NULL
             """)
     List<ItemRetrieveResponseDto> selectLessorItemsByLessorId(String lessorId);
 
@@ -276,8 +281,9 @@ public interface ItemMapper {
             """)
     int updateItem(ItemRequestDto itemUpdateDto);
 
-    @Delete("""
-            DELETE FROM item
+    @Update("""
+            UPDATE item
+            SET item_deleted_at = CURRENT_TIMESTAMP()
             WHERE item_id = #{itemId}
             """)
     int deleteByItemId(int itemId);

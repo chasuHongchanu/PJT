@@ -141,8 +141,8 @@ public class ItemServiceImpl implements ItemService{
             throw new CustomException(ErrorCode.FAIL_TO_DELETE_ITEM);
         }
 
-        // DB에서 아무 이상 없을 경우 Storage에서 이미지 삭제
-        fileUtil.deleteFiles(itemId);
+        // DB에서 아무 이상 없을 경우 item_image table, Storage에서 이미지 삭제 (hard delete)
+        // fileUtil.deleteFiles(itemId);
     }
 
     @Override
