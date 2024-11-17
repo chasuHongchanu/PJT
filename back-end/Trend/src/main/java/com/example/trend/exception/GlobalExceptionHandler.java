@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<?> customExceptionHandler(CustomException e) {
-        log.error("An unexpected error occurred: ", e);
+        log.error("An unexpected error occurred: ", e.getException());
         log.error(e.toString());
         return ResponseEntity.status(e.getErrorCode().getStatus()).body(e.toString());
     }
