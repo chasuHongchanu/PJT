@@ -62,9 +62,9 @@ CREATE TABLE `item_trade`
     `payment_account_number` int         NULL,
     `rental_start_date`      timestamp   NULL,
     `rental_end_date`        timestamp   NULL,
-    `trade_state`            varchar(10) NULL COMMENT '"대여 전", "대여 중", "반납 완료"',
-    `payment_status`         varchar(10) NULL COMMENT '"입금 전", "입금 완료"',
-    `status_updated_at`      timestamp   NULL,
+    `trade_state`            varchar(10) DEFAULT "대여 전" NULL COMMENT '"대여 전", "대여 중", "반납 완료"',
+    `payment_status`         varchar(10) DEFAULT "입금 전" NULL COMMENT '"입금 전", "입금 완료"',
+    `status_updated_at`      timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `payment_created_at`     timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`trade_id`)
 );
