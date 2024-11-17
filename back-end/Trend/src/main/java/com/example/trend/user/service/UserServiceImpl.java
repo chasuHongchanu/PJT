@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
     // refresh token을 이용해 새 access token 생성
     @Override
     @Transactional
-    public String refreshAccessToken(String refreshToken) {
+    public String refreshAccessToken(String refreshToken){
         // 리프레시 토큰 검증
         Claims claims = jwtUtil.validateToken(refreshToken);
         String userId = claims.getSubject();

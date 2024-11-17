@@ -15,6 +15,7 @@ public enum ErrorCode {
   // 500 INTERNAL_SERVER_ERROR
   FAIL_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 에러가 발생했습니다."),
+  JSON_PROCCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱 중 에러가 발생했습니다."),
 
   // 유저
   // > 회원가입
@@ -37,7 +38,10 @@ public enum ErrorCode {
   REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Refresh token이 만료되었습니다. 재로그인 하세요."),
   NOT_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "액세스 토큰이 존재하지 않거나 올바른 형태가 아닙니다."),
   FAIL_TO_DELETE_USER(HttpStatus.BAD_REQUEST, "유저정보 삭제에 실패했습니다."),
-  FAIL_TO_DELETE_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰 삭제에 실패했습니다.");
+  FAIL_TO_DELETE_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰 삭제에 실패했습니다."),
+
+  // Course
+  FAIL_TO_REGIST_COURSE(HttpStatus.INTERNAL_SERVER_ERROR, "코스 등록에 실패했습니다."), FAIL_TO_REGIST_COURSE_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "추천 관광지 목록 등록에 실패했습니다.");
 
 
 
