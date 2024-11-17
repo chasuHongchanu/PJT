@@ -1,18 +1,17 @@
 package com.example.trend.user.controller;
 
+import com.example.trend.config.SkipJwt;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.user.dto.*;
 import com.example.trend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,6 @@ import java.util.Map;
 @Tag(name = "User API", description = "API for user operations")
 public class UserController {
     private final UserService userService;
-    // jwt.refreshToken-validity=604800000
     @Value("${jwt.refreshToken-validity}")
     private long refreshTokenValidity;
 
@@ -42,6 +40,7 @@ public class UserController {
      * @param userSignupRequestDto
      * @return
      */
+    @SkipJwt
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "신규 회원 가입 서비스")
     @Transactional
@@ -51,6 +50,7 @@ public class UserController {
         return ResponseEntity.ok("SignUp Successful");
     }
 
+    @SkipJwt
     @GetMapping("/duplicate-check/{newId}")
     @Operation(summary = "아이디 중복 체크", description = "회원가입 화면에서 중복체크 클릭 시 실행")
     public ResponseEntity<?> duplicateCheck(@PathVariable("newId") String newId) {
@@ -62,6 +62,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @SkipJwt
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "아이디, 비밀번호로 로그인 후 JWT 반환")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) throws Exception {
@@ -89,6 +90,7 @@ public class UserController {
                 .body("Login successful");
     }
 
+    @SkipJwt
     @PostMapping("/refresh-token")
     @Operation(summary = "AccessToken 재발급", description = "refresh token을 이용해 access token 재발급")
     public ResponseEntity<?> refreshAccessToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) throws Exception {
