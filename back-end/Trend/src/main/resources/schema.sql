@@ -47,6 +47,7 @@ CREATE TABLE `item`
     `view_count`                  int         NULL,
     `item_created_at`             timestamp   NULL DEFAULT CURRENT_TIMESTAMP,
     `item_deleted_at`             timestamp   NULL,
+    `thumbnail`					  varchar(50),
     PRIMARY KEY (`item_id`)
 );
 
