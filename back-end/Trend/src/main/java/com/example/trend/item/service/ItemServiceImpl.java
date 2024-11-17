@@ -101,10 +101,6 @@ public class ItemServiceImpl implements ItemService{
                 .map(file -> "items/" + itemId + "/" + file.getOriginalFilename())
                 .toList();
 
-        for(String i: itemImageNames) {
-            System.out.println(i);
-        }
-
         // updateDto로 넘어온 사진과, 현재 저장된 사진들 중 다른 것이 있다면 이전에 저장된 사진은 삭제해야 함
         // DB에서 삭제 (다 날리고 다시 새로 삽입)
         itemMapper.deleteItemImage(itemId);
@@ -149,13 +145,22 @@ public class ItemServiceImpl implements ItemService{
     public ItemDetailResponseDto detail(int itemId, String userId) {
         ItemDetailResponseDto itemDetailResponseDto = itemMapper.selectDetailByItemId(itemId);
 
+        // itemId가 존재하지 않을 때 (없는 상품에 접근할 때)
+        if(itemDetailResponseDto == null) {
+            throw new CustomException(ErrorCode.NO_SUCH_ITEM);
+        }
+
         // item image 이름들을 추출해 저장
         String lessorId = itemDetailResponseDto.getLessorId();
         List<String> itemNameImages = itemMapper.selectItemNameImagesByItemId(itemId, lessorId);
         itemDetailResponseDto.setItemImageNames(itemNameImages);
 
         // 로그인 한 유저가 해당 물품을 wishlist에 담아놨는가에 대한 정보 저장
-        boolean isWishList = itemMapper.isWishListItem(itemId, userId) == 1;
+        boolean isWishList = false;
+        // 로그인 한 유저인 경우 / 안 한 유저는 무조건 false
+        if(userId != null) {
+            isWishList = itemMapper.isWishListItem(itemId, userId) == 1;
+        }
         itemDetailResponseDto.setWishList(isWishList);
 
         // 유사 물품 정보 추출
@@ -180,6 +185,12 @@ public class ItemServiceImpl implements ItemService{
     @Override
     public ItemLessorInfoDto getLessorInfo(String lessorId) {
         ItemLessorInfoDto itemLessorInfoDto = itemMapper.selectItemLessorInfoByLessorId(lessorId);
+
+        // lessorId가 존재하지 않을 때 (없는 판매자 정보에 접근할 때)
+        if(itemLessorInfoDto == null) {
+            throw new CustomException(ErrorCode.NO_SUCH_LESSOR);
+        }
+
         List<TradeReviewDto> tradeReviewDtos = itemMapper.selectTradeReviewsByLessorId(lessorId);
         List<ItemRetrieveResponseDto> lendItems = itemMapper.selectLendItemsByLessorId(lessorId);
         List<ArticleSimpleInfo> articles = itemMapper.selectArticlesByLessorId(lessorId);
@@ -203,7 +214,14 @@ public class ItemServiceImpl implements ItemService{
 
     @Override
     public List<ItemRetrieveResponseDto> getLessorItems(String lessorId) {
-        return itemMapper.selectLessorItemsByLessorId(lessorId);
+        List<ItemRetrieveResponseDto> lessorItems = itemMapper.selectLessorItemsByLessorId(lessorId);
+
+        // lessorId가 존재하지 않을 때 (없는 판매자 정보에 접근할 때)
+        if(lessorItems == null) {
+            throw new CustomException(ErrorCode.NO_SUCH_LESSOR);
+        }
+
+        return lessorItems;
     }
 
 }

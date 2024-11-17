@@ -9,6 +9,8 @@ public enum ErrorCode {
   INVALID_RENTAL_PERIOD(HttpStatus.BAD_REQUEST, "시작일은 종료일보다 빨라야 합니다."),
   INVALID_PRICE_RANGE(HttpStatus.BAD_REQUEST, "최대 가격이 최소 가격보다 커야 합니다."),
   FAIL_TO_DELETE_ITEM(HttpStatus.BAD_REQUEST, "물품 삭제에 실패했습니다."),
+  NO_SUCH_ITEM(HttpStatus.BAD_REQUEST, "물품이 존재하지 않습니다."),
+  NO_SUCH_LESSOR(HttpStatus.BAD_REQUEST, "판매자가 존재하지 않습니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   FAIL_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
