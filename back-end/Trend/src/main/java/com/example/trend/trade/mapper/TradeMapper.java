@@ -3,9 +3,11 @@ package com.example.trend.trade.mapper;
 import com.example.trend.trade.dto.TradeReservationRegistRequestDto;
 import com.example.trend.trade.dto.TradeReservationRequestDto;
 import com.example.trend.trade.dto.TradeReservationResponseDto;
+import com.example.trend.trade.dto.TradeReservationUpdateRequestDto;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface TradeMapper {
@@ -24,4 +26,14 @@ public interface TradeMapper {
             VALUES (#{itemId}, #{lessorId}, #{lesseeId}, #{tradePrice}, #{tradeDeposit}, #{paymentAccountNumber}, #{tradeRentalStartDate}, #{tradeRentalEndDate})
             """)
     int insertReservation(TradeReservationRegistRequestDto tradeReservationRegistRequestDto);
+
+    @Update("""
+            UPDATE item_trade
+            SET trade_price = #{tradePrice},
+                trade_deposit = #{tradeDeposit},
+                rental_start_date = #{tradeRentalStartDate},
+                rental_end_date = #{tradeRentalEndDate}
+            WHERE trade_id = #{tradeId}
+            """)
+    int updateReservation(TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto);
 }

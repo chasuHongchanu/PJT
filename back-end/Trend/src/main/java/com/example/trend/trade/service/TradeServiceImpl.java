@@ -5,6 +5,7 @@ import com.example.trend.exception.ErrorCode;
 import com.example.trend.trade.dto.TradeReservationRegistRequestDto;
 import com.example.trend.trade.dto.TradeReservationRequestDto;
 import com.example.trend.trade.dto.TradeReservationResponseDto;
+import com.example.trend.trade.dto.TradeReservationUpdateRequestDto;
 import com.example.trend.trade.mapper.TradeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,5 +50,22 @@ public class TradeServiceImpl implements TradeService{
         tradeReservationRegistRequestDto.setPaymentAccountNumber(accountNumber);
 
         return tradeMapper.insertReservation(tradeReservationRegistRequestDto);
+    }
+
+    @Override
+    public int updateReservation(TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto) {
+        // 시작일이 종료일보다 늦은 경우
+        String rentalStartDate = tradeReservationUpdateRequestDto.getTradeRentalStartDate();
+        String rentalEndDate = tradeReservationUpdateRequestDto.getTradeRentalEndDate();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(rentalStartDate, formatter);
+        LocalDate endDate = LocalDate.parse(rentalEndDate, formatter);
+
+        if(startDate.isAfter(endDate)) {
+            throw new CustomException(ErrorCode.INVALID_RENTAL_PERIOD);
+        }
+
+        return tradeMapper.updateReservation(tradeReservationUpdateRequestDto);
     }
 }

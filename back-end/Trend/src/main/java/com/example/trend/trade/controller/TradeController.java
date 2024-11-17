@@ -1,9 +1,6 @@
 package com.example.trend.trade.controller;
 
-import com.example.trend.trade.dto.TradeReservationRegistRequestDto;
-import com.example.trend.trade.dto.TradeReservationRequestDto;
-import com.example.trend.trade.dto.TradeRegistDto;
-import com.example.trend.trade.dto.TradeReservationResponseDto;
+import com.example.trend.trade.dto.*;
 import com.example.trend.trade.service.TradeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +55,30 @@ public class TradeController {
         }
         else {
             response.put("message", "등록에 문제가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+    }
+
+    /**
+     * 거래 예약 상세 페이지에서 예약 변경을 누르면 요청되는 api 입니다.
+     * 대여료,보증금, 대여 기간을 다시 입력받아 기존 거래 예약을 수정합니다.
+     *
+     * @param: 대여료, 보증금, 대여 시작 기간, 대여 종료 기간
+     * @return: 거래 수정 완료 message | 거래 수정 실패 message
+     */
+    @PutMapping("/reservation")
+    public ResponseEntity<?> tradeReservationUpdate(@Valid @ModelAttribute("tradeReservationUpdateRequestDto") TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto) {
+        int result = tradeService.updateReservation(tradeReservationUpdateRequestDto);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result == 1) {
+            response.put("message", "성공적으로 수정되었습니다.");
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(response);
+        }
+        else {
+            response.put("message", "수정에 문제가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(response);
         }
