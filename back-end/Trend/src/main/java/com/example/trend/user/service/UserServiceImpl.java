@@ -1,18 +1,17 @@
 package com.example.trend.user.service;
 
+import com.example.trend.common.MailService;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.user.dto.*;
 import com.example.trend.user.entity.RefreshToken;
 import com.example.trend.user.entity.User;
+import com.example.trend.user.jwt.JwtUtil;
 import com.example.trend.user.mapper.RefreshTokenMapper;
 import com.example.trend.user.mapper.UserMapper;
-import com.example.trend.user.jwt.JwtUtil;
 import com.example.trend.util.FileUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -29,16 +29,17 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenMapper refreshTokenMapper;
     private final FileUtil fileUtil;
+    private final MailService mailService;
 
     @Value("${jwt.refreshToken-validity}")
     private long MAX_REFRESH_TOKEN_AGE_MS;
 
-    @Autowired
-    public UserServiceImpl(UserMapper userMapper, JwtUtil jwtUtil, RefreshTokenMapper refreshTokenMapper, FileUtil fileUtil) {
-        this.userMapper = userMapper;
-        this.jwtUtil = jwtUtil;
-        this.refreshTokenMapper = refreshTokenMapper;
+    public UserServiceImpl(MailService mailService, FileUtil fileUtil, RefreshTokenMapper refreshTokenMapper, JwtUtil jwtUtil, UserMapper userMapper) {
+        this.mailService = mailService;
         this.fileUtil = fileUtil;
+        this.refreshTokenMapper = refreshTokenMapper;
+        this.jwtUtil = jwtUtil;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -217,16 +218,55 @@ public class UserServiceImpl implements UserService {
         try {
             refreshTokenMapper.deleteRefreshToken(requestUserId);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.FAIL_TO_DELETE_REFRESH_TOKEN, e.getMessage());
+            throw new CustomException(ErrorCode.FAIL_TO_DELETE_REFRESH_TOKEN, e);
         }
     }
 
     @Override
+    @Transactional
     public void deleteUser(String requestUserId) {
         try {
             int result = userMapper.deleteUser(requestUserId);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.FAIL_TO_DELETE_USER, e.getMessage());
+            throw new CustomException(ErrorCode.FAIL_TO_DELETE_USER, e);
         }
     }
+
+    @Override
+    @Transactional
+    public void resetPassword(UserResetPwRequestDto userResetPwRequestDto) {
+        // 해당 유저 정보가 있는지 확인 (없으면 UserNotFound 반환)
+        if (userMapper.selectUserByIdAndEmail(userResetPwRequestDto) != 1) {
+            throw new CustomException(ErrorCode.NOT_FOUND_USER);
+        }
+
+        // 임시 비밀번호 생성 및 비밀번호 업데이트
+        String tmpPassword = generateTemporaryPassword();
+        String hashedPassword = hashPassword(tmpPassword);
+        userResetPwRequestDto.setNewPassword(hashedPassword);
+        if (userMapper.updateUserPassword(userResetPwRequestDto) != 1) {
+            throw new CustomException(ErrorCode.FAIL_TO_RESET_PASSWORD);
+        }
+
+        // 임시 비밀번호 메일로 전송
+        String subject = userResetPwRequestDto.getUserId() + "님의 임시 비밀번호 입니다.";
+        String body = userResetPwRequestDto.getUserId() + """
+				님의 임시 비밀번호 입니다.
+				로그인 후 비밀번호를 변경해주세요.
+				임시 비밀번호 : 
+				""" + tmpPassword;
+
+        try {
+            mailService.sendEmail(userResetPwRequestDto.getUserEmail(), subject, body);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SEND_EMAIL, e);
+        }
+
+    }
+
+    // 8자리 임시 비밀번호 생성
+    private String generateTemporaryPassword() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
 }

@@ -155,4 +155,12 @@ public class UserController {
         userService.deleteUser(requestUserId);
         return ResponseEntity.ok("Delete Successful");
     }
+
+    @SkipJwt
+    @PostMapping("/reset-password")
+    @Operation(summary = "비밀번호 찾기", description = "임시 비밀번호를 생성하고 이메일을 통해 유저에게 전송")
+    public ResponseEntity<?> resetPassword(@RequestBody UserResetPwRequestDto userResetPwRequestDto){
+        userService.resetPassword(userResetPwRequestDto);
+        return ResponseEntity.ok("Reset Password Successful, 임시 비밀번호 전송 완료");
+    }
 }
