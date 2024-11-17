@@ -176,6 +176,7 @@ public class UserServiceImpl implements UserService {
                 .userPhoneNumber(user.getUserPhoneNumber())
                 .userIntroduction(user.getUserIntroduction())
                 .userRating(user.getUserRating())
+                .country(user.getCountry())
                 .userCreatedAt(user.getUserCreatedAt())
                 .build();
 
