@@ -213,7 +213,19 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void logout(String requestUserId) {
-        refreshTokenMapper.deleteRefreshToken(requestUserId);
+        try {
+            refreshTokenMapper.deleteRefreshToken(requestUserId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_DELETE_REFRESH_TOKEN, e.getMessage());
+        }
+    }
 
+    @Override
+    public void deleteUser(String requestUserId) {
+        try {
+            int result = userMapper.deleteUser(requestUserId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_DELETE_USER, e.getMessage());
+        }
     }
 }

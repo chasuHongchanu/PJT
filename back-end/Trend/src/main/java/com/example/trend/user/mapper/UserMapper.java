@@ -35,4 +35,7 @@ public interface UserMapper {
             "country = #{dto.country}\n" +
             "WHERE user_id = #{dto.userId}")
     void updateUser(@Param("dto") UserUpdateRequestDto userUpdateRequestDto, @Param("imgUrl") String imgUrl);
+
+    @Delete("DELETE FROM user WHERE user_id = #{requestUserId}")
+    int deleteUser(String requestUserId);
 }

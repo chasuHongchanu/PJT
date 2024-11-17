@@ -16,4 +16,6 @@ public interface UserService {
     void updateUser(UserUpdateRequestDto userUpdateRequestDto) throws Exception;
 
     void logout(String requestUserId);
+
+    void deleteUser(String requestUserId);
 }
