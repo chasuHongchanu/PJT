@@ -51,7 +51,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         // 헤더에서 Authorization 추출
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (!jwtUtil.hasAuthHeader(authHeader)) {
             // 액세스 토큰이 없거나 형식이 올바르지 않음
             log.error("토큰이 없거나 형식이 올바르지 않습니다.");
             throw new CustomException(ErrorCode.NOT_ACCESS_TOKEN);
@@ -68,9 +68,8 @@ public class JwtInterceptor implements HandlerInterceptor {
             request.setAttribute("userNickname", claims.get("nickname"));
 
             return true;
-        } catch (JwtException e) {
-            // 액세스 토큰이 유효하지 않거나 만료됨
-            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
     }
 

@@ -4,10 +4,15 @@ import com.example.trend.config.SkipJwt;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.user.dto.*;
+import com.example.trend.user.jwt.JwtUtil;
 import com.example.trend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,15 +29,12 @@ import java.util.Map;
 @RequestMapping("/api/user")
 @Slf4j
 @Tag(name = "User API", description = "API for user operations")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final JwtUtil jwtUtil;
     @Value("${jwt.refreshToken-validity}")
     private long refreshTokenValidity;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     /**
      * 회원가입 API

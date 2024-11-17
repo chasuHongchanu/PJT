@@ -18,6 +18,6 @@ public class CustomException extends RuntimeException {
 
     @Override
     public String toString() {
-        return errorCode + " : " + errorCode.getMessage() + "\n" + exception.getMessage();
+        return errorCode + " : " + errorCode.getMessage() + "\n" + "errorMessage: " + exception.getMessage();
     }
 }

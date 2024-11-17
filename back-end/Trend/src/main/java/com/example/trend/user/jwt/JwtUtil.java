@@ -1,11 +1,14 @@
 package com.example.trend.user.jwt;
 
+import com.example.trend.exception.CustomException;
+import com.example.trend.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +17,7 @@ import java.util.Base64;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil {
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -61,16 +65,33 @@ public class JwtUtil {
     // 토큰 검증 메서드: 검증할 토큰을 입력받아 Claims 반환
     // Claims: token의 payload에 포함된 정보 조각(subject(user id), 닉네임, 만료 시간 등)
     public Claims validateToken(String token) throws JwtException {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try{
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN, e);
+        }
     }
 
     // 액세스 토큰의 만료 시간을 반환
     public long getExpirationTime(String token) throws JwtException {
         Claims claims = validateToken(token);
         return claims.getExpiration().getTime();
+    }
+
+    public boolean hasAuthHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return false;
+        }
+        return true;
+    }
+
+    public String getUserId(String authHeader) {
+        String accessToken = authHeader.substring(7);
+        Claims claims = validateToken(accessToken);
+        return claims.getSubject();
     }
 }
