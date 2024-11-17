@@ -1,12 +1,11 @@
 package com.example.trend.user.mapper;
 
 import com.example.trend.user.dto.UserLoginRequestDto;
+import com.example.trend.user.dto.UserResetPwRequestDto;
 import com.example.trend.user.dto.UserSignupRequestDto;
 import com.example.trend.user.dto.UserUpdateRequestDto;
 import com.example.trend.user.entity.User;
 import org.apache.ibatis.annotations.*;
-
-import java.sql.Timestamp;
 
 @Mapper
 public interface UserMapper {
@@ -38,4 +37,10 @@ public interface UserMapper {
 
     @Update("UPDATE user SET user_deleted_at = NOW()  WHERE user_id = #{requestUserId}")
     int deleteUser(String requestUserId);
+
+    @Select("SELECT COUNT(*) FROM user WHERE user_id = #{userId} AND user_email = #{userEmail}")
+    int selectUserByIdAndEmail(UserResetPwRequestDto userResetPwRequestDto);
+
+    @Update("UPDATE user SET user_password = #{newPassword} WHERE user_id = #{userId} AND user_email = #{userEmail}")
+    int updateUserPassword(UserResetPwRequestDto userResetPwRequestDto);
 }

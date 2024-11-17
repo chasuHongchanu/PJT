@@ -10,6 +10,8 @@ public enum ErrorCode {
   INVALID_PRICE_RANGE(HttpStatus.BAD_REQUEST, "최대 가격이 최소 가격보다 커야 합니다."),
   FAIL_TO_DELETE_ITEM(HttpStatus.BAD_REQUEST, "물품 삭제에 실패했습니다."),
 
+  // 500 INTERNAL_SERVER_ERROR
+  FAIL_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
 
   // 유저
   // > 회원가입
@@ -20,6 +22,9 @@ public enum ErrorCode {
   NOT_FOUND_LOGIN_USER(HttpStatus.BAD_REQUEST, "아이디 혹은 비밀번호가 틀렸습니다."),
   NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "일치하는 유저가 존재하지 않습니다."),
   FAIL_TO_UPDATE_USER(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보 업데이트에 실패했습니다."), FAIL_TO_HASING_PASSWORD(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 해싱에 실패했습니다."),
+
+  // Password reset
+  FAIL_TO_RESET_PASSWORD(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 리셋에 실패했습니다."),
 
   // > JWT token
   INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "유효한 refresh token이 아닙니다."),
