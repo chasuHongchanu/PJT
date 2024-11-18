@@ -81,8 +81,8 @@ public class FileUtil {
         }
     }
 
-    public void deleteFiles(int itemId) {
-        for (Blob blob : bucket.list(Storage.BlobListOption.prefix("items/" + itemId + "/")).iterateAll()) {
+    public void deleteFiles(String controller, int id) {
+        for (Blob blob : bucket.list(Storage.BlobListOption.prefix(controller + "/" + id + "/")).iterateAll()) {
             blob.delete();
         }
     }
