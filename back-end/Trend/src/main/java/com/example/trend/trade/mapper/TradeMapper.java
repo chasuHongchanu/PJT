@@ -138,4 +138,11 @@ public interface TradeMapper {
             )
             """)
     void updateLessorRating(int tradeId, int rating);
+
+    @Update("""
+            UPDATE item_trade
+            SET trade_state = "반납 완료"
+            WHERE trade_id = #{tradeId}
+            """)
+    int updateTradeStateToReturn(int tradeId);
 }

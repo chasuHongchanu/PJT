@@ -150,4 +150,10 @@ public class TradeServiceImpl implements TradeService{
         return result;
     }
 
+    @Transactional
+    @Override
+    public int updatetradeState(int tradeId) {
+        return tradeMapper.updateTradeStateToReturn(tradeId);
+    }
+
 }
