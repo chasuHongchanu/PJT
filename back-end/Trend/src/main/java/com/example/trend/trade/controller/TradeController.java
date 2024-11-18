@@ -74,7 +74,7 @@ public class TradeController {
         Map<String, Object> response = new HashMap<>();
         if(result == 1) {
             response.put("message", "성공적으로 수정되었습니다.");
-            return ResponseEntity.status(HttpStatus.CREATED)
+            return ResponseEntity.status(HttpStatus.OK)
                     .body(response);
         }
         else {
@@ -82,5 +82,27 @@ public class TradeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(response);
         }
+    }
+
+    /**
+     * 거래 예약 신청 및 변경 페이지를 제외한 거래 상세 내용에 대한 api 입니다.
+     * 결제 상태, 입금 상태, 대여 시점 사진까지 모두 반환합니다.
+     *
+     * @param: tradeId
+     * @return: 거래에 대한 모든 정보
+     */
+    @GetMapping("/detail")
+    public ResponseEntity<?> tradeDetail(@RequestParam int tradeId) {
+        TradeDetailResponseDto tradeDetailResponseDto = tradeService.getTradeDetailInfo(tradeId);
+
+        if(tradeDetailResponseDto == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "정보 조회에 문제가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(tradeDetailResponseDto);
     }
 }
