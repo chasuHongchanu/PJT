@@ -13,4 +13,6 @@ public interface TradeService {
     TradeDetailResponseDto getTradeDetailInfo(int tradeId);
 
     int registItemImages(@Valid TradeImageRegistRequestDto tradeImageRegistRequestDto);
+
+    TradeDetailResponseDto getTradePaymentInfo(int tradeId);
 }

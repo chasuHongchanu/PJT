@@ -129,4 +129,28 @@ public class TradeController {
                     .body(response);
         }
     }
+
+    /**
+     * 거래 상세 내역 페이지에서, 임차인에게 예약 완료 후 나타나는 결제하기 페이지에 필요한 정보를 반환합니다.
+     * tradeId를 받아 결제창에 나타나는 정보들을 보여줍니다.
+     *
+     * @param: tradeId
+     * @return:
+     */
+    @GetMapping("/pay")
+    public ResponseEntity<?> tradePaymentView(@RequestParam int tradeId) {
+        TradeDetailResponseDto tradeDetailResponseDto = tradeService.getTradePaymentInfo(tradeId);
+
+        if(tradeDetailResponseDto == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "존재하지 않는 결제 정보입니다.");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(tradeDetailResponseDto);
+        }
+    }
 }

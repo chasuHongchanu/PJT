@@ -88,4 +88,5 @@ public interface TradeMapper {
             WHERE trade_id = #{tradeId}
             """)
     void updateTradeState(int tradeId);
+
 }
