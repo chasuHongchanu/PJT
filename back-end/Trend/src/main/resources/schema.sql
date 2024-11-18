@@ -70,10 +70,9 @@ CREATE TABLE IF NOT EXISTS `article_comment` (
 -- Table `article_comment_like`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `article_comment_like` (
-                                                      `article_comment_like_id` INT NOT NULL AUTO_INCREMENT,
                                                       `article_comment_id` INT NOT NULL,
                                                       `user_id` VARCHAR(50) NOT NULL,
-    PRIMARY KEY (`article_comment_like_id`),
+    PRIMARY KEY (`article_comment_id`, `user_id`),
     CONSTRAINT `FK_article_comment_TO_like`
     FOREIGN KEY (`article_comment_id`)
     REFERENCES `article_comment` (`article_comment_id`)
@@ -130,10 +129,9 @@ CREATE TABLE IF NOT EXISTS `course_comment` (
 -- Table `course_comment_like`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `course_comment_like` (
-                                                     `course_comment_like_id` INT NOT NULL AUTO_INCREMENT,
                                                      `course_comment_id` INT NOT NULL,
                                                      `user_id` VARCHAR(50) NOT NULL,
-    PRIMARY KEY (`course_comment_like_id`),
+    PRIMARY KEY (`course_comment_id`, `user_id`),
     CONSTRAINT `FK_course_comment_TO_course_comment_like`
     FOREIGN KEY (`course_comment_id`)
     REFERENCES `course_comment` (`course_comment_id`)
@@ -144,8 +142,6 @@ CREATE TABLE IF NOT EXISTS `course_comment_like` (
     REFERENCES `user` (`user_id`)
     ON DELETE CASCADE
     ON UPDATE RESTRICT);
-
-USE `trend` ;
 
 -- -----------------------------------------------------
 -- Table `article_image`
@@ -164,10 +160,9 @@ CREATE TABLE IF NOT EXISTS `article_image` (
 -- Table `article_like`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `article_like` (
-                                              `article_like_id` INT NOT NULL AUTO_INCREMENT,
                                               `user_id` VARCHAR(50) NOT NULL,
     `article_id` INT NOT NULL,
-    PRIMARY KEY (`article_like_id`),
+    PRIMARY KEY (`user_id`,`article_id`),
     CONSTRAINT `FK_article_TO_article_like_1`
     FOREIGN KEY (`article_id`)
     REFERENCES `article` (`article_id`)
@@ -269,10 +264,9 @@ CREATE TABLE IF NOT EXISTS `course_image` (
 -- Table `course_like`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `course_like` (
-                                             `course_like_id` INT NOT NULL AUTO_INCREMENT,
                                              `course_id` INT NOT NULL,
                                              `user_id` VARCHAR(50) NOT NULL,
-    PRIMARY KEY (`course_like_id`),
+    PRIMARY KEY (`course_id`,`user_id`),
     CONSTRAINT `FK_course_TO_course_like_1`
     FOREIGN KEY (`course_id`)
     REFERENCES `course` (`course_id`)

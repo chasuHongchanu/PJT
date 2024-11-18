@@ -97,14 +97,14 @@ public class CourseController {
     @Operation(summary = "여행 코스 게시물 좋아요", description = "여행 코스 좋아요 처리 기능")
     public ResponseEntity<?> likeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
         courseService.likeCourse(courseId, userId);
-        return ResponseEntity.ok("Like CourseListResponseDto Successful");
+        return ResponseEntity.ok("Like Course Successful");
     }
 
     @DeleteMapping("/{courseId}/like")
     @Operation(summary = "여행 코스 게시물 좋아요 취소", description = "여행 코스 좋아요  취소 처리 기능")
     public ResponseEntity<?> unLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
         courseService.unLikeCourse(courseId, userId);
-        return ResponseEntity.ok("UnLike CourseListResponseDto Successful");
+        return ResponseEntity.ok("UnLike Course Successful");
     }
 
     @GetMapping("/{courseId}/like")
@@ -112,6 +112,27 @@ public class CourseController {
     public ResponseEntity<?> isLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
         boolean result = courseService.isLikeCourse(courseId, userId);
         return ResponseEntity.ok("좋아요 여부: " + result);
+    }
+
+    @PostMapping("/comment/like")
+    @Operation(summary = "여행 코스 게시물 댓글 좋아요", description = "여행 코스 댓글 좋아요 처리 기능")
+    public ResponseEntity<?> likeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId){
+        courseService.likeCourseComment(courseCommentId, userId);
+        return ResponseEntity.ok("Like CourseComment Successful");
+    }
+
+    @DeleteMapping("/comment/like")
+    @Operation(summary = "여행 코스 게시물 댓글 좋아요 취소", description = "여행 코스 댓글 좋아요  취소 처리 기능")
+    public ResponseEntity<?> unLikeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId){
+        courseService.unLikeCourseComment(courseCommentId, userId);
+        return ResponseEntity.ok("UnLike CourseComment Successful");
+    }
+
+    @GetMapping("/comment/like")
+    @Operation(summary = "여행 코스 게시물 댓글 좋아요 확인", description = "좋아요 한 여행 코스 댓글인지 확인하는 기능")
+    public ResponseEntity<?> isLikeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId){
+        boolean result = courseService.isLikeCourseComment(courseCommentId, userId);
+        return ResponseEntity.ok("댓글 좋아요 여부: " + result);
     }
 
 }

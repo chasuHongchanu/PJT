@@ -142,7 +142,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             courseLikeMapper.insertLikeCourse(courseId, userId);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.FAIL_TO_LIKE_COURSE, e);
+            throw new CustomException(ErrorCode.FAIL_TO_LIKE, e);
         }
     }
 
@@ -151,7 +151,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             courseLikeMapper.deleteLikeCourse(courseId, userId);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.FAIL_TO_UNLIKE_COURSE, e);
+            throw new CustomException(ErrorCode.FAIL_TO_UNLIKE, e);
         }
     }
 
@@ -166,5 +166,36 @@ public class CourseServiceImpl implements CourseService {
         } catch (Exception e) {
             throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
         }
+    }
+
+    @Override
+    public void likeCourseComment(int courseCommentId, String userId) {
+        try {
+            courseLikeMapper.insertCourseCommentLike(courseCommentId, userId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_LIKE, e);
+        }
+    }
+
+    @Override
+    public void unLikeCourseComment(int courseCommentId, String userId) {
+        try {
+            courseLikeMapper.deleteCourseCommentLike(courseCommentId, userId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
+        }
+    }
+
+    @Override
+    public boolean isLikeCourseComment(int courseCommentId, String userId) {
+        try {
+            int result = courseLikeMapper.selectCourseCommentLikeByCourseIdAndUserId(courseCommentId, userId);
+            if (result == 1) {
+                return true;
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
+        }
+        return false;
     }
 }
