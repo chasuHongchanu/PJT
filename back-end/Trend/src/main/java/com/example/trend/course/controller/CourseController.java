@@ -134,5 +134,4 @@ public class CourseController {
         boolean result = courseService.isLikeCourseComment(courseCommentId, userId);
         return ResponseEntity.ok("댓글 좋아요 여부: " + result);
     }
-
 }

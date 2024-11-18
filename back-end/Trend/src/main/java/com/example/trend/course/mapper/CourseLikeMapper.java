@@ -16,6 +16,9 @@ public interface CourseLikeMapper {
     @Select("SELECT COUNT(*) FROM course_like WHERE course_id = #{courseId} AND user_id = #{userId}")
     int selectCourseLikeByCourseIdAndUserId(int courseId, String userId);
 
+    @Select("SELECT COUNT(*) FROM course_like WHERE course_id = #{courseId}")
+    int selectCourseLikeCountByCourseId(int courseId);
+
     @Insert("INSERT INTO course_comment_like VALUES (#{commentId}, #{userId})")
     void insertCourseCommentLike(int commentId, String userId);
 
@@ -24,4 +27,7 @@ public interface CourseLikeMapper {
 
     @Select("SELECT COUNT(*) FROM course_comment_like WHERE course_comment_id = #{courseCommentId} AND user_id = #{userId}")
     int selectCourseCommentLikeByCourseIdAndUserId(int courseCommentId, String userId);
+
+    @Select("SELECT COUNT(*) FROM course_comment_like WHERE course_comment_id = #{courseCommentId}")
+    int selectCommentLikeCountByCourseId(int courseCommentId);
 }
