@@ -81,4 +81,11 @@ public interface TradeMapper {
             </script>
             """)
     int insertItemConditionImages(@Param("tradeId") int tradeId, @Param("itemConditionImageNames") List<String> itemConditionImageNames);
+
+    @Update("""
+            UPDATE item_trade
+            SET trade_state = "대여 중"
+            WHERE trade_id = #{tradeId}
+            """)
+    void updateTradeState(int tradeId);
 }
