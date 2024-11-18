@@ -106,4 +106,9 @@ public class TradeServiceImpl implements TradeService{
 
         return result;
     }
+
+    @Override
+    public TradeDetailResponseDto getTradePaymentInfo(int tradeId) {
+        return tradeMapper.selectTradeDetail(tradeId);
+    }
 }
