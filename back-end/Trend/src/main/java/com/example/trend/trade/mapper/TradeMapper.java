@@ -89,4 +89,10 @@ public interface TradeMapper {
             """)
     void updateTradeState(int tradeId);
 
+    @Update("""
+            UPDATE item_trade
+            SET payment_status = "입금 완료"
+            WHERE trade_id = #{tradeId}
+            """)
+    int updatePaymentStatus(int tradeId);
 }
