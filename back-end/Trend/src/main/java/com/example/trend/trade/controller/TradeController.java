@@ -202,4 +202,20 @@ public class TradeController {
                     .body(response);
         }
     }
+
+    @GetMapping("/review")
+    public ResponseEntity<?> tradeReview(@RequestParam int tradeId) {
+        TradeReviewResponseDto tradeReviewResponseDto = tradeService.getTradeInfoForReview(tradeId);
+        if(tradeReviewResponseDto == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "존재하지 않는 거래 정보입니다.");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(tradeReviewResponseDto);
+        }
+    }
 }

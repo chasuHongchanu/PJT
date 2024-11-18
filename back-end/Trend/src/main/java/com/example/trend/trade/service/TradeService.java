@@ -19,4 +19,6 @@ public interface TradeService {
     int updatePaymentStatus(int tradeId);
 
     int deleteReservation(int tradeId);
+
+    TradeReviewResponseDto getTradeInfoForReview(int tradeId);
 }
