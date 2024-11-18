@@ -118,4 +118,24 @@ public interface TradeMapper {
             WHERE t.trade_id = #{tradeId}
             """)
     TradeReviewResponseDto selectTradeInfoForReview(int tradeId);
+
+    @Insert("""
+            INSERT
+            INTO trade_review(trade_id, author_user_id, lessor_id, lessee_id, trade_review_content, trade_review_rating)
+            SELECT trade_id, #{userId}, lessor_id, lessee_id, #{reviewContent}, #{rating}
+            FROM item_trade
+            WHERE trade_id = #{tradeId}
+            """)
+    int insertReview(TradeReviewRequestDto tradeReviewRequestDto);
+
+    @Update("""
+            UPDATE user
+            SET user_rating = user_rating + (0.05 * #{rating})
+            WHERE user_id = (
+                SELECT lessor_id
+                FROM item_trade
+                WHERE trade_id = #{tradeId}
+            )
+            """)
+    void updateLessorRating(int tradeId, int rating);
 }

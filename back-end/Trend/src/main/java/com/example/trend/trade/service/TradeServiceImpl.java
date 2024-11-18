@@ -120,11 +120,13 @@ public class TradeServiceImpl implements TradeService{
         return result;
     }
 
+    @Transactional
     @Override
     public TradeDetailResponseDto getTradePaymentInfo(int tradeId) {
         return tradeMapper.selectTradeDetail(tradeId);
     }
 
+    @Transactional
     @Override
     public int updatePaymentStatus(int tradeId) {
         return tradeMapper.updatePaymentStatus(tradeId);
@@ -134,6 +136,18 @@ public class TradeServiceImpl implements TradeService{
     @Override
     public TradeReviewResponseDto getTradeInfoForReview(int tradeId) {
         return tradeMapper.selectTradeInfoForReview(tradeId);
+    }
+
+    @Transactional
+    @Override
+    public int registReview(TradeReviewRequestDto tradeReviewRequestDto) {
+        // 리뷰 내용 삽입
+        int result = tradeMapper.insertReview(tradeReviewRequestDto);
+
+        // 판매자 평점 상승
+        tradeMapper.updateLessorRating(tradeReviewRequestDto.getTradeId(), tradeReviewRequestDto.getRating());
+
+        return result;
     }
 
 }
