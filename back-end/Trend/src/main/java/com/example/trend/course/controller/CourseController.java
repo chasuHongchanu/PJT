@@ -1,10 +1,7 @@
 package com.example.trend.course.controller;
 
 import com.example.trend.config.SkipJwt;
-import com.example.trend.course.dto.CourseRegistRequestDto;
-import com.example.trend.course.dto.CourseResponseDto;
-import com.example.trend.course.dto.CourseUpdateRequestDto;
-import com.example.trend.course.dto.SpotRequestDto;
+import com.example.trend.course.dto.*;
 import com.example.trend.course.service.CourseService;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
@@ -24,7 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/course")
 @Slf4j
-@Tag(name = "CourseResponseDto API", description = "API for course operations")
+@Tag(name = "CourseListResponseDto API", description = "API for course operations")
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
@@ -40,7 +37,7 @@ public class CourseController {
 
         // 코스 등록
         courseService.registCourse(courseRegistRequestDto);
-        return ResponseEntity.ok("Regist CourseResponseDto Successful");
+        return ResponseEntity.ok("Regist CourseListResponseDto Successful");
     }
 
     @PutMapping
@@ -54,7 +51,7 @@ public class CourseController {
 
         // 코스 등록
         courseService.updateCourse(courseUpdateRequestDto);
-        return ResponseEntity.ok("Update CourseResponseDto Successful");
+        return ResponseEntity.ok("Update CourseListResponseDto Successful");
     }
 
     @DeleteMapping
@@ -62,7 +59,7 @@ public class CourseController {
     public ResponseEntity<?> delete(@RequestParam int courseId, @RequestAttribute String userId){
         // 게시글 삭제
         courseService.deleteCourse(courseId, userId);
-        return ResponseEntity.ok("Delete CourseResponseDto Successful");
+        return ResponseEntity.ok("Delete CourseListResponseDto Successful");
     }
 
     private List<SpotRequestDto> getSpotList(String spotListJson){
@@ -80,10 +77,27 @@ public class CourseController {
     }
 
     @SkipJwt
-    @GetMapping("/all")
+    @GetMapping("/list")
     @Operation(summary = "전체 여행 코스 조회", description = "전체 여행 코스 목록을 조회")
     public ResponseEntity<?> getAll(){
-        List<CourseResponseDto> courseResponseDtos = courseService.getAllCourse();
-        return ResponseEntity.ok(courseResponseDtos);
+        List<CourseListResponseDto> courseListResponseDtos = courseService.getAllCourse();
+        return ResponseEntity.ok(courseListResponseDtos);
     }
+
+    @SkipJwt
+    @GetMapping("/detail/{courseId}")
+    @Operation(summary = "여행 코스 상세 조회", description = "전체 여행 코스 목록을 조회")
+    public ResponseEntity<?> getCourseById(@PathVariable int courseId){
+        CourseResponseDto courseResponseDto = courseService.getCourseById(courseId);
+        return ResponseEntity.ok(courseResponseDto);
+    }
+
+    //-------------------좋아요---------------------
+    @PostMapping("/{courseId}/like")
+    @Operation(summary = "여행 코스 게시물 좋아요", description = "여행 코스 좋아요 처리 기능")
+    public ResponseEntity<?> likeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
+        courseService.likeCourse(courseId, userId);
+        return ResponseEntity.ok("Like CourseListResponseDto Successful");
+    }
+
 }
