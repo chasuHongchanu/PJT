@@ -72,6 +72,18 @@ public class TradeServiceImpl implements TradeService{
         return tradeMapper.updateReservation(tradeReservationUpdateRequestDto);
     }
 
+    @Transactional
+    @Override
+    public int deleteReservation(int tradeId) {
+        // storage에서 삭제
+        fileUtil.deleteFiles("trade", tradeId);
+
+        // db에서 삭제
+        int result = tradeMapper.deleteReservation(tradeId);
+        
+        return result;
+    }
+
     @Override
     public TradeDetailResponseDto getTradeDetailInfo(int tradeId) {
         TradeDetailResponseDto tradeDetailResponseDto = tradeMapper.selectTradeDetail(tradeId);
@@ -117,4 +129,5 @@ public class TradeServiceImpl implements TradeService{
     public int updatePaymentStatus(int tradeId) {
         return tradeMapper.updatePaymentStatus(tradeId);
     }
+
 }
