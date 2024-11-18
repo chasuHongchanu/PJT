@@ -1,6 +1,7 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.CourseRegistRequestDto;
+import com.example.trend.course.dto.CourseResponseDto;
 import com.example.trend.course.dto.CourseUpdateRequestDto;
 import com.example.trend.course.dto.SpotRequestDto;
 import com.example.trend.course.mapper.CourseMapper;
@@ -116,6 +117,16 @@ public class CourseServiceImpl implements CourseService {
             for(String courseImageName: courseImageNames) {
                 courseMapper.insertCourseImage(courseId, courseImageName);
             }
+        }
+    }
+
+    @Override
+    public List<CourseResponseDto> getAllCourse() {
+        try {
+            List<CourseResponseDto> courseList = courseMapper.selectAllCourse();
+            return courseList;
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
     }
 }

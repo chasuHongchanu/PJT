@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 @Setter
 @Builder
 public class UserInfoResponseDto {
+    private String userId;
     private String userNickname;
     private String userAddress;
     private String userEmail;

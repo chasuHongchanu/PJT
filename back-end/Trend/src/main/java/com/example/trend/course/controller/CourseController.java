@@ -1,6 +1,8 @@
 package com.example.trend.course.controller;
 
+import com.example.trend.config.SkipJwt;
 import com.example.trend.course.dto.CourseRegistRequestDto;
+import com.example.trend.course.dto.CourseResponseDto;
 import com.example.trend.course.dto.CourseUpdateRequestDto;
 import com.example.trend.course.dto.SpotRequestDto;
 import com.example.trend.course.service.CourseService;
@@ -22,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/course")
 @Slf4j
-@Tag(name = "Course API", description = "API for course operations")
+@Tag(name = "CourseResponseDto API", description = "API for course operations")
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
@@ -38,7 +40,7 @@ public class CourseController {
 
         // 코스 등록
         courseService.registCourse(courseRegistRequestDto);
-        return ResponseEntity.ok("Regist Course Successful");
+        return ResponseEntity.ok("Regist CourseResponseDto Successful");
     }
 
     @PutMapping
@@ -52,7 +54,7 @@ public class CourseController {
 
         // 코스 등록
         courseService.updateCourse(courseUpdateRequestDto);
-        return ResponseEntity.ok("Update Course Successful");
+        return ResponseEntity.ok("Update CourseResponseDto Successful");
     }
 
     @DeleteMapping
@@ -60,7 +62,7 @@ public class CourseController {
     public ResponseEntity<?> delete(@RequestParam int courseId, @RequestAttribute String userId){
         // 게시글 삭제
         courseService.deleteCourse(courseId, userId);
-        return ResponseEntity.ok("Delete Course Successful");
+        return ResponseEntity.ok("Delete CourseResponseDto Successful");
     }
 
     private List<SpotRequestDto> getSpotList(String spotListJson){
@@ -75,5 +77,13 @@ public class CourseController {
         } catch (JsonProcessingException e) {
             throw new CustomException(ErrorCode.JSON_PROCCESSING_EXCEPTION, e);
         }
+    }
+
+    @SkipJwt
+    @GetMapping("/all")
+    @Operation(summary = "전체 여행 코스 조회", description = "전체 여행 코스 목록을 조회")
+    public ResponseEntity<?> getAll(){
+        List<CourseResponseDto> courseResponseDtos = courseService.getAllCourse();
+        return ResponseEntity.ok(courseResponseDtos);
     }
 }
