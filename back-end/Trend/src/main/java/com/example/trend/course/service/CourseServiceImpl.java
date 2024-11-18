@@ -34,6 +34,8 @@ public class CourseServiceImpl implements CourseService {
             throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE, e);
         }
         int courseId = courseRegistRequestDto.getCourseId();
+        log.info(courseId + "");
+        log.info(courseRegistRequestDto.getCourseContent());
 
         // 등록된 여행 코스 등록
         saveCourseSpots(courseRegistRequestDto.getSpotList(), courseId);
@@ -46,6 +48,12 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void updateCourse(CourseUpdateRequestDto courseUpdateRequestDto) {
         int courseId = courseUpdateRequestDto.getCourseId();
+        // 권한 확인
+        String writerId = courseMapper.selectWriterIdByCourseId(courseId);
+        if (!writerId.equals(courseUpdateRequestDto.getCourseWriterId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
         // 코스 데이터 업데이트
         try {
             courseMapper.updateCourse(courseUpdateRequestDto);
@@ -61,9 +69,24 @@ public class CourseServiceImpl implements CourseService {
 
         // 이미지 수정(db와 storage 모두 기존 파일 삭제 후 새로 등록)
         // 기존 이미지 파일 삭제
+        courseMapper.deleteCourseImage(courseId);
         fileUtil.deleteFiles("courses", courseId);
         // 수정할 이미지 저장
         saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
+    }
+
+    @Override
+    public void deleteCourse(int courseId, String userId) {
+        // 게시글 삭제 권한 확인
+        String writerId = courseMapper.selectWriterIdByCourseId(courseId);
+        if (!writerId.equals(userId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        // 게시글 삭제
+        int result = courseMapper.deleteCourse(courseId, userId);
+        if(result != 1) {
+            throw new CustomException(ErrorCode.FAIL_TO_DELETE_COURSE);
+        }
     }
 
     private void saveCourseSpots(List<SpotRequestDto> spotList, int courseId) {
@@ -78,20 +101,21 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void saveCourseImages(List<MultipartFile> imageList, int courseId) {
-        // 파일 이름을 추출하여 itemImageNames 리스트에 추가
-        List<String> courseImageNames = imageList.stream()
-                .map(file -> "courses/" + courseId + "/" + file.getOriginalFilename())
-                .toList();
-
-        // db에 이미지 경로 및 이름 저장
-        // db에 물품 이미지 이름 정보 insert
-        for(String courseImageName: courseImageNames) {
-            courseMapper.insertCourseImageName(courseId, courseImageName);
-        }
-
         // 이미지 저장
         if(!(imageList.size() == 1 && imageList.get(0).isEmpty())) {
             fileUtil.saveFilesIntoStorage("courses", courseId, imageList);
+
+
+            // 파일 이름을 추출하여 itemImageNames 리스트에 추가
+            List<String> courseImageNames = imageList.stream()
+                    .map(file -> "courses/" + courseId + "/" + file.getOriginalFilename())
+                    .toList();
+
+            // db에 이미지 경로 및 이름 저장
+            // db에 물품 이미지 이름 정보 insert
+            for(String courseImageName: courseImageNames) {
+                courseMapper.insertCourseImage(courseId, courseImageName);
+            }
         }
     }
 }

@@ -34,16 +34,7 @@ public class CourseController {
         courseRegistRequestDto.setCourseWriterId(userId);
 
         // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            List<SpotRequestDto> spotList = objectMapper.readValue(
-                    courseRegistRequestDto.getSpotListJson(),
-                    new TypeReference<List<SpotRequestDto>>() {}
-            );
-            courseRegistRequestDto.setSpotList(spotList);
-        } catch (JsonProcessingException e) {
-            throw new CustomException(ErrorCode.JSON_PROCCESSING_EXCEPTION, e);
-        }
+        courseRegistRequestDto.setSpotList(getSpotList(courseRegistRequestDto.getSpotListJson()));
 
         // 코스 등록
         courseService.registCourse(courseRegistRequestDto);
@@ -51,26 +42,38 @@ public class CourseController {
     }
 
     @PutMapping
-    @Operation(summary = "추천 코스 등록", description = "추천 코스 등록 기능")
+    @Operation(summary = "추천 코스 수정", description = "추천 코스 수정 기능")
     public ResponseEntity<?> update(@Valid @ModelAttribute CourseUpdateRequestDto courseUpdateRequestDto, @RequestAttribute("userId") String userId){
         // 유저 id 입력
         courseUpdateRequestDto.setCourseWriterId(userId);
 
         // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            List<SpotRequestDto> spotList = objectMapper.readValue(
-                    courseUpdateRequestDto.getSpotListJson(),
-                    new TypeReference<List<SpotRequestDto>>() {}
-            );
-            courseUpdateRequestDto.setSpotList(spotList);
-        } catch (JsonProcessingException e) {
-            throw new CustomException(ErrorCode.JSON_PROCCESSING_EXCEPTION, e);
-        }
+        courseUpdateRequestDto.setSpotList(getSpotList(courseUpdateRequestDto.getSpotListJson()));
 
         // 코스 등록
         courseService.updateCourse(courseUpdateRequestDto);
-        return ResponseEntity.ok("Regist Course Successful");
+        return ResponseEntity.ok("Update Course Successful");
     }
 
+    @DeleteMapping
+    @Operation(summary = "여행 코스 삭제", description = "추천 코스 게시물 삭제 기능")
+    public ResponseEntity<?> delete(@RequestParam int courseId, @RequestAttribute String userId){
+        // 게시글 삭제
+        courseService.deleteCourse(courseId, userId);
+        return ResponseEntity.ok("Delete Course Successful");
+    }
+
+    private List<SpotRequestDto> getSpotList(String spotListJson){
+        // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            List<SpotRequestDto> spotList = objectMapper.readValue(
+                    spotListJson,
+                    new TypeReference<List<SpotRequestDto>>() {}
+            );
+            return spotList;
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.JSON_PROCCESSING_EXCEPTION, e);
+        }
+    }
 }

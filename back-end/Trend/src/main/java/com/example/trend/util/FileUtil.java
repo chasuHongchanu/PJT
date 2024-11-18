@@ -82,8 +82,21 @@ public class FileUtil {
     }
 
     public void deleteFiles(String controller, int id) {
-        for (Blob blob : bucket.list(Storage.BlobListOption.prefix(controller + "/" + id + "/")).iterateAll()) {
+        // Prefix로 지정된 경로의 Blob 리스트 가져오기
+        Iterable<Blob> blobs = bucket.list(Storage.BlobListOption.prefix(controller + "/" + id + "/")).iterateAll();
+
+        // 경로에 파일이 있는지 확인
+        boolean hasFiles = blobs.iterator().hasNext();
+
+        if (!hasFiles) {
+            System.out.println("No files found in the specified path.");
+            return; // 경로에 파일이 없으면 삭제 작업을 종료
+        }
+
+        // 파일이 있다면 삭제 진행
+        for (Blob blob : blobs) {
             blob.delete();
+            System.out.println("Deleted file: " + blob.getName());
         }
     }
 }

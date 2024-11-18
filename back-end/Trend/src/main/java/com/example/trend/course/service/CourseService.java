@@ -8,4 +8,6 @@ public interface CourseService {
     void registCourse(@Valid CourseRegistRequestDto courseRegistRequestDto);
 
     void updateCourse(@Valid CourseUpdateRequestDto courseUpdateRequestDto);
+
+    void deleteCourse(int courseId, String userId);
 }

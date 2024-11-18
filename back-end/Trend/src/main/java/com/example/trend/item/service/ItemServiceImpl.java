@@ -64,12 +64,13 @@ public class ItemServiceImpl implements ItemService{
             fileUtil.saveFilesIntoStorage("items", itemId, files);
             // 썸네일 저장 (첫 번째로 들어온 사진을 썸네일로 지정)
             itemMapper.insertThumbnail(itemImageNames.get(0), itemId);
+            // db에 물품 이미지 이름 정보 insert
+            for(String itemImageName: itemImageNames) {
+                itemMapper.insertItemImageName(itemId, itemImageName);
+            }
         }
 
-        // db에 물품 이미지 이름 정보 insert
-        for(String itemImageName: itemImageNames) {
-            itemMapper.insertItemImageName(itemId, itemImageName);
-        }
+
 
         // 물품 등록한 유저 활동점수 증가
         itemMapper.updateUserActivityScore(userId);
