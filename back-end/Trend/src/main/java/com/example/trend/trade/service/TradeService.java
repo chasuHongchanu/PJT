@@ -1,6 +1,7 @@
 package com.example.trend.trade.service;
 
 import com.example.trend.trade.dto.*;
+import jakarta.validation.Valid;
 
 public interface TradeService {
     TradeReservationResponseDto getReservationInfo(TradeReservationRequestDto tradeReservationRequestDto);
@@ -10,4 +11,6 @@ public interface TradeService {
     int updateReservation(TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto);
 
     TradeDetailResponseDto getTradeDetailInfo(int tradeId);
+
+    int registItemImages(@Valid TradeImageRegistRequestDto tradeImageRegistRequestDto);
 }

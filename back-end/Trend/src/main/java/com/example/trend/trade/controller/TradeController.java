@@ -105,4 +105,28 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(tradeDetailResponseDto);
     }
+
+    /**
+     * 거래 상세 내역 페이지에서, 임차인이 대여 전 물품 사진을 등록하지 않았을 시 사진 등록 버튼이 활성화됩니다.
+     * 사진 리스트를 받아 storage엔 파일을, 데이터베이스엔 사진 이름을 저장합니다.
+     *
+     * @param: tradeId
+     * @return: 이미지 등록 완료 | 이미지 등록 실패 메세지
+     */
+    @PutMapping("/detail")
+    public ResponseEntity<?> imageRegist(@Valid @ModelAttribute("tradeImageRegistRequestDto") TradeImageRegistRequestDto tradeImageRegistRequestDto) {
+        int result = tradeService.registItemImages(tradeImageRegistRequestDto);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result != 0) {
+            response.put("message", "성공적으로 등록되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        }
+        else {
+            response.put("message", "사진 등록 중 문제가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+    }
 }

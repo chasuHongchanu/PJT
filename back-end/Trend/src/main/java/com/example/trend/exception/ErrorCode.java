@@ -11,6 +11,9 @@ public enum ErrorCode {
   FAIL_TO_DELETE_ITEM(HttpStatus.BAD_REQUEST, "물품 삭제에 실패했습니다."),
   NO_SUCH_ITEM(HttpStatus.BAD_REQUEST, "물품이 존재하지 않습니다."),
   NO_SUCH_LESSOR(HttpStatus.BAD_REQUEST, "판매자가 존재하지 않습니다."),
+  
+  // 거래
+  NO_ITEM_CONDITION_IMAGES(HttpStatus.BAD_REQUEST, "사용 전 물품 사진 등록은 필수입니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   FAIL_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),

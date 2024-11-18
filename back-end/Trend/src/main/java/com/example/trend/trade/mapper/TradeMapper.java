@@ -1,10 +1,7 @@
 package com.example.trend.trade.mapper;
 
 import com.example.trend.trade.dto.*;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -74,4 +71,14 @@ public interface TradeMapper {
             WHERE trade_id = #{tradeId}
             """)
     List<String> selectItemConditionImages(int tradeId);
+
+    @Insert("""
+            <script>
+                INSERT INTO item_condition_image (trade_id, condition_img) VALUES
+                <foreach collection='itemConditionImageNames' item='itemConditionImageName' separator=','>
+                    (#{tradeId}, #{itemConditionImageName})
+                </foreach>
+            </script>
+            """)
+    int insertItemConditionImages(@Param("tradeId") int tradeId, @Param("itemConditionImageNames") List<String> itemConditionImageNames);
 }

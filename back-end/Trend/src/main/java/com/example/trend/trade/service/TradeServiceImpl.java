@@ -4,9 +4,11 @@ import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.trade.dto.*;
 import com.example.trend.trade.mapper.TradeMapper;
+import com.example.trend.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,10 +18,12 @@ import java.util.Random;
 @Service
 public class TradeServiceImpl implements TradeService{
     private final TradeMapper tradeMapper;
+    private final FileUtil fileUtil;
 
     @Autowired
-    public TradeServiceImpl(TradeMapper tradeMapper) {
+    public TradeServiceImpl(TradeMapper tradeMapper, FileUtil fileUtil) {
         this.tradeMapper = tradeMapper;
+        this.fileUtil = fileUtil;
     }
 
     @Override
@@ -74,5 +78,29 @@ public class TradeServiceImpl implements TradeService{
         tradeDetailResponseDto.setItemConditionImages(itemConditionImages);
 
         return tradeDetailResponseDto;
+    }
+
+    @Transactional
+    @Override
+    public int registItemImages(TradeImageRegistRequestDto tradeImageRegistRequestDto) {
+        int tradeId = tradeImageRegistRequestDto.getTradeId();
+        List<String> itemConditionImageNames = tradeImageRegistRequestDto.getItemConditionImages().stream()
+                .map(file -> "trade/" + tradeId + "/" + file.getOriginalFilename())
+                .toList();
+
+        // storage에 이미지 파일 저장
+        List<MultipartFile> files = tradeImageRegistRequestDto.getItemConditionImages();
+        if(!(files.size() == 1 && files.get(0).isEmpty())) {
+            fileUtil.saveFilesIntoStorage("trade", tradeId, files);
+        }
+        // 이미지가 한 장도 들어오지 않은 경우
+        else {
+            throw new CustomException(ErrorCode.NO_ITEM_CONDITION_IMAGES);
+        }
+
+        // DB에 이미지 이름 저장
+        int result = tradeMapper.insertItemConditionImages(tradeId, itemConditionImageNames);
+
+        return result;
     }
 }
