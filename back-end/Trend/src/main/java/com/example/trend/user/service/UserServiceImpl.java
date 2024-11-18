@@ -171,6 +171,7 @@ public class UserServiceImpl implements UserService {
         }
         UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.builder()
                 .userProfileImg(user.getUserProfileImg())
+                .userId(user.getUserId())
                 .userNickname(user.getUserNickname())
                 .userAddress(user.getUserAddress())
                 .userEmail(user.getUserEmail())

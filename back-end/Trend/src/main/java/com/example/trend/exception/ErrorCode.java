@@ -46,7 +46,7 @@ public enum ErrorCode {
   FAIL_TO_DELETE_USER(HttpStatus.BAD_REQUEST, "유저정보 삭제에 실패했습니다."),
   FAIL_TO_DELETE_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰 삭제에 실패했습니다."),
 
-  // Course
+  // CourseResponseDto
   FAIL_TO_REGIST_COURSE(HttpStatus.INTERNAL_SERVER_ERROR, "코스 등록에 실패했습니다."), FAIL_TO_REGIST_COURSE_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "추천 관광지 목록 등록에 실패했습니다."),
   FAIL_TO_UPDATE_COURSE(HttpStatus.BAD_REQUEST, "게시글 수정에 실패했습니다."),
   FAIL_TO_DELETE_COURSE(HttpStatus.BAD_REQUEST, "게시글 삭제에 실패했습니다.");
