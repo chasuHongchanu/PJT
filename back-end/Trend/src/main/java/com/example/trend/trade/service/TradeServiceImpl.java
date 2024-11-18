@@ -130,4 +130,10 @@ public class TradeServiceImpl implements TradeService{
         return tradeMapper.updatePaymentStatus(tradeId);
     }
 
+
+    @Override
+    public TradeReviewResponseDto getTradeInfoForReview(int tradeId) {
+        return tradeMapper.selectTradeInfoForReview(tradeId);
+    }
+
 }

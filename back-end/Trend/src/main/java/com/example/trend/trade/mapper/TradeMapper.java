@@ -102,4 +102,20 @@ public interface TradeMapper {
             WHERE trade_id = #{tradeId}
             """)
     int deleteReservation(int tradeId);
+
+    @Select("""
+            SELECT t.item_id,
+                   i.item_name,
+                   i.item_price,
+                   i.country,
+                   i.province,
+                   i.district,
+                   i.town,
+                   i.thumbnail
+            FROM item_trade t
+            JOIN item i
+            ON t.item_id = i.item_id
+            WHERE t.trade_id = #{tradeId}
+            """)
+    TradeReviewResponseDto selectTradeInfoForReview(int tradeId);
 }
