@@ -23,4 +23,6 @@ public interface TradeService {
     TradeReviewResponseDto getTradeInfoForReview(int tradeId);
 
     int registReview(TradeReviewRequestDto tradeReviewRequestDto);
+
+    int updatetradeState(int tradeId);
 }

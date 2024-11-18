@@ -250,4 +250,28 @@ public class TradeController {
                     .body(response);
         }
     }
+
+    /**
+     * 대여 중 상황에서, 물품을 반납받고 임대인은 반납 완료를 클릭합니다.
+     * 물품 대여 정보를 대여 중 -> 반납 완료로 변경합니다.
+     *
+     * @param: tradeId
+     * @return:
+     */
+    @PutMapping("/return")
+    public ResponseEntity<?> tradeFinish(@RequestParam int tradeId) {
+        int result = tradeService.updatetradeState(tradeId);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result != 0) {
+            response.put("message", "성공적으로 반납 처리 되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        }
+        else {
+            response.put("message", "반납 처리 중 문제가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+    }
 }
