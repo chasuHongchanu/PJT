@@ -203,6 +203,13 @@ public class TradeController {
         }
     }
 
+    /**
+     * 임차인이 물품 거래 종료 후, 후기 등록 버튼을 클릭할 때 나타나는 창에 대한 정보를 반환합니다.
+     * 후기 등록을 위한 페이지
+     *
+     * @param: tradeId
+     * @return:
+     */
     @GetMapping("/review")
     public ResponseEntity<?> tradeReview(@RequestParam int tradeId) {
         TradeReviewResponseDto tradeReviewResponseDto = tradeService.getTradeInfoForReview(tradeId);
@@ -216,6 +223,31 @@ public class TradeController {
         else {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(tradeReviewResponseDto);
+        }
+    }
+
+    /**
+     * 임차인이 물품 거래 종료 후, 후기 등록 페이지에서 후기를 등록합니다.
+     * 별점 및 후기 본문 내용을 입력으로 받습니다.
+     *
+     * @param:
+     * @return:
+     */
+    @PostMapping("/review")
+    public ResponseEntity<?> tradeReviewRegist(@RequestAttribute("userId") String userId, @ModelAttribute TradeReviewRequestDto tradeReviewRequestDto) {
+        tradeReviewRequestDto.setUserId(userId);
+        int result = tradeService.registReview(tradeReviewRequestDto);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result != 0) {
+            response.put("message", "성공적으로 등록되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        }
+        else {
+            response.put("message", "등록 중 문제가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
         }
     }
 }

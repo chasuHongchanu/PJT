@@ -21,4 +21,6 @@ public interface TradeService {
     int deleteReservation(int tradeId);
 
     TradeReviewResponseDto getTradeInfoForReview(int tradeId);
+
+    int registReview(TradeReviewRequestDto tradeReviewRequestDto);
 }
