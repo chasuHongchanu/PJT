@@ -101,6 +101,9 @@ public class TradeServiceImpl implements TradeService{
         // DB에 이미지 이름 저장
         int result = tradeMapper.insertItemConditionImages(tradeId, itemConditionImageNames);
 
+        // 거래 상태: 대여 전 -> 대여 시작
+        tradeMapper.updateTradeState(tradeId);
+
         return result;
     }
 }
