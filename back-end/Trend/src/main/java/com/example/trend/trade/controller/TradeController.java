@@ -85,6 +85,31 @@ public class TradeController {
     }
 
     /**
+     * 거래 예약 상세 페이지에서 예약 변경을 누르면 요청되는 api 입니다.
+     * 대여료,보증금, 대여 기간을 다시 입력받아 기존 거래 예약을 수정합니다.
+     *
+     * @param: 대여료, 보증금, 대여 시작 기간, 대여 종료 기간
+     * @return: 거래 수정 완료 message | 거래 수정 실패 message
+     */
+    @DeleteMapping("/reservation")
+    public ResponseEntity<?> tradeReservationDelete(@RequestParam int tradeId) {
+        int result = tradeService.deleteReservation(tradeId);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result == 1) {
+            response.put("message", "성공적으로 삭제되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        }
+        else {
+            response.put("message", "삭제에 문제가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+    }
+
+
+    /**
      * 거래 예약 신청 및 변경 페이지를 제외한 거래 상세 내용에 대한 api 입니다.
      * 결제 상태, 입금 상태, 대여 시점 사진까지 모두 반환합니다.
      *

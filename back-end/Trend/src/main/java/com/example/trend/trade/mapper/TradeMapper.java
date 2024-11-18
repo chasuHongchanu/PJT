@@ -95,4 +95,11 @@ public interface TradeMapper {
             WHERE trade_id = #{tradeId}
             """)
     int updatePaymentStatus(int tradeId);
+
+    @Delete("""
+            DELETE
+            FROM item_trade
+            WHERE trade_id = #{tradeId}
+            """)
+    int deleteReservation(int tradeId);
 }
