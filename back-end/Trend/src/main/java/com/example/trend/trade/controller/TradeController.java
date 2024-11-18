@@ -153,4 +153,28 @@ public class TradeController {
                     .body(tradeDetailResponseDto);
         }
     }
+
+    /**
+     * 결제 페이지에서, 임차인이 결제 금액을 입력하고 결제하기를 클릭합니다.
+     * 결제하기 클릭 시 데이터베이스의 결제 상태가 변경됩니다.
+     *
+     * @param: tradeId
+     * @return:
+     */
+    @PutMapping("/pay")
+    public ResponseEntity<?> tradePay(@RequestParam int tradeId) {
+        int result = tradeService.updatePaymentStatus(tradeId);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result != 0) {
+            response.put("message", "성공적으로 결제되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        }
+        else {
+            response.put("message", "결제 중 문제가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+    }
 }

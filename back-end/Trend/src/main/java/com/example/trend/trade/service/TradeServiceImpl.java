@@ -54,6 +54,7 @@ public class TradeServiceImpl implements TradeService{
         return tradeMapper.insertReservation(tradeReservationRegistRequestDto);
     }
 
+    @Transactional
     @Override
     public int updateReservation(TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto) {
         // 시작일이 종료일보다 늦은 경우
@@ -110,5 +111,10 @@ public class TradeServiceImpl implements TradeService{
     @Override
     public TradeDetailResponseDto getTradePaymentInfo(int tradeId) {
         return tradeMapper.selectTradeDetail(tradeId);
+    }
+
+    @Override
+    public int updatePaymentStatus(int tradeId) {
+        return tradeMapper.updatePaymentStatus(tradeId);
     }
 }
