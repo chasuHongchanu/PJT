@@ -154,4 +154,17 @@ public class CourseServiceImpl implements CourseService {
             throw new CustomException(ErrorCode.FAIL_TO_UNLIKE_COURSE, e);
         }
     }
+
+    @Override
+    public boolean isLikeCourse(int courseId, String userId) {
+        try {
+            int result = courseLikeMapper.selectCourseLikeByCourseIdAndUserId(courseId, userId);
+            if (result == 1) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
+        }
+    }
 }

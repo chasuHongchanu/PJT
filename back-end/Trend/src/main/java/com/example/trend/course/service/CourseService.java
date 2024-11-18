@@ -22,4 +22,6 @@ public interface CourseService {
     void likeCourse(int courseId, String userId);
 
     void unLikeCourse(int courseId, String userId);
+
+    boolean isLikeCourse(int courseId, String userId);
 }

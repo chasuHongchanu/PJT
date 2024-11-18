@@ -107,4 +107,11 @@ public class CourseController {
         return ResponseEntity.ok("UnLike CourseListResponseDto Successful");
     }
 
+    @GetMapping("/{courseId}/like")
+    @Operation(summary = "여행 코스 게시물 좋아요 확인", description = "좋아요 한 여행 코스인지 확인하는 기능")
+    public ResponseEntity<?> isLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
+        boolean result = courseService.isLikeCourse(courseId, userId);
+        return ResponseEntity.ok("좋아요 여부: " + result);
+    }
+
 }
