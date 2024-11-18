@@ -15,6 +15,9 @@ public enum ErrorCode {
   // 거래
   NO_ITEM_CONDITION_IMAGES(HttpStatus.BAD_REQUEST, "사용 전 물품 사진 등록은 필수입니다."),
 
+  // 401 Unauthorized
+  UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "해당 권한이 없습니다."),
+
   // 500 INTERNAL_SERVER_ERROR
   FAIL_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 에러가 발생했습니다."),
@@ -45,7 +48,8 @@ public enum ErrorCode {
 
   // Course
   FAIL_TO_REGIST_COURSE(HttpStatus.INTERNAL_SERVER_ERROR, "코스 등록에 실패했습니다."), FAIL_TO_REGIST_COURSE_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "추천 관광지 목록 등록에 실패했습니다."),
-  FAIL_TO_UPDATE_COURSE(HttpStatus.BAD_REQUEST, "게시글 수정에 실패했습니다.");
+  FAIL_TO_UPDATE_COURSE(HttpStatus.BAD_REQUEST, "게시글 수정에 실패했습니다."),
+  FAIL_TO_DELETE_COURSE(HttpStatus.BAD_REQUEST, "게시글 삭제에 실패했습니다.");
 
 
 
