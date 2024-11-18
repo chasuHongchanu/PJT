@@ -47,18 +47,20 @@ public interface TradeMapper {
                 i.town,
                 i.thumbnail,
 
-                t.trade_rental_start_date,
-                t.trade_rental_end_date,
+                t.rental_start_date AS trade_rental_start_date,
+                t.rental_end_date AS trade_rental_end_date,
                 t.trade_price,
                 t.trade_deposit,
                 t.payment_account_number,
-                t.trade_status,
+                t.trade_state,
                 t.payment_status,
 
+                u1.user_id AS lessor_id,
+                u2.user_id AS lessee_id,
                 u1.user_nickname AS lessor_nickname,
-                u2.user_nickname AS lessee_nickname,
+                u2.user_nickname AS lessee_nickname
       
-            FROM trade t
+            FROM item_trade t
             JOIN item i ON t.item_id = i.item_id
             JOIN user u1 ON t.lessor_id = u1.user_id
             JOIN user u2 ON t.lessee_id = u2.user_id

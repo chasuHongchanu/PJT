@@ -20,12 +20,14 @@ public class TradeDetailResponseDto {
     private String district;
     private String town;
     private String thumbnail;
+    private String lessorId;
+    private String lesseeId;
     private String lessorNickname;
     private String lesseeNickname;
     private String paymentAccountNumber;
     private int tradePrice;
     private int tradeDeposit;
     private List<String> itemConditionImages;
-    private String tradeStatus;
+    private String tradeState;
     private String paymentStatus;
 }
