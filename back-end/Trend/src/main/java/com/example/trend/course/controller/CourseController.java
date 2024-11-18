@@ -100,4 +100,11 @@ public class CourseController {
         return ResponseEntity.ok("Like CourseListResponseDto Successful");
     }
 
+    @DeleteMapping("/{courseId}/like")
+    @Operation(summary = "여행 코스 게시물 좋아요 취소", description = "여행 코스 좋아요  취소 처리 기능")
+    public ResponseEntity<?> unLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
+        courseService.unLikeCourse(courseId, userId);
+        return ResponseEntity.ok("UnLike CourseListResponseDto Successful");
+    }
+
 }

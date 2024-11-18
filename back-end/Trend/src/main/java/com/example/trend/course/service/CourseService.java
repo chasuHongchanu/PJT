@@ -20,4 +20,6 @@ public interface CourseService {
     CourseResponseDto getCourseById(int courseId);
 
     void likeCourse(int courseId, String userId);
+
+    void unLikeCourse(int courseId, String userId);
 }

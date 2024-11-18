@@ -136,12 +136,22 @@ public class CourseServiceImpl implements CourseService {
         return null;
     }
 
+    // -----------------좋아요-----------------
     @Override
     public void likeCourse(int courseId, String userId) {
         try {
             courseLikeMapper.insertLikeCourse(courseId, userId);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.FAIL_TO_LIKE_COURSE, e);
+        }
+    }
+
+    @Override
+    public void unLikeCourse(int courseId, String userId) {
+        try {
+            courseLikeMapper.deleteLikeCourse(courseId, userId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_UNLIKE_COURSE, e);
         }
     }
 }

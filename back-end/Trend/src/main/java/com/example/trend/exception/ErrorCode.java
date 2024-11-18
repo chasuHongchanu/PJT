@@ -49,7 +49,7 @@ public enum ErrorCode {
   // Course
   FAIL_TO_REGIST_COURSE(HttpStatus.INTERNAL_SERVER_ERROR, "코스 등록에 실패했습니다."), FAIL_TO_REGIST_COURSE_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "추천 관광지 목록 등록에 실패했습니다."),
   FAIL_TO_UPDATE_COURSE(HttpStatus.BAD_REQUEST, "게시글 수정에 실패했습니다."),
-  FAIL_TO_DELETE_COURSE(HttpStatus.BAD_REQUEST, "게시글 삭제에 실패했습니다."), FAIL_TO_LIKE_COURSE(HttpStatus.BAD_REQUEST, "코스 좋아요 실패.");
+  FAIL_TO_DELETE_COURSE(HttpStatus.BAD_REQUEST, "게시글 삭제에 실패했습니다."), FAIL_TO_LIKE_COURSE(HttpStatus.BAD_REQUEST, "코스 좋아요 실패."), FAIL_TO_UNLIKE_COURSE(HttpStatus.BAD_REQUEST, "코스 좋아요 취소 실패.");
 
 
 
