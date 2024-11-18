@@ -1,9 +1,7 @@
 package com.example.trend.course.service;
 
-import com.example.trend.course.dto.CourseRegistRequestDto;
-import com.example.trend.course.dto.CourseResponseDto;
-import com.example.trend.course.dto.CourseUpdateRequestDto;
-import com.example.trend.course.dto.SpotRequestDto;
+import com.example.trend.course.dto.*;
+import com.example.trend.course.mapper.CourseLikeMapper;
 import com.example.trend.course.mapper.CourseMapper;
 import com.example.trend.course.mapper.SpotMapper;
 import com.example.trend.exception.CustomException;
@@ -24,6 +22,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseMapper courseMapper;
     private final SpotMapper spotMapper;
     private final FileUtil fileUtil;
+    private final CourseLikeMapper courseLikeMapper;
 
     @Override
     @Transactional
@@ -76,20 +75,6 @@ public class CourseServiceImpl implements CourseService {
         saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
     }
 
-    @Override
-    public void deleteCourse(int courseId, String userId) {
-        // 게시글 삭제 권한 확인
-        String writerId = courseMapper.selectWriterIdByCourseId(courseId);
-        if (!writerId.equals(userId)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
-        // 게시글 삭제
-        int result = courseMapper.deleteCourse(courseId, userId);
-        if(result != 1) {
-            throw new CustomException(ErrorCode.FAIL_TO_DELETE_COURSE);
-        }
-    }
-
     private void saveCourseSpots(List<SpotRequestDto> spotList, int courseId) {
         for (SpotRequestDto spotRequestDto : spotList) {
             spotRequestDto.setCourseId(courseId);
@@ -121,12 +106,96 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponseDto> getAllCourse() {
+    public void deleteCourse(int courseId, String userId) {
+        // 게시글 삭제 권한 확인
+        String writerId = courseMapper.selectWriterIdByCourseId(courseId);
+        if (!writerId.equals(userId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        // 게시글 삭제
+        int result = courseMapper.deleteCourse(courseId, userId);
+        if(result != 1) {
+            throw new CustomException(ErrorCode.FAIL_TO_DELETE_COURSE);
+        }
+    }
+
+
+
+    @Override
+    public List<CourseListResponseDto> getAllCourse() {
         try {
-            List<CourseResponseDto> courseList = courseMapper.selectAllCourse();
+            List<CourseListResponseDto> courseList = courseMapper.selectAllCourse();
             return courseList;
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
+    }
+
+    @Override
+    public CourseResponseDto getCourseById(int courseId) {
+        return null;
+    }
+
+    // -----------------좋아요-----------------
+    @Override
+    public void likeCourse(int courseId, String userId) {
+        try {
+            courseLikeMapper.insertLikeCourse(courseId, userId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_LIKE, e);
+        }
+    }
+
+    @Override
+    public void unLikeCourse(int courseId, String userId) {
+        try {
+            courseLikeMapper.deleteLikeCourse(courseId, userId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_UNLIKE, e);
+        }
+    }
+
+    @Override
+    public boolean isLikeCourse(int courseId, String userId) {
+        try {
+            int result = courseLikeMapper.selectCourseLikeByCourseIdAndUserId(courseId, userId);
+            if (result == 1) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
+        }
+    }
+
+    @Override
+    public void likeCourseComment(int courseCommentId, String userId) {
+        try {
+            courseLikeMapper.insertCourseCommentLike(courseCommentId, userId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_LIKE, e);
+        }
+    }
+
+    @Override
+    public void unLikeCourseComment(int courseCommentId, String userId) {
+        try {
+            courseLikeMapper.deleteCourseCommentLike(courseCommentId, userId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
+        }
+    }
+
+    @Override
+    public boolean isLikeCourseComment(int courseCommentId, String userId) {
+        try {
+            int result = courseLikeMapper.selectCourseCommentLikeByCourseIdAndUserId(courseCommentId, userId);
+            if (result == 1) {
+                return true;
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
+        }
+        return false;
     }
 }

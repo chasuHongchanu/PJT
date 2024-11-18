@@ -1,7 +1,7 @@
 package com.example.trend.course.mapper;
 
 import com.example.trend.course.dto.CourseRegistRequestDto;
-import com.example.trend.course.dto.CourseResponseDto;
+import com.example.trend.course.dto.CourseListResponseDto;
 import com.example.trend.course.dto.CourseUpdateRequestDto;
 import org.apache.ibatis.annotations.*;
 
@@ -36,7 +36,7 @@ public interface CourseMapper {
                 u.user_profile_img AS userProfileImg,
                 c.course_writer_id AS userId,
                 u.user_nickname AS userNickname,
-                COUNT(DISTINCT cl.course_like_id) AS likes,
+                COUNT(DISTINCT cl.course_like_id) AS likeCount,
                 COUNT(DISTINCT cc.course_comment_id) AS commentCount,
                 c.course_title AS courseTitle,
                 c.course_content AS courseContent
@@ -46,5 +46,5 @@ public interface CourseMapper {
                 join user u on c.course_writer_id = u.user_id
             GROUP BY c.course_id
             """)
-    List<CourseResponseDto> selectAllCourse();
+    List<CourseListResponseDto> selectAllCourse();
 }

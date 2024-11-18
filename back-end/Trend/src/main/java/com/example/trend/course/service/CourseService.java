@@ -1,6 +1,7 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.CourseRegistRequestDto;
+import com.example.trend.course.dto.CourseListResponseDto;
 import com.example.trend.course.dto.CourseResponseDto;
 import com.example.trend.course.dto.CourseUpdateRequestDto;
 import jakarta.validation.Valid;
@@ -14,5 +15,19 @@ public interface CourseService {
 
     void deleteCourse(int courseId, String userId);
 
-    List<CourseResponseDto> getAllCourse();
+    List<CourseListResponseDto> getAllCourse();
+
+    CourseResponseDto getCourseById(int courseId);
+
+    void likeCourse(int courseId, String userId);
+
+    void unLikeCourse(int courseId, String userId);
+
+    boolean isLikeCourse(int courseId, String userId);
+
+    void likeCourseComment(int commentId, String userId);
+
+    void unLikeCourseComment(int courseCommentId, String userId);
+
+    boolean isLikeCourseComment(int courseCommentId, String userId);
 }

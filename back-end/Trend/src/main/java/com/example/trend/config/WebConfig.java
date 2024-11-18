@@ -31,7 +31,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/user/duplicate-check/**",
                         "/api/item/rent/list",
                         "/api/item/rent/search",
-                        "/api/item/rent/lessor/**"
+                        "/api/item/rent/lessor/**",
+                        "/api/course/detail/**"
                 );
     }
 

@@ -1,546 +1,467 @@
-DROP
-DATABASE IF EXISTS `trend`;
-CREATE
-DATABASE IF NOT EXISTS `trend`;
-USE
-`trend`;
+-- -----------------------------------------------------
+-- Schema trend
+-- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `trend` ;
 
--- ----------------------------------- CREATE TABLES -----------------------------------
+-- -----------------------------------------------------
+-- Schema trend
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `trend` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+USE `trend` ;
 
-CREATE TABLE `user`
-(
-    `user_id`           varchar(50) NOT NULL,
-    `user_password`     varchar(128) NULL,
-    `user_nickname`     varchar(50) NULL,
-    `user_address`      varchar(100) NULL,
-    `user_email`        varchar(50) NULL,
-    `user_phone_number` varchar(50) NULL,
-    `user_profile_img`  varchar(100) NULL,
-    `user_introduction` varchar(300) NULL,
-    `user_activity_score` double NULL,
-    `user_rating` double NULL,
-    `country`           varchar(30) NULL,
-    `user_created_at`   timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `user_deleted_at`   timestamp NULL,
-    PRIMARY KEY (`user_id`)
-);
+-- -----------------------------------------------------
+-- Table `user`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `user` (
+                                      `user_id` VARCHAR(50) NOT NULL,
+    `user_password` VARCHAR(128) NULL DEFAULT NULL,
+    `user_nickname` VARCHAR(50) NULL DEFAULT NULL,
+    `user_address` VARCHAR(100) NULL DEFAULT NULL,
+    `user_email` VARCHAR(50) NULL DEFAULT NULL,
+    `user_phone_number` VARCHAR(50) NULL DEFAULT NULL,
+    `user_profile_img` VARCHAR(100) NULL DEFAULT NULL,
+    `user_introduction` VARCHAR(300) NULL DEFAULT NULL,
+    `user_activity_score` DOUBLE NULL DEFAULT NULL,
+    `user_rating` DOUBLE NULL DEFAULT NULL,
+    `country` VARCHAR(30) NULL DEFAULT NULL,
+    `user_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `user_deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (`user_id`));
 
-CREATE TABLE `item`
-(
-    `item_id`                     int         NOT NULL AUTO_INCREMENT,
-    `user_id`                     varchar(50) NOT NULL,
-    `item_name`                   varchar(50) NULL,
-    `main_category`               varchar(30) NULL,
-    `sub_category`                varchar(30) NULL,
-    `sub_subcategory`             varchar(30) NULL,
-    `item_price`                  int NULL,
-    `country`                     varchar(30) NULL,
-    `province`                    varchar(30) NULL,
-    `district`                    varchar(30) NULL,
-    `town`                        varchar(30) NULL,
-    `item_latitude` double NULL,
-    `item_longitude` double NULL,
-    `item_content`                text NULL,
-    `available_rental_start_date` timestamp NULL,
-    `available_rental_end_date`   timestamp NULL,
-    `item_status`                 varchar(50) NULL COMMENT '공개, 비공개, 대여 중',
-    `view_count`                  int NULL,
-    `item_created_at`             timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `item_deleted_at`             timestamp NULL,
-    `thumbnail`                   varchar(50),
-    PRIMARY KEY (`item_id`)
-);
 
-CREATE TABLE `item_trade`
-(
-    `trade_id`               int         NOT NULL AUTO_INCREMENT,
-    `item_id`                int         NOT NULL,
-    `lessor_id`              varchar(50) NOT NULL,
-    `lessee_id`              varchar(50) NOT NULL,
-    `trade_price`            int NULL,
-    `trade_deposit`          int NULL,
-    `payment_account_number` int NULL,
-    `rental_start_date`      timestamp NULL,
-    `rental_end_date`        timestamp NULL,
-    `trade_state`            varchar(10) DEFAULT '대여 전' NULL COMMENT '"대여 전", "대여 중", "반납 완료"',
-    `payment_status`         varchar(10) DEFAULT '입금 전' NULL COMMENT '"입금 전", "입금 완료"',
-    `status_updated_at`      timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `payment_created_at`     timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`trade_id`)
-);
+-- -----------------------------------------------------
+-- Table `article`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `article` (
+                                         `article_id` INT NOT NULL AUTO_INCREMENT,
+                                         `writer_id` VARCHAR(50) NOT NULL,
+    `article_title` VARCHAR(50) NULL DEFAULT NULL,
+    `article_content` TEXT NULL DEFAULT NULL,
+    `view_count` INT NULL DEFAULT NULL,
+    `article_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`article_id`),
+    CONSTRAINT `FK_user_TO_article_1`
+    FOREIGN KEY (`writer_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `wishlist`
-(
-    `wish_id` int         NOT NULL AUTO_INCREMENT,
-    `user_id` varchar(50) NOT NULL,
-    `item_id` int         NOT NULL,
-    PRIMARY KEY (`wish_id`)
-);
+-- -----------------------------------------------------
+-- Table `article_comment`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `article_comment` (
+                                                 `article_comment_id` INT NOT NULL AUTO_INCREMENT,
+                                                 `article_id` INT NOT NULL,
+                                                 `comment_writer_id` VARCHAR(50) NOT NULL,
+    `parent_comment_id` INT NULL DEFAULT NULL,
+    `article_comment_content` VARCHAR(500) NULL DEFAULT NULL,
+    `article_comment_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`article_comment_id`),
+    CONSTRAINT `FK_article_TO_article_comment_1`
+    FOREIGN KEY (`article_id`)
+    REFERENCES `article` (`article_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_article_comment_1`
+    FOREIGN KEY (`comment_writer_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `trade_review`
-(
-    `trade_review_id`      int         NOT NULL AUTO_INCREMENT,
-    `trade_id`             int         NOT NULL,
-    `author_user_id`       varchar(50) NOT NULL,
-    `lessor_id`            varchar(50) NOT NULL,
-    `lessee_id`            varchar(50) NOT NULL,
-    `trade_review_content` varchar(500) NULL,
-    `trade_review_rating` double NULL,
-    `review_created_at`    timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`trade_review_id`)
-);
 
-CREATE TABLE `spot`
-(
-    `spot_id`   int NOT NULL AUTO_INCREMENT,
-    `spot_name` varchar(50) NULL,
-    PRIMARY KEY (`spot_id`)
-);
+-- -----------------------------------------------------
+-- Table `article_comment_like`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `article_comment_like` (
+                                                      `article_comment_id` INT NOT NULL,
+                                                      `user_id` VARCHAR(50) NOT NULL,
+    PRIMARY KEY (`article_comment_id`, `user_id`),
+    CONSTRAINT `FK_article_comment_TO_like`
+    FOREIGN KEY (`article_comment_id`)
+    REFERENCES `article_comment` (`article_comment_id`)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT,
+    CONSTRAINT `FK_user_TO_like`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT);
 
-CREATE TABLE `course`
-(
-    `course_id`         int         NOT NULL AUTO_INCREMENT,
-    `course_writer_id`  varchar(50) NOT NULL,
-    `course_title`      varchar(50) NULL,
-    `course_content`    text NULL,
-    `province`          varchar(30) NULL,
-    `district`          varchar(30) NULL,
-    `town`              varchar(30) NULL,
-    `view_count`        int NULL,
-    `course_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `course_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`course_id`)
-);
 
-CREATE TABLE `course_comment`
-(
-    `course_comment_id`         int         NOT NULL AUTO_INCREMENT,
-    `course_id`                 int         NOT NULL,
-    `comment_writer_id`         varchar(50) NOT NULL,
-    `parents_comment_id`        int NULL,
-    `course_comment_content`    varchar(500) NULL,
-    `course_comment_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `course_comment_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`course_comment_id`)
-);
+-- -----------------------------------------------------
+-- Table `course`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `course` (
+                                        `course_id` INT NOT NULL AUTO_INCREMENT,
+                                        `course_writer_id` VARCHAR(50) NOT NULL,
+    `course_title` VARCHAR(50) NULL DEFAULT NULL,
+    `course_content` TEXT NULL DEFAULT NULL,
+    `province` VARCHAR(30) NULL DEFAULT NULL,
+    `district` VARCHAR(30) NULL DEFAULT NULL,
+    `town` VARCHAR(30) NULL DEFAULT NULL,
+    `view_count` INT NULL DEFAULT NULL,
+    `course_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`course_id`),
+    CONSTRAINT `FK_user_TO_course_1`
+    FOREIGN KEY (`course_writer_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `course_like`
-(
-    `course_like_id` int         NOT NULL AUTO_INCREMENT,
-    `course_id`      int         NOT NULL,
-    `user_id`        varchar(50) NOT NULL,
-    PRIMARY KEY (`course_like_id`)
-);
+-- -----------------------------------------------------
+-- Table `course_comment`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `course_comment` (
+                                                `course_comment_id` INT NOT NULL AUTO_INCREMENT,
+                                                `course_id` INT NOT NULL,
+                                                `comment_writer_id` VARCHAR(50) NOT NULL,
+    `parents_comment_id` INT NULL DEFAULT NULL,
+    `course_comment_content` VARCHAR(500) NULL DEFAULT NULL,
+    `course_comment_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`course_comment_id`),
+    CONSTRAINT `FK_course_TO_course_comment_1`
+    FOREIGN KEY (`course_id`)
+    REFERENCES `course` (`course_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_course_comment_1`
+    FOREIGN KEY (`comment_writer_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `payment_status_history`
-(
-    `status_history_id` int NOT NULL AUTO_INCREMENT,
-    `status`            varchar(50) NULL COMMENT '결제대기, 결제완료, 환불대기, 환불완료',
-    `changed_at`        timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 일자',
-    `remark`            varchar(100) NULL COMMENT '상태 변경 설명 (예: 환불 사유)',
-    `trade_id`          int NOT NULL,
-    PRIMARY KEY (`status_history_id`)
-);
 
-CREATE TABLE `course_spot`
-(
-    `course_spot_id` int NOT NULL AUTO_INCREMENT,
-    `course_id`      int NOT NULL,
-    `spot_id`        int NOT NULL,
-    `visit_order`    int NULL,
-    PRIMARY KEY (`course_spot_id`)
-);
+-- -----------------------------------------------------
+-- Table `course_comment_like`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `course_comment_like` (
+                                                     `course_comment_id` INT NOT NULL,
+                                                     `user_id` VARCHAR(50) NOT NULL,
+    PRIMARY KEY (`course_comment_id`, `user_id`),
+    CONSTRAINT `FK_course_comment_TO_course_comment_like`
+    FOREIGN KEY (`course_comment_id`)
+    REFERENCES `course_comment` (`course_comment_id`)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT,
+    CONSTRAINT `FK_user_TO_course_comment_like`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT);
 
-CREATE TABLE `article`
-(
-    `article_id`         int         NOT NULL AUTO_INCREMENT,
-    `writer_id`          varchar(50) NOT NULL,
-    `article_title`      varchar(50) NULL,
-    `article_content`    text NULL,
-    `view_count`         int NULL,
-    `article_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `article_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`article_id`)
-);
+-- -----------------------------------------------------
+-- Table `article_image`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `article_image` (
+                                               `article_img_id` INT NOT NULL AUTO_INCREMENT,
+                                               `article_id` INT NOT NULL,
+                                               `article_image` VARCHAR(100) NULL DEFAULT NULL,
+    PRIMARY KEY (`article_img_id`),
+    CONSTRAINT `FK_article_TO_article_image_1`
+    FOREIGN KEY (`article_id`)
+    REFERENCES `article` (`article_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `article_comment`
-(
-    `article_comment_id`         int         NOT NULL AUTO_INCREMENT,
-    `article_id`                 int         NOT NULL,
-    `comment_writer_id`          varchar(50) NOT NULL,
-    `parent_comment_id`          int NULL,
-    `article_comment_content`    varchar(500) NULL,
-    `article_comment_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    `article_comment_updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`article_comment_id`)
-);
+-- -----------------------------------------------------
+-- Table `article_like`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `article_like` (
+                                              `user_id` VARCHAR(50) NOT NULL,
+    `article_id` INT NOT NULL,
+    PRIMARY KEY (`user_id`,`article_id`),
+    CONSTRAINT `FK_article_TO_article_like_1`
+    FOREIGN KEY (`article_id`)
+    REFERENCES `article` (`article_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_article_like_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `article_like`
-(
-    `article_like_id` int         NOT NULL AUTO_INCREMENT,
-    `user_id`         varchar(50) NOT NULL,
-    `article_id`      int         NOT NULL,
-    PRIMARY KEY (`article_like_id`)
-);
 
-CREATE TABLE `chat_room`
-(
-    `room_id`         int         NOT NULL AUTO_INCREMENT,
-    `item_id`         int         NOT NULL,
-    `lessor_id`       varchar(50) NOT NULL,
-    `lessee_id`       varchar(50) NOT NULL,
-    `room_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`room_id`)
-);
+-- -----------------------------------------------------
+-- Table `item`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `item` (
+                                      `item_id` INT NOT NULL AUTO_INCREMENT,
+                                      `user_id` VARCHAR(50) NOT NULL,
+    `item_name` VARCHAR(50) NULL DEFAULT NULL,
+    `main_category` VARCHAR(30) NULL DEFAULT NULL,
+    `sub_category` VARCHAR(30) NULL DEFAULT NULL,
+    `sub_subcategory` VARCHAR(30) NULL DEFAULT NULL,
+    `item_price` INT NULL DEFAULT NULL,
+    `country` VARCHAR(30) NULL DEFAULT NULL,
+    `province` VARCHAR(30) NULL DEFAULT NULL,
+    `district` VARCHAR(30) NULL DEFAULT NULL,
+    `town` VARCHAR(30) NULL DEFAULT NULL,
+    `item_latitude` DOUBLE NULL DEFAULT NULL,
+    `item_longitude` DOUBLE NULL DEFAULT NULL,
+    `item_content` TEXT NULL DEFAULT NULL,
+    `available_rental_start_date` TIMESTAMP NULL DEFAULT NULL,
+    `available_rental_end_date` TIMESTAMP NULL DEFAULT NULL,
+    `item_status` VARCHAR(50) NULL DEFAULT NULL COMMENT '공개, 비공개, 대여 중',
+    `view_count` INT NULL DEFAULT NULL,
+    `item_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `item_deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    `thumbnail` VARCHAR(50) NULL DEFAULT NULL,
+    PRIMARY KEY (`item_id`),
+    CONSTRAINT `FK_user_TO_item_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `chat_message`
-(
-    `message_id`      int         NOT NULL AUTO_INCREMENT,
-    `room_id`         int         NOT NULL,
-    `sender_id`       varchar(50) NOT NULL,
-    `message_content` text NULL,
-    `message_img`     varchar(100) NULL,
-    `chat_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`message_id`)
-);
 
-CREATE TABLE `refresh_token`
-(
-    `token_id`      int         NOT NULL AUTO_INCREMENT,
-    `user_id`       varchar(50) NOT NULL,
-    `refresh_token` varchar(255) NULL,
-    `expires_at`    timestamp NULL,
-    `created_at`    timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`token_id`)
-);
+-- -----------------------------------------------------
+-- Table `chat_room`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `chat_room` (
+                                           `room_id` INT NOT NULL AUTO_INCREMENT,
+                                           `item_id` INT NOT NULL,
+                                           `lessor_id` VARCHAR(50) NOT NULL,
+    `lessee_id` VARCHAR(50) NOT NULL,
+    `room_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`room_id`),
+    CONSTRAINT `FK_item_TO_chat_room_1`
+    FOREIGN KEY (`item_id`)
+    REFERENCES `item` (`item_id`),
+    CONSTRAINT `FK_user_TO_chat_room_1`
+    FOREIGN KEY (`lessor_id`)
+    REFERENCES `user` (`user_id`),
+    CONSTRAINT `FK_user_TO_chat_room_2`
+    FOREIGN KEY (`lessee_id`)
+    REFERENCES `user` (`user_id`));
 
-CREATE TABLE `item_image`
-(
-    `item_img_id` int NOT NULL AUTO_INCREMENT,
-    `item_id`     int NOT NULL,
-    `item_img`    varchar(50) NULL,
-    PRIMARY KEY (`item_img_id`)
-);
 
-CREATE TABLE `course_image`
-(
-    `course_img_id` int NOT NULL AUTO_INCREMENT,
-    `course_id`     int NOT NULL,
-    `course_img`    varchar(100) NULL,
-    PRIMARY KEY (`course_img_id`)
-);
+-- -----------------------------------------------------
+-- Table `chat_message`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `chat_message` (
+                                              `message_id` INT NOT NULL AUTO_INCREMENT,
+                                              `room_id` INT NOT NULL,
+                                              `sender_id` VARCHAR(50) NOT NULL,
+    `message_content` TEXT NULL DEFAULT NULL,
+    `message_img` VARCHAR(100) NULL DEFAULT NULL,
+    `chat_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`message_id`),
+    CONSTRAINT `FK_chat_room_TO_chat_message_1`
+    FOREIGN KEY (`room_id`)
+    REFERENCES `chat_room` (`room_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_chat_message_1`
+    FOREIGN KEY (`sender_id`)
+    REFERENCES `user` (`user_id`));
 
-CREATE TABLE `article_image`
-(
-    `article_img_id` int NOT NULL AUTO_INCREMENT,
-    `article_id`     int NOT NULL,
-    `article_image`  varchar(100) NULL,
-    PRIMARY KEY (`article_img_id`)
-);
 
-CREATE TABLE `item_condition_image`
-(
-    `condition_image_id` int NOT NULL AUTO_INCREMENT,
-    `trade_id`           int NOT NULL,
-    `condition_img`      varchar(100) NULL,
-    PRIMARY KEY (`condition_image_id`)
-);
+-- -----------------------------------------------------
+-- Table `course_image`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `course_image` (
+                                              `course_img_id` INT NOT NULL AUTO_INCREMENT,
+                                              `course_id` INT NOT NULL,
+                                              `course_img` VARCHAR(100) NULL DEFAULT NULL,
+    PRIMARY KEY (`course_img_id`),
+    CONSTRAINT `FK_course_TO_course_image_1`
+    FOREIGN KEY (`course_id`)
+    REFERENCES `course` (`course_id`)
+    ON DELETE CASCADE);
 
-CREATE TABLE `user_chatroom`
-(
-    `user_chat_id` int         NOT NULL AUTO_INCREMENT,
-    `room_id`      int         NOT NULL,
-    `user_id`      varchar(50) NOT NULL,
-    `deleted_at`   timestamp NULL,
-    PRIMARY KEY (`user_chat_id`)
-);
--- ----------------------------------- SET FOREIGN KEY -----------------------------------
--- 외래키를 설정하며 on delete cascade 또는 on delete set null 추가
 
-ALTER TABLE `item`
-    ADD CONSTRAINT `FK_user_TO_item_1` FOREIGN KEY (
-                                                    `user_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `course_like`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `course_like` (
+                                             `course_id` INT NOT NULL,
+                                             `user_id` VARCHAR(50) NOT NULL,
+    PRIMARY KEY (`course_id`,`user_id`),
+    CONSTRAINT `FK_course_TO_course_like_1`
+    FOREIGN KEY (`course_id`)
+    REFERENCES `course` (`course_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_course_like_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-ALTER TABLE `item_trade`
-    ADD CONSTRAINT `FK_item_TO_item_trade_1` FOREIGN KEY (
-                                                          `item_id`
-        )
-        REFERENCES `item` (
-                           `item_id`
-            );
 
-ALTER TABLE `item_trade`
-    ADD CONSTRAINT `FK_user_TO_item_trade_1` FOREIGN KEY (
-                                                          `lessor_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            );
+-- -----------------------------------------------------
+-- Table `spot`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `spot` (
+                                      `spot_id` INT NOT NULL AUTO_INCREMENT,
+                                      `spot_name` VARCHAR(50) NULL DEFAULT NULL,
+    PRIMARY KEY (`spot_id`));
 
-ALTER TABLE `item_trade`
-    ADD CONSTRAINT `FK_user_TO_item_trade_2` FOREIGN KEY (
-                                                          `lessee_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            );
 
-ALTER TABLE `wishlist`
-    ADD CONSTRAINT `FK_user_TO_wishlist_1` FOREIGN KEY (
-                                                        `user_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `course_spot`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `course_spot` (
+                                             `course_spot_id` INT NOT NULL AUTO_INCREMENT,
+                                             `course_id` INT NOT NULL,
+                                             `spot_id` INT NOT NULL,
+                                             `visit_order` INT NULL DEFAULT NULL,
+                                             PRIMARY KEY (`course_spot_id`),
+    CONSTRAINT `FK_course_TO_course_spot_1`
+    FOREIGN KEY (`course_id`)
+    REFERENCES `course` (`course_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_spot_TO_course_spot_1`
+    FOREIGN KEY (`spot_id`)
+    REFERENCES `spot` (`spot_id`)
+    ON DELETE CASCADE);
 
-ALTER TABLE `wishlist`
-    ADD CONSTRAINT `FK_item_TO_wishlist_1` FOREIGN KEY (
-                                                        `item_id`
-        )
-        REFERENCES `item` (
-                           `item_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `trade_review`
-    ADD CONSTRAINT `FK_item_trade_TO_trade_review_1` FOREIGN KEY (
-                                                                  `trade_id`
-        )
-        REFERENCES `item_trade` (
-                                 `trade_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `item_trade`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `item_trade` (
+                                            `trade_id` INT NOT NULL AUTO_INCREMENT,
+                                            `item_id` INT NOT NULL,
+                                            `lessor_id` VARCHAR(50) NOT NULL,
+    `lessee_id` VARCHAR(50) NOT NULL,
+    `trade_price` INT NULL DEFAULT NULL,
+    `trade_deposit` INT NULL DEFAULT NULL,
+    `payment_account_number` INT NULL DEFAULT NULL,
+    `rental_start_date` TIMESTAMP NULL DEFAULT NULL,
+    `rental_end_date` TIMESTAMP NULL DEFAULT NULL,
+    `trade_state` VARCHAR(10) NULL DEFAULT '대여 전' COMMENT '\"대여 전\", \"대여 중\", \"반납 완료\"',
+    `payment_status` VARCHAR(10) NULL DEFAULT '입금 전' COMMENT '\"입금 전\", \"입금 완료\"',
+    `status_updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `payment_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`trade_id`),
+    CONSTRAINT `FK_item_TO_item_trade_1`
+    FOREIGN KEY (`item_id`)
+    REFERENCES `item` (`item_id`),
+    CONSTRAINT `FK_user_TO_item_trade_1`
+    FOREIGN KEY (`lessor_id`)
+    REFERENCES `user` (`user_id`),
+    CONSTRAINT `FK_user_TO_item_trade_2`
+    FOREIGN KEY (`lessee_id`)
+    REFERENCES `user` (`user_id`));
 
-ALTER TABLE `trade_review`
-    ADD CONSTRAINT `FK_user_TO_trade_review_1` FOREIGN KEY (
-                                                            `author_user_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `trade_review`
-    ADD CONSTRAINT `FK_user_TO_trade_review_2` FOREIGN KEY (
-                                                            `lessor_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `item_condition_image`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `item_condition_image` (
+                                                      `condition_image_id` INT NOT NULL AUTO_INCREMENT,
+                                                      `trade_id` INT NOT NULL,
+                                                      `condition_img` VARCHAR(100) NULL DEFAULT NULL,
+    PRIMARY KEY (`condition_image_id`),
+    CONSTRAINT `FK_item_trade_TO_item_condition_image_1`
+    FOREIGN KEY (`trade_id`)
+    REFERENCES `item_trade` (`trade_id`)
+    ON DELETE CASCADE);
 
-ALTER TABLE `trade_review`
-    ADD CONSTRAINT `FK_user_TO_trade_review_3` FOREIGN KEY (
-                                                            `lessee_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `course`
-    ADD CONSTRAINT `FK_user_TO_course_1` FOREIGN KEY (
-                                                      `course_writer_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `item_image`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `item_image` (
+                                            `item_img_id` INT NOT NULL AUTO_INCREMENT,
+                                            `item_id` INT NOT NULL,
+                                            `item_img` VARCHAR(50) NULL DEFAULT NULL,
+    PRIMARY KEY (`item_img_id`),
+    CONSTRAINT `FK_item_TO_item_image_1`
+    FOREIGN KEY (`item_id`)
+    REFERENCES `item` (`item_id`)
+    ON DELETE CASCADE);
 
-ALTER TABLE `course_comment`
-    ADD CONSTRAINT `FK_course_TO_course_comment_1` FOREIGN KEY (
-                                                                `course_id`
-        )
-        REFERENCES `course` (
-                             `course_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `course_comment`
-    ADD CONSTRAINT `FK_user_TO_course_comment_1` FOREIGN KEY (
-                                                              `comment_writer_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `payment_status_history`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `payment_status_history` (
+                                                        `status_history_id` INT NOT NULL AUTO_INCREMENT,
+                                                        `status` VARCHAR(50) NULL DEFAULT NULL COMMENT '결제대기, 결제완료, 환불대기, 환불완료',
+    `changed_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 일자',
+    `remark` VARCHAR(100) NULL DEFAULT NULL COMMENT '상태 변경 설명 (예: 환불 사유)',
+    `trade_id` INT NOT NULL,
+    PRIMARY KEY (`status_history_id`),
+    CONSTRAINT `FK_item_trade_TO_payment_status_history_1`
+    FOREIGN KEY (`trade_id`)
+    REFERENCES `item_trade` (`trade_id`)
+                                                          ON DELETE CASCADE);
 
-ALTER TABLE `course_like`
-    ADD CONSTRAINT `FK_course_TO_course_like_1` FOREIGN KEY (
-                                                             `course_id`
-        )
-        REFERENCES `course` (
-                             `course_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `course_like`
-    ADD CONSTRAINT `FK_user_TO_course_like_1` FOREIGN KEY (
-                                                           `user_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `refresh_token`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `refresh_token` (
+                                               `token_id` INT NOT NULL AUTO_INCREMENT,
+                                               `user_id` VARCHAR(50) NOT NULL,
+    `refresh_token` VARCHAR(255) NULL DEFAULT NULL,
+    `expires_at` TIMESTAMP NULL DEFAULT NULL,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`token_id`),
+    CONSTRAINT `FK_user_TO_refresh_token_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`));
 
-ALTER TABLE `payment_status_history`
-    ADD CONSTRAINT `FK_item_trade_TO_payment_status_history_1` FOREIGN KEY (
-                                                                            `trade_id`
-        )
-        REFERENCES `item_trade` (
-                                 `trade_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `course_spot`
-    ADD CONSTRAINT `FK_course_TO_course_spot_1` FOREIGN KEY (
-                                                             `course_id`
-        )
-        REFERENCES `course` (
-                             `course_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `trade_review`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `trade_review` (
+                                              `trade_review_id` INT NOT NULL AUTO_INCREMENT,
+                                              `trade_id` INT NOT NULL,
+                                              `author_user_id` VARCHAR(50) NOT NULL,
+    `lessor_id` VARCHAR(50) NOT NULL,
+    `lessee_id` VARCHAR(50) NOT NULL,
+    `trade_review_content` VARCHAR(500) NULL DEFAULT NULL,
+    `trade_review_rating` DOUBLE NULL DEFAULT NULL,
+    `review_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`trade_review_id`),
+    CONSTRAINT `FK_item_trade_TO_trade_review_1`
+    FOREIGN KEY (`trade_id`)
+    REFERENCES `item_trade` (`trade_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_trade_review_1`
+    FOREIGN KEY (`author_user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_trade_review_2`
+    FOREIGN KEY (`lessor_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_trade_review_3`
+    FOREIGN KEY (`lessee_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-ALTER TABLE `course_spot`
-    ADD CONSTRAINT `FK_spot_TO_course_spot_1` FOREIGN KEY (
-                                                           `spot_id`
-        )
-        REFERENCES `spot` (
-                           `spot_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `article`
-    ADD CONSTRAINT `FK_user_TO_article_1` FOREIGN KEY (
-                                                       `writer_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
+-- -----------------------------------------------------
+-- Table `user_chatroom`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `user_chatroom` (
+                                               `user_chat_id` INT NOT NULL AUTO_INCREMENT,
+                                               `room_id` INT NOT NULL,
+                                               `user_id` VARCHAR(50) NOT NULL,
+    `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (`user_chat_id`),
+    CONSTRAINT `FK_chat_room_TO_user_chatroom_1`
+    FOREIGN KEY (`room_id`)
+    REFERENCES `chat_room` (`room_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_user_chatroom_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
-ALTER TABLE `article_comment`
-    ADD CONSTRAINT `FK_article_TO_article_comment_1` FOREIGN KEY (
-                                                                  `article_id`
-        )
-        REFERENCES `article` (
-                              `article_id`
-            ) ON DELETE CASCADE;
 
-ALTER TABLE `article_comment`
-    ADD CONSTRAINT `FK_user_TO_article_comment_1` FOREIGN KEY (
-                                                               `comment_writer_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `article_like`
-    ADD CONSTRAINT `FK_user_TO_article_like_1` FOREIGN KEY (
-                                                            `user_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `article_like`
-    ADD CONSTRAINT `FK_article_TO_article_like_1` FOREIGN KEY (
-                                                               `article_id`
-        )
-        REFERENCES `article` (
-                              `article_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `chat_room`
-    ADD CONSTRAINT `FK_item_TO_chat_room_1` FOREIGN KEY (
-                                                         `item_id`
-        )
-        REFERENCES `item` (
-                           `item_id`
-            );
-
-ALTER TABLE `chat_room`
-    ADD CONSTRAINT `FK_user_TO_chat_room_1` FOREIGN KEY (
-                                                         `lessor_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            );
-
-ALTER TABLE `chat_room`
-    ADD CONSTRAINT `FK_user_TO_chat_room_2` FOREIGN KEY (
-                                                         `lessee_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            );
-
-ALTER TABLE `chat_message`
-    ADD CONSTRAINT `FK_chat_room_TO_chat_message_1` FOREIGN KEY (
-                                                                 `room_id`
-        )
-        REFERENCES `chat_room` (
-                                `room_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `chat_message`
-    ADD CONSTRAINT `FK_user_TO_chat_message_1` FOREIGN KEY (
-                                                            `sender_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            );
-
-ALTER TABLE `refresh_token`
-    ADD CONSTRAINT `FK_user_TO_refresh_token_1` FOREIGN KEY (
-                                                             `user_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            );
-
-ALTER TABLE `item_image`
-    ADD CONSTRAINT `FK_item_TO_item_image_1` FOREIGN KEY (
-                                                          `item_id`
-        )
-        REFERENCES `item` (
-                           `item_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `course_image`
-    ADD CONSTRAINT `FK_course_TO_course_image_1` FOREIGN KEY (
-                                                              `course_id`
-        )
-        REFERENCES `course` (
-                             `course_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `article_image`
-    ADD CONSTRAINT `FK_article_TO_article_image_1` FOREIGN KEY (
-                                                                `article_id`
-        )
-        REFERENCES `article` (
-                              `article_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `item_condition_image`
-    ADD CONSTRAINT `FK_item_trade_TO_item_condition_image_1` FOREIGN KEY (
-                                                                          `trade_id`
-        )
-        REFERENCES `item_trade` (
-                                 `trade_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `user_chatroom`
-    ADD CONSTRAINT `FK_chat_room_TO_user_chatroom_1` FOREIGN KEY (
-                                                                  `room_id`
-        )
-        REFERENCES `chat_room` (
-                                `room_id`
-            ) ON DELETE CASCADE;
-
-ALTER TABLE `user_chatroom`
-    ADD CONSTRAINT `FK_user_TO_user_chatroom_1` FOREIGN KEY (
-                                                             `user_id`
-        )
-        REFERENCES `user` (
-                           `user_id`
-            ) ON DELETE CASCADE;
-
+-- -----------------------------------------------------
+-- Table `wishlist`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `wishlist` (
+                                          `wish_id` INT NOT NULL AUTO_INCREMENT,
+                                          `user_id` VARCHAR(50) NOT NULL,
+    `item_id` INT NOT NULL,
+    PRIMARY KEY (`wish_id`),
+    CONSTRAINT `FK_item_TO_wishlist_1`
+    FOREIGN KEY (`item_id`)
+    REFERENCES `item` (`item_id`)
+    ON DELETE CASCADE,
+    CONSTRAINT `FK_user_TO_wishlist_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
+    ON DELETE CASCADE);
 
 -- ---------------------------------- INSERT DUMMY DATAS INTO TABLES ---------------------------------
-use
-trend;
+use trend;
 
 -- Step 1: Insert data into `user` table
 INSERT INTO `user` (`user_id`, `user_password`, `user_nickname`, `user_address`, `user_email`, `user_phone_number`,
