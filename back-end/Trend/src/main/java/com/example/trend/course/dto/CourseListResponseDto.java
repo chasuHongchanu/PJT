@@ -5,12 +5,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CourseResponseDto {
+public class CourseListResponseDto {
     private int courseId;
     private String userProfileImg;
     private String userId;
     private String userNickname;
-    private int likes;
+    private int likeCount;
     private int commentCount;
     private String courseTitle;
     private String courseContent;
