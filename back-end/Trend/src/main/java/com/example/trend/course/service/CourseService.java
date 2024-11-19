@@ -33,4 +33,6 @@ public interface CourseService {
     void registCommentReply(CourseCommentRequestDto commentRequestDto);
 
     void updateComment(CourseCommentUpdateDto commentRequestDto);
+
+    void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
 }

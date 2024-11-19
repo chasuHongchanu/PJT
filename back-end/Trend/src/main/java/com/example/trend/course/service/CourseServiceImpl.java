@@ -235,4 +235,16 @@ public class CourseServiceImpl implements CourseService {
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT, e);
         }
     }
+
+    @Override
+    public void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto) {
+        try {
+            int result = courseCommentMapper.deleteComment(courseCommentDeleteDto);
+            if (result != 1) {
+                throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT, e);
+        }
+    }
 }

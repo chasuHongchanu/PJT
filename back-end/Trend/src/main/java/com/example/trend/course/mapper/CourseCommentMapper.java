@@ -1,7 +1,9 @@
 package com.example.trend.course.mapper;
 
+import com.example.trend.course.dto.CourseCommentDeleteDto;
 import com.example.trend.course.dto.CourseCommentRequestDto;
 import com.example.trend.course.dto.CourseCommentUpdateDto;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Update;
@@ -22,4 +24,10 @@ public interface CourseCommentMapper {
             WHERE course_id = #{courseId} AND course_comment_id = #{commentId} AND comment_writer_id = #{userId}
             """)
     int updateComment(CourseCommentUpdateDto commentRequestDto);
+
+    @Delete("""
+            DELETE FROM course_comment
+            WHERE course_id = #{courseId} AND course_comment_id = #{commentId} AND comment_writer_id = #{userId}
+            """)
+    int deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
 }

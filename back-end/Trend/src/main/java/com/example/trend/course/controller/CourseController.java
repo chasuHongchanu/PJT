@@ -107,7 +107,7 @@ public class CourseController {
     }
     // 대댓글 작성
     @PostMapping("/{courseId}/comment/{parentsCommentId}")
-    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 댓글 작성하는 기능")
+    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 대댓글을 작성하는 기능")
     public ResponseEntity<?> createCommentReply(@PathVariable int courseId, @PathVariable int parentsCommentId, @RequestBody CourseCommentRequestDto commentRequestDto, @RequestAttribute("userId") String userId) {
         commentRequestDto.setCourseId(courseId);
         commentRequestDto.setUserId(userId);
@@ -118,7 +118,7 @@ public class CourseController {
 
     // 수정
     @PutMapping("/{courseId}/comment/{commentId}")
-    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 댓글 작성하는 기능")
+    @Operation(summary = "여행 코스 댓글 수정 기능", description = "여행 코스 댓글을 수정하는 기능")
     public ResponseEntity<?> updateComment(@PathVariable int courseId, @PathVariable int commentId, @RequestBody CourseCommentUpdateDto commentRequestDto, @RequestAttribute("userId") String userId) {
         commentRequestDto.setCourseId(courseId);
         commentRequestDto.setCommentId(commentId);
@@ -128,6 +128,16 @@ public class CourseController {
     }
 
     // 삭제
+    @DeleteMapping("/{courseId}/comment/{commentId}")
+    @Operation(summary = "여행 코스 댓글 삭제 기능", description = "여행 코스 댓글을 삭제하는 기능")
+    public ResponseEntity<?> deleteComment(@PathVariable int courseId, @PathVariable int commentId, @RequestAttribute("userId") String userId) {
+        CourseCommentDeleteDto courseCommentDeleteDto = new CourseCommentDeleteDto();
+        courseCommentDeleteDto.setCourseId(courseId);
+        courseCommentDeleteDto.setCommentId(commentId);
+        courseCommentDeleteDto.setUserId(userId);
+        courseService.deleteComment(courseCommentDeleteDto);
+        return ResponseEntity.ok("Delete Course Comment Successful");
+    }
 
     // 코스 게시물의 댓글 목록 조회
 
