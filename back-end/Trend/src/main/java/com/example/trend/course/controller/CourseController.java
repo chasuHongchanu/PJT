@@ -2,9 +2,14 @@ package com.example.trend.course.controller;
 
 import com.example.trend.config.SkipJwt;
 import com.example.trend.course.dto.*;
+import com.example.trend.course.dto.comment.CourseCommentDeleteDto;
+import com.example.trend.course.dto.comment.CourseCommentRequestDto;
+import com.example.trend.course.dto.comment.CourseCommentResponseDto;
+import com.example.trend.course.dto.comment.CourseCommentUpdateDto;
 import com.example.trend.course.service.CourseService;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
+import com.example.trend.util.Pagination;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/course")
 @Slf4j
-@Tag(name = "CourseListResponseDto API", description = "API for course operations")
+@Tag(name = "Course API", description = "API for course operations")
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
@@ -33,7 +37,7 @@ public class CourseController {
         // 유저 id 입력
         courseRegistRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
+        // JSON 문자열을 파싱하여 List<CourseSpotDto>로 변환
         courseRegistRequestDto.setSpotList(getSpotList(courseRegistRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -47,7 +51,7 @@ public class CourseController {
         // 유저 id 입력
         courseUpdateRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
+        // JSON 문자열을 파싱하여 List<CourseSpotDto>로 변환
         courseUpdateRequestDto.setSpotList(getSpotList(courseUpdateRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -63,13 +67,13 @@ public class CourseController {
         return ResponseEntity.ok("Delete CourseListResponseDto Successful");
     }
 
-    private List<SpotDto> getSpotList(String spotListJson) {
-        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
+    private List<CourseSpotDto> getSpotList(String spotListJson) {
+        // JSON 문자열을 파싱하여 List<CourseSpotDto>로 변환
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            List<SpotDto> spotList = objectMapper.readValue(
+            List<CourseSpotDto> spotList = objectMapper.readValue(
                     spotListJson,
-                    new TypeReference<List<SpotDto>>() {
+                    new TypeReference<List<CourseSpotDto>>() {
                     }
             );
             return spotList;
@@ -81,8 +85,9 @@ public class CourseController {
     @SkipJwt
     @GetMapping("/list")
     @Operation(summary = "전체 여행 코스 조회", description = "전체 여행 코스 목록을 조회")
-    public ResponseEntity<?> getAll() {
-        List<CourseListResponseDto> courseListResponseDtos = courseService.getAllCourse();
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(defaultValue = "10") int size) {
+        Pagination<CourseListResponseDto> courseListResponseDtos = courseService.getAllCourse(page, size);
         return ResponseEntity.ok(courseListResponseDtos);
     }
 
@@ -92,6 +97,16 @@ public class CourseController {
     public ResponseEntity<?> getCourseDetail(@PathVariable int courseId) {
         CourseResponseDto courseResponseDto = courseService.getCourseDetail(courseId);
         return ResponseEntity.ok(courseResponseDto);
+    }
+
+    @SkipJwt
+    @GetMapping("/search")
+    @Operation(summary = "여행 코스 검색 및 필터링", description = "코스 검색 및 필터링 기능")
+    public ResponseEntity<?> searchCourse(@RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                          @RequestBody CourseSearchRequestDto courseSearchRequestDto) {
+        Pagination<CourseListResponseDto> courseListResponseDtos = courseService.searchCourses(page, size, courseSearchRequestDto);
+        return ResponseEntity.ok(courseListResponseDtos);
     }
 
 
@@ -142,10 +157,24 @@ public class CourseController {
 
     // 코스 게시물의 댓글 목록 조회
     @SkipJwt
-    @Select("/{courseId}/comment")
+    @GetMapping("/{courseId}/comment")
     @Operation(summary = "여행 코스의 댓글 게시물 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
-    public ResponseEntity<?> getCommentList(@PathVariable int courseId) {
-        List<CourseCommentResponseDto> courseCommentResponseDtos = courseService.getCommentList(courseId);
+    public ResponseEntity<?> getCommentList(@PathVariable int courseId,
+                                            @RequestParam(defaultValue = "1") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Pagination<CourseCommentResponseDto> courseCommentResponseDtos = courseService.getCommentList(courseId, page, size);
+        return ResponseEntity.ok(courseCommentResponseDtos);
+    }
+
+    // 게시물 댓글의 대댓글 목록 조회(페이징)
+    @SkipJwt
+    @GetMapping("/{courseId}/comment/{commentId}")
+    @Operation(summary = "여행 코스의 댓글 게시물 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
+    public ResponseEntity<?> getCommentReplyList(@PathVariable int courseId,
+                                                 @PathVariable int commentId,
+                                            @RequestParam(defaultValue = "1") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Pagination<CourseCommentResponseDto> courseCommentResponseDtos = courseService.getCommentReplyList(courseId, commentId, page, size);
         return ResponseEntity.ok(courseCommentResponseDtos);
     }
 

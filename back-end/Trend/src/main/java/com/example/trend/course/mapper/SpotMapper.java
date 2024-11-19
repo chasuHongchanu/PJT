@@ -1,6 +1,6 @@
 package com.example.trend.course.mapper;
 
-import com.example.trend.course.dto.SpotDto;
+import com.example.trend.course.dto.CourseSpotDto;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -12,7 +12,7 @@ import java.util.List;
 public interface SpotMapper {
     @Insert("INSERT INTO course_spot (course_spot_id, course_id, spot_name, visit_order, spot_address)" +
             "VALUES (#{courseSpotId}, #{courseId}, #{spotName}, #{visitOrder}, #{spotAddress})")
-    void insertCourseSpot(SpotDto spotDto);
+    void insertCourseSpot(CourseSpotDto courseSpotDto);
 
     @Delete("DELETE FROM course_spot WHERE course_id = #{courseId}")
     void deleteCourseSpotByCourseId(int courseId);
@@ -23,5 +23,5 @@ public interface SpotMapper {
             FROM course_spot
             WHERE course_id = #{courseId}
             """)
-    List<SpotDto> selectCourseSpots(int courseId);
+    List<CourseSpotDto> selectCourseSpots(int courseId);
 }

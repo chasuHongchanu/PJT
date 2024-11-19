@@ -1,5 +1,6 @@
-package com.example.trend.course.dto;
+package com.example.trend.community.dto;
 
+import com.example.trend.course.dto.CourseSpotDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,16 +9,15 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CourseResponseDto {
+public class ArticleResponseDto {
     private String writerProfileImg;
     private String writerId;
     private String writerNickname;
-    private String courseTitle;
-    private String courseContent;
-    private Timestamp courseCreatedAt;
+    private String articleTitle;
+    private String articleContent;
+    private Timestamp articleCreatedAt;
     private int viewCount;
     private int likeCount;
     private int commentCount;
-    private List<String> courseImages;
-    private List<CourseSpotDto> spots;
+    private List<String> articleImages;
 }

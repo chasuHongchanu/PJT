@@ -59,8 +59,11 @@ public enum ErrorCode {
   FAIL_TO_REGIST_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 등록 실패"),
   FAIL_TO_UPDATE_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 수정 실패"),
   NOT_FOUND_COURSE_INFO(HttpStatus.BAD_REQUEST, "일치하는 여행 코스 정보가 없습니다."),
-  FAIL_TO_SELECT_IMAGES(HttpStatus.BAD_REQUEST, "코스 이미지 정보를 불러오는 데 실패했습니다."),
-  FAIL_TO_SELECT_SPOT(HttpStatus.BAD_REQUEST, "관광지 정보 조회에 실패했습니다." );
+  FAIL_TO_SELECT_COURSE_IMAGES(HttpStatus.BAD_REQUEST, "코스 이미지 정보를 불러오는 데 실패했습니다."),
+  FAIL_TO_SELECT_SPOT(HttpStatus.BAD_REQUEST, "관광지 정보 조회에 실패했습니다." ),
+
+  // ===================Article==============
+  FAIL_TO_REGIST_ARTICLE(HttpStatus.BAD_REQUEST, "게시물 저장에 실패했습니다."), FAIL_TO_UPDATE_ARTICLE(HttpStatus.BAD_REQUEST, "게시물 수정에 실패했습니다."), FAIL_TO_DELETE_ARTICLE(HttpStatus.BAD_REQUEST, "게시물 삭제에 실패했습니다."), FAIL_TO_SELECT_ALL_ARTICLE(HttpStatus.BAD_REQUEST, "전체 게시물 조회에 실패했습니다."), NOT_FOUND_ARTICLE_INFO(HttpStatus.BAD_REQUEST, "해당 게시물을 찾을 수 없습니다."), FAIL_TO_SELECT_ARTICLE_IMAGES(HttpStatus.BAD_REQUEST, "해당 게시물의 사진을 불러오는데 실패했습니다.");
 
 
 

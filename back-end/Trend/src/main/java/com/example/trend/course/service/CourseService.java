@@ -1,9 +1,12 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.*;
+import com.example.trend.course.dto.comment.CourseCommentDeleteDto;
+import com.example.trend.course.dto.comment.CourseCommentRequestDto;
+import com.example.trend.course.dto.comment.CourseCommentResponseDto;
+import com.example.trend.course.dto.comment.CourseCommentUpdateDto;
+import com.example.trend.util.Pagination;
 import jakarta.validation.Valid;
-
-import java.util.List;
 
 public interface CourseService {
     void registCourse(@Valid CourseRegistRequestDto courseRegistRequestDto);
@@ -12,7 +15,7 @@ public interface CourseService {
 
     void deleteCourse(int courseId, String userId);
 
-    List<CourseListResponseDto> getAllCourse();
+    Pagination<CourseListResponseDto> getAllCourse(int page, int size);
 
     CourseResponseDto getCourseDetail(int courseId);
 
@@ -36,5 +39,9 @@ public interface CourseService {
 
     void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
 
-    List<CourseCommentResponseDto> getCommentList(int courseId);
+    Pagination<CourseCommentResponseDto>  getCommentList(int courseId, int page, int size);
+
+    Pagination<CourseCommentResponseDto> getCommentReplyList(int courseId, int commentId, int page, int size);
+
+    Pagination<CourseListResponseDto> searchCourses(int page, int size, CourseSearchRequestDto courseSearchRequestDto);
 }

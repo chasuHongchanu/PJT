@@ -1,4 +1,4 @@
-package com.example.trend.course.dto;
+package com.example.trend.course.dto.comment;
 
 import lombok.Getter;
 import lombok.Setter;

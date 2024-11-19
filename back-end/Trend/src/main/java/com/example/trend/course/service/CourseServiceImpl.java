@@ -1,6 +1,10 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.*;
+import com.example.trend.course.dto.comment.CourseCommentDeleteDto;
+import com.example.trend.course.dto.comment.CourseCommentRequestDto;
+import com.example.trend.course.dto.comment.CourseCommentResponseDto;
+import com.example.trend.course.dto.comment.CourseCommentUpdateDto;
 import com.example.trend.course.mapper.CourseCommentMapper;
 import com.example.trend.course.mapper.CourseLikeMapper;
 import com.example.trend.course.mapper.CourseMapper;
@@ -8,6 +12,7 @@ import com.example.trend.course.mapper.SpotMapper;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.util.FileUtil;
+import com.example.trend.util.Pagination;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -77,11 +82,11 @@ public class CourseServiceImpl implements CourseService {
         saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
     }
 
-    private void saveCourseSpots(List<SpotDto> spotList, int courseId) {
-        for (SpotDto spotDto : spotList) {
-            spotDto.setCourseId(courseId);
+    private void saveCourseSpots(List<CourseSpotDto> spotList, int courseId) {
+        for (CourseSpotDto courseSpotDto : spotList) {
+            courseSpotDto.setCourseId(courseId);
             try {
-                spotMapper.insertCourseSpot(spotDto);
+                spotMapper.insertCourseSpot(courseSpotDto);
             } catch (Exception e) {
                 throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_SPOT, e);
             }
@@ -123,10 +128,30 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-    public List<CourseListResponseDto> getAllCourse() {
+    public Pagination<CourseListResponseDto> getAllCourse(int page, int size) {
         try {
-            List<CourseListResponseDto> courseList = courseMapper.selectAllCourse();
-            return courseList;
+            int offset = (page - 1) * size;
+            // 코스 목록 가져오기
+            List<CourseListResponseDto> courseList = courseMapper.selectAllCourse(size, offset);
+            // 전체 개수 파악
+            int totalItems = courseMapper.countAllCourse(); // 총 데이터 수
+            // 페이징 객체 반환
+            return new Pagination<>(courseList, totalItems, page, size);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
+        }
+    }
+
+    @Override
+    public Pagination<CourseListResponseDto> searchCourses(int page, int size, CourseSearchRequestDto courseSearchRequestDto) {
+        try {
+            int offset = (page - 1) * size;
+            // 코스 목록 가져오기
+            List<CourseListResponseDto> courseList = courseMapper.searchCourses(courseSearchRequestDto, size, offset);
+            // 전체 개수 파악
+            int totalItems = courseMapper.countSearchCourse(courseSearchRequestDto); // 총 데이터 수
+            // 페이징 객체 반환
+            return new Pagination<>(courseList, totalItems, page, size);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
@@ -146,7 +171,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             courseResponseDto.setCourseImages(courseMapper.selectCourseImages(courseId));
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.FAIL_TO_SELECT_IMAGES);
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_COURSE_IMAGES);
         }
 
 
@@ -271,9 +296,24 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseCommentResponseDto> getCommentList(int courseId) {
+    public Pagination<CourseCommentResponseDto> getCommentList(int courseId, int page, int size) {
+        int offset = (page - 1) * size;
         // 해당 코스의 댓글 목록 가져오기
-        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentsByCourseId(courseId);
-        return commentResponseDtos;
+        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentsByCourseId(courseId, offset, size);
+        // 전체 개수 파악
+        int totalItems = courseCommentMapper.countCommentsByCourseId(courseId); // 총 데이터 수
+        // 페이징 객체 반환
+        return new Pagination<>(commentResponseDtos, totalItems, page, size);
+    }
+
+    @Override
+    public Pagination<CourseCommentResponseDto> getCommentReplyList(int courseId, int commentId, int page, int size) {
+        int offset = (page - 1) * size;
+        // 해당 코스의 댓글 목록 가져오기
+        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentRepliesByCourseId(courseId, commentId, offset, size);
+        // 전체 개수 파악
+        int totalItems = courseCommentMapper.countCommentRepliesByCourseId(courseId, commentId); // 총 데이터 수
+        // 페이징 객체 반환
+        return new Pagination<>(commentResponseDtos, totalItems, page, size);
     }
 }
