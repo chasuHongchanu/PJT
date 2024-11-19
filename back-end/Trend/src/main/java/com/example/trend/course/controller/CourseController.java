@@ -81,8 +81,9 @@ public class CourseController {
     @SkipJwt
     @GetMapping("/list")
     @Operation(summary = "전체 여행 코스 조회", description = "전체 여행 코스 목록을 조회")
-    public ResponseEntity<?> getAll() {
-        List<CourseListResponseDto> courseListResponseDtos = courseService.getAllCourse();
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(defaultValue = "10") int size) {
+        Pagination<CourseListResponseDto> courseListResponseDtos = courseService.getAllCourse(page, size);
         return ResponseEntity.ok(courseListResponseDtos);
     }
 

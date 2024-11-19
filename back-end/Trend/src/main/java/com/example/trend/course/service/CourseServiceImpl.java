@@ -124,10 +124,15 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-    public List<CourseListResponseDto> getAllCourse() {
+    public Pagination<CourseListResponseDto> getAllCourse(int page, int size) {
         try {
-            List<CourseListResponseDto> courseList = courseMapper.selectAllCourse();
-            return courseList;
+            int offset = (page - 1) * size;
+            // 코스 목록 가져오기
+            List<CourseListResponseDto> courseList = courseMapper.selectAllCourse(size, offset);
+            // 전체 개수 파악
+            int totalItems = courseMapper.countAllCourse(); // 총 데이터 수
+            // 페이징 객체 반환
+            return new Pagination<>(courseList, totalItems, page, size);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
@@ -277,7 +282,7 @@ public class CourseServiceImpl implements CourseService {
         // 해당 코스의 댓글 목록 가져오기
         List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentsByCourseId(courseId, offset, size);
         // 전체 개수 파악
-        int totalItems = courseCommentMapper.countCommentsByCourseId(courseId, offset, size); // 총 데이터 수
+        int totalItems = courseCommentMapper.countCommentsByCourseId(courseId); // 총 데이터 수
         // 페이징 객체 반환
         return new Pagination<>(commentResponseDtos, totalItems, page, size);
     }
@@ -288,7 +293,7 @@ public class CourseServiceImpl implements CourseService {
         // 해당 코스의 댓글 목록 가져오기
         List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentRepliesByCourseId(courseId, commentId, offset, size);
         // 전체 개수 파악
-        int totalItems = courseCommentMapper.countCommentRepliesByCourseId(courseId, commentId, offset, size); // 총 데이터 수
+        int totalItems = courseCommentMapper.countCommentRepliesByCourseId(courseId, commentId); // 총 데이터 수
         // 페이징 객체 반환
         return new Pagination<>(commentResponseDtos, totalItems, page, size);
     }

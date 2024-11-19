@@ -13,7 +13,7 @@ public interface CourseService {
 
     void deleteCourse(int courseId, String userId);
 
-    List<CourseListResponseDto> getAllCourse();
+    Pagination<CourseListResponseDto> getAllCourse(int page, int size);
 
     CourseResponseDto getCourseDetail(int courseId);
 

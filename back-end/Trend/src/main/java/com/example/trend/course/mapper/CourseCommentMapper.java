@@ -52,20 +52,17 @@ public interface CourseCommentMapper {
             FROM course_comment c
                   LEFT JOIN user u
                             on c.comment_writer_id = u.user_id
-            WHERE course_id = #{courseId}
+            WHERE course_id = #{courseId} AND parents_comment_id IS NULL
             LIMIT #{size} OFFSET #{offset}
             """)
     List<CourseCommentResponseDto> selectCommentsByCourseId(@Param("courseId") int courseId, int offset, int size);
 
     @Select("""
             SELECT COUNT(*)
-            FROM course_comment c
-                  LEFT JOIN user u
-                            on c.comment_writer_id = u.user_id
-            WHERE course_id = #{courseId}
-            LIMIT #{size} OFFSET #{offset}
+            FROM course_comment
+            WHERE course_id = #{courseId} AND parents_comment_id IS NULL
             """)
-    int countCommentsByCourseId(int courseId, int offset, int size);
+    int countCommentsByCourseId(int courseId);
 
 
     @Select("""
@@ -89,11 +86,8 @@ public interface CourseCommentMapper {
 
     @Select("""
             SELECT COUNT(*)
-            FROM course_comment c
-                  LEFT JOIN user u
-                            on c.comment_writer_id = u.user_id
+            FROM course_comment
             WHERE course_id = #{courseId} AND parents_comment_id = #{commentId}
-            LIMIT #{size} OFFSET #{offset}
             """)
-    int countCommentRepliesByCourseId(int courseId, int commentId, int offset, int size);
+    int countCommentRepliesByCourseId(int courseId, int commentId);
 }

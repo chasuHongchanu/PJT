@@ -46,8 +46,9 @@ public interface CourseMapper {
                 left join course_like cl on c.course_id = cl.course_id
                 left join user u on c.course_writer_id = u.user_id
             GROUP BY c.course_id
+            LIMIT #{size} OFFSET #{offset}
             """)
-    List<CourseListResponseDto> selectAllCourse();
+    List<CourseListResponseDto> selectAllCourse(@Param("size") int size, @Param("offset") int offset);
 
     @Select("""
             SELECT u.user_profile_img AS writerProfileImg,
@@ -75,4 +76,10 @@ public interface CourseMapper {
             FROM course_image WHERE course_id = #{courseId}
             """)
     List<String> selectCourseImages(int courseId);
+
+    @Select("""
+            SELECT COUNT(*) AS totalCount
+            FROM course;
+            """)
+    int countAllCourse();
 }
