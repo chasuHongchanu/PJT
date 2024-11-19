@@ -38,4 +38,6 @@ public interface CourseService {
     void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
 
     Pagination<CourseCommentResponseDto>  getCommentList(int courseId, int page, int size);
+
+    Pagination<CourseCommentResponseDto> getCommentReplyList(int courseId, int commentId, int page, int size);
 }

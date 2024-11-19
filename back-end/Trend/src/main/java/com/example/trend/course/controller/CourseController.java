@@ -151,6 +151,18 @@ public class CourseController {
         return ResponseEntity.ok(courseCommentResponseDtos);
     }
 
+    // 게시물 댓글의 대댓글 목록 조회(페이징)
+    @SkipJwt
+    @GetMapping("/{courseId}/comment/{commentId}")
+    @Operation(summary = "여행 코스의 댓글 게시물 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
+    public ResponseEntity<?> getCommentReplyList(@PathVariable int courseId,
+                                                 @PathVariable int commentId,
+                                            @RequestParam(defaultValue = "1") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Pagination<CourseCommentResponseDto> courseCommentResponseDtos = courseService.getCommentReplyList(courseId, commentId, page, size);
+        return ResponseEntity.ok(courseCommentResponseDtos);
+    }
+
 
     //=================좋아요===========================
     @PostMapping("/{courseId}/like")

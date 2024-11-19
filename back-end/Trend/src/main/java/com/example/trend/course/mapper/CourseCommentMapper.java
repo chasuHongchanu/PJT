@@ -66,4 +66,34 @@ public interface CourseCommentMapper {
             LIMIT #{size} OFFSET #{offset}
             """)
     int countCommentsByCourseId(int courseId, int offset, int size);
+
+
+    @Select("""
+            SELECT course_comment_id    AS commentId,
+                comment_writer_id   AS writerId,
+                u.user_nickname     AS writerNickname,
+                u.user_profile_img  AS writerProfileImg,
+                parents_comment_id  AS parentsCommentId,
+                course_comment_content  AS content,
+                course_comment_created_at   AS createdAt,
+                (SELECT COUNT(*)
+                 FROM course_comment_like
+                 WHERE course_comment_id = commentId) AS likesCount
+            FROM course_comment c
+                  LEFT JOIN user u
+                            on c.comment_writer_id = u.user_id
+            WHERE course_id = #{courseId} AND parents_comment_id = #{commentId}
+            LIMIT #{size} OFFSET #{offset}
+            """)
+    List<CourseCommentResponseDto> selectCommentRepliesByCourseId(int courseId, int commentId, int offset, int size);
+
+    @Select("""
+            SELECT COUNT(*)
+            FROM course_comment c
+                  LEFT JOIN user u
+                            on c.comment_writer_id = u.user_id
+            WHERE course_id = #{courseId} AND parents_comment_id = #{commentId}
+            LIMIT #{size} OFFSET #{offset}
+            """)
+    int countCommentRepliesByCourseId(int courseId, int commentId, int offset, int size);
 }

@@ -281,4 +281,15 @@ public class CourseServiceImpl implements CourseService {
         // 페이징 객체 반환
         return new Pagination<>(commentResponseDtos, totalItems, page, size);
     }
+
+    @Override
+    public Pagination<CourseCommentResponseDto> getCommentReplyList(int courseId, int commentId, int page, int size) {
+        int offset = (page - 1) * size;
+        // 해당 코스의 댓글 목록 가져오기
+        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentRepliesByCourseId(courseId, commentId, offset, size);
+        // 전체 개수 파악
+        int totalItems = courseCommentMapper.countCommentRepliesByCourseId(courseId, commentId, offset, size); // 총 데이터 수
+        // 페이징 객체 반환
+        return new Pagination<>(commentResponseDtos, totalItems, page, size);
+    }
 }
