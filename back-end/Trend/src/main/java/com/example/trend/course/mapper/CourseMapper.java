@@ -1,7 +1,7 @@
 package com.example.trend.course.mapper;
 
-import com.example.trend.course.dto.CourseRegistRequestDto;
 import com.example.trend.course.dto.CourseListResponseDto;
+import com.example.trend.course.dto.CourseRegistRequestDto;
 import com.example.trend.course.dto.CourseUpdateRequestDto;
 import org.apache.ibatis.annotations.*;
 

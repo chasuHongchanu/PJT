@@ -1,11 +1,11 @@
-package com.example.trend.course.comment.dto;
+package com.example.trend.course.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CommentResponseDto {
+public class CourseCommentResponseDto {
     private String writerId;
     private String writerNickname;
     private String writerProfileImg;

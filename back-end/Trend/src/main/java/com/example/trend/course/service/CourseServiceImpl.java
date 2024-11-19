@@ -1,6 +1,7 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.*;
+import com.example.trend.course.mapper.CourseCommentMapper;
 import com.example.trend.course.mapper.CourseLikeMapper;
 import com.example.trend.course.mapper.CourseMapper;
 import com.example.trend.course.mapper.SpotMapper;
@@ -23,6 +24,7 @@ public class CourseServiceImpl implements CourseService {
     private final SpotMapper spotMapper;
     private final FileUtil fileUtil;
     private final CourseLikeMapper courseLikeMapper;
+    private final CourseCommentMapper courseCommentMapper;
 
     @Override
     @Transactional
@@ -197,5 +199,29 @@ public class CourseServiceImpl implements CourseService {
             throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
         }
         return false;
+    }
+
+    @Override
+    public void registComment(CourseCommentRequestDto commentRequestDto) {
+        try {
+            int result = courseCommentMapper.insertComment(commentRequestDto);
+            if(result != 1) {
+                throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT, e);
+        }
+    }
+
+    @Override
+    public void registCommentReply(CourseCommentRequestDto commentRequestDto) {
+        try {
+            int result = courseCommentMapper.insertCommentReply(commentRequestDto);
+            if(result != 1) {
+                throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT, e);
+        }
     }
 }

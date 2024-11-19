@@ -52,7 +52,8 @@ public enum ErrorCode {
   FAIL_TO_DELETE_COURSE(HttpStatus.BAD_REQUEST, "게시글 삭제에 실패했습니다."),
   FAIL_TO_LIKE(HttpStatus.BAD_REQUEST, "좋아요 실패."),
   FAIL_TO_UNLIKE(HttpStatus.BAD_REQUEST, "좋아요 취소 실패."),
-  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패.");
+  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패."),
+  FAIL_TO_REGIST_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 등록 실패");
 
 
 
