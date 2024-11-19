@@ -291,4 +291,13 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(registItems);
     }
+
+    @GetMapping("/lendItems")
+    public ResponseEntity<?> tradeLendItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> lendItems = tradeService.getLendItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(lendItems);
+    }
+
 }

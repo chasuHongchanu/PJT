@@ -29,4 +29,6 @@ public interface TradeService {
     int updatetradeState(int tradeId);
 
     List<TradeMyItemsResponseDto> getRegistItems(String userId);
+
+    List<TradeMyItemsResponseDto> getLendItems(String userId);
 }

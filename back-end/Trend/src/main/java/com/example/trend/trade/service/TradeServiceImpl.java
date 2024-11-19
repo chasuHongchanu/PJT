@@ -173,4 +173,8 @@ public class TradeServiceImpl implements TradeService{
         return tradeMapper.selectRegistItems(userId);
     }
 
+    @Override
+    public List<TradeMyItemsResponseDto> getLendItems(String userId) {
+        return tradeMapper.selectLendItems(userId);
+    }
 }
