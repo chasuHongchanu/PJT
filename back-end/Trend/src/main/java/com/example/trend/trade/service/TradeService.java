@@ -29,4 +29,14 @@ public interface TradeService {
     int updatetradeState(int tradeId);
 
     List<TradeMyItemsResponseDto> getRegistItems(String userId);
+
+    List<TradeMyItemsResponseDto> getLendItems(String userId);
+
+    List<TradeMyItemsResponseDto> getLeaseItems(String userId);
+
+    List<TradeMyItemsResponseDto> getReturnLendItems(String userId);
+
+    List<TradeMyItemsResponseDto> getReturnLeaseItems(String userId);
+
+    List<TradeMyItemsResponseDto> getWishListItems(String userId);
 }

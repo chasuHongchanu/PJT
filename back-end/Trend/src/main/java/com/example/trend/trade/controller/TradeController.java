@@ -291,4 +291,44 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(registItems);
     }
+
+    @GetMapping("/lendItems")
+    public ResponseEntity<?> tradeLendItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> lendItems = tradeService.getLendItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(lendItems);
+    }
+
+    @GetMapping("/leaseItems")
+    public ResponseEntity<?> tradeLeaseItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> leaseItems = tradeService.getLeaseItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(leaseItems);
+    }
+
+    @GetMapping("/returnLendItems")
+    public ResponseEntity<?> tradeReturnLendItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> returnLendItems = tradeService.getReturnLendItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(returnLendItems);
+    }
+
+    @GetMapping("/returnLeaseItems")
+    public ResponseEntity<?> tradeReturnLeaseItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> returnLeaseItems = tradeService.getReturnLeaseItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(returnLeaseItems);
+    }
+
+    @GetMapping("/wishList")
+    public ResponseEntity<?> tradeWishListItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> wishListItems = tradeService.getWishListItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(wishListItems);
+    }
 }
