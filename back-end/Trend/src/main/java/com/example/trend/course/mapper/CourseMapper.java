@@ -60,11 +60,11 @@ public interface CourseMapper {
                     WHERE course_id = course.course_id) AS likesCount,
                    (SELECT COUNT(*)
                     FROM course_comment
-                    WHERE course_id = course.course_id) AS commentCount
+                    WHERE course_id = course.course_id AND parent_comment_id IS NULL) AS commentCount
             FROM course
                      LEFT JOIN user u
                                on course_writer_id = u.user_id
-            WHERE course_id = 1
+            WHERE course_id = #{courseId}
             """)
     CourseResponseDto selectCourseByCourseId(int courseId); // 상세조회
 

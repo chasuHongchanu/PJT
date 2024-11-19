@@ -171,7 +171,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             courseResponseDto.setCourseImages(courseMapper.selectCourseImages(courseId));
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.FAIL_TO_SELECT_IMAGES);
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_COURSE_IMAGES);
         }
 
 
