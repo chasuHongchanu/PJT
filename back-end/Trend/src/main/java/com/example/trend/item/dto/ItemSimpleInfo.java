@@ -13,6 +13,6 @@ public class ItemSimpleInfo {
     private String itemName;
     private String itemImage;
     private int lessorActivityScore;
-    private double itemLatitude;
-    private double itemLongitude;
+    private double latitude;
+    private double longitude;
 }

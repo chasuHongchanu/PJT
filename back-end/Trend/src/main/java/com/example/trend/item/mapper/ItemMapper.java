@@ -14,10 +14,9 @@ public interface ItemMapper {
                               sub_category,
                               sub_subcategory,
                               item_price,
-                              country,
-                              province,
-                              district,
-                              town,
+                              address,
+                              latitude,
+                              longitude,
                               item_content,
                               available_rental_start_date,
                               available_rental_end_date)
@@ -27,10 +26,9 @@ public interface ItemMapper {
                               #{itemSubCategory},
                               #{itemSubsubCategory},
                               #{itemPrice},
-                              #{itemCountry},
-                              #{itemProvince},
-                              #{itemDistrict},
-                              #{itemTown},
+                              #{address},
+                              #{latitude},
+                              #{longitude},
                               #{itemContent},
                               #{availableRentalStartDate},
                               #{availableRentalEndDate})
@@ -52,7 +50,7 @@ public interface ItemMapper {
     void updateUserActivityScore(String userId);
 
     @Select("""
-            SELECT user_profile_img, user_nickname, u.user_id, user_rating, i.item_id, item_name, item_price, main_category, sub_category, sub_subcategory, i.country, province, district, town, item_content, available_rental_start_date, available_rental_end_date, view_count
+            SELECT user_profile_img, user_nickname, u.user_id, user_rating, i.item_id, item_name, item_price, main_category, sub_category, sub_subcategory, address, item_content, available_rental_start_date, available_rental_end_date, view_count
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
@@ -63,10 +61,6 @@ public interface ItemMapper {
             @Result(property = "lessorNickname", column = "user_nickname"),
             @Result(property = "lessorId", column = "user_id"),
             @Result(property = "lessorReputation", column = "user_rating"),
-            @Result(property = "itemCountry", column = "country"),
-            @Result(property = "itemProvince", column = "province"),
-            @Result(property = "itemDistrict", column = "district"),
-            @Result(property = "itemTown", column = "town"),
     })
     ItemDetailResponseDto selectDetailByItemId(int itemId);
 
@@ -85,11 +79,13 @@ public interface ItemMapper {
     int isWishListItem(int itemId, String userId);
 
     @Select("""
-            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude, i.item_longitude, i.thumbnail
+            SELECT i.item_id, i.item_name, u.user_activity_score, i.latitude, i.longitude, i.thumbnail
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
-            WHERE sub_subcategory = #{subSubCategory}
+            WHERE i.sub_subcategory = (SELECT sub_subcategory
+                                       FROM item
+                                       WHERE item_id = #{itemId})
               AND i.item_id != #{itemId}
               AND i.item_deleted_at IS NULL
             ORDER BY u.user_activity_score DESC
@@ -99,17 +95,20 @@ public interface ItemMapper {
             @Result(property = "lessorActivityScore", column = "user_activity_score"),
             @Result(property = "itemImage", column = "thumbnail")
     })
-    List<ItemSimpleInfo> selectSimilarItems(int itemId, String subSubCategory);
+    List<ItemSimpleInfo> selectSimilarItems(int itemId);
 
     @Select("""
-            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude, i.item_longitude, i.thumbnail
+            SELECT i.item_id, i.item_name, u.user_activity_score, i.latitude, i.longitude, i.thumbnail
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
-            WHERE district = #{district}
-              AND town = #{town}
-              AND i.item_id != #{itemId}
-              AND i.item_deleted_at IS NULL
+            WHERE i.item_id != #{itemId}
+                  AND i.item_deleted_at IS NULL
+                  AND ST_Distance_Sphere(
+                        POINT((SELECT longitude FROM item WHERE item_id = #{itemId}),
+                              (SELECT latitude FROM item WHERE item_id = #{itemId})),
+                        POINT(i.longitude, i.latitude)
+                      ) <= 300000
             ORDER BY u.user_activity_score DESC
             LIMIT 5;
             """)
@@ -117,7 +116,7 @@ public interface ItemMapper {
             @Result(property = "lessorActivityScore", column = "user_activity_score"),
             @Result(property = "itemImage", column = "thumbnail")
     })
-    List<ItemSimpleInfo> selectPeripheralItems(int itemId, String district, String town);
+    List<ItemSimpleInfo> selectPeripheralItems(int itemId);
 
     @Update("""
             UPDATE item
@@ -128,14 +127,67 @@ public interface ItemMapper {
 
     @Select("""
             <script>
-                SELECT item.item_id, item.thumbnail AS itemImage, item_name, item_price, country, province, district, town
+                SELECT item.item_id, item.thumbnail AS itemImage, item_name, item_price, address
+                FROM item
+                WHERE 1=1
+                AND item.item_deleted_at IS NULL
+                <if test="itemSearchCriteria.latitude != null and itemSearchCriteria.longitude != null">
+                    AND ST_Distance_Sphere(
+                        POINT(#{itemSearchCriteria.longitude}, #{itemSearchCriteria.latitude}),
+                        POINT(item.longitude, item.latitude)
+                    ) &lt;= 300000
+                </if>
+                <if test="itemSearchCriteria.minPrice != null">
+                    AND item.item_price &gt;= #{itemSearchCriteria.minPrice}
+                </if>
+                <if test="itemSearchCriteria.maxPrice != null">
+                    AND item.item_price &lt;= #{itemSearchCriteria.maxPrice}
+                </if>
+                <if test="itemSearchCriteria.mainCategory != null">
+                    AND item.main_category = #{itemSearchCriteria.mainCategory}
+                </if>
+                <if test="itemSearchCriteria.subCategory != null">
+                    AND item.sub_category = #{itemSearchCriteria.subCategory}
+                </if>
+                <if test="itemSearchCriteria.subSubCategory != null">
+                    AND item.sub_subcategory = #{itemSearchCriteria.subSubCategory}
+                </if>
+                <if test="itemSearchCriteria.country != null">
+                    AND address LIKE CONCAT('%', #{itemSearchCriteria.country}, '%')
+                </if>
+                <if test="itemSearchCriteria.province != null">
+                    AND address LIKE CONCAT('%', #{itemSearchCriteria.province}, '%')
+                </if>
+                <if test="itemSearchCriteria.district != null">
+                    AND address LIKE CONCAT('%', #{itemSearchCriteria.district}, '%')
+                </if>
+                <if test="itemSearchCriteria.town != null">
+                    AND address LIKE CONCAT('%', #{itemSearchCriteria.town}, '%')
+                </if>
+                <if test="itemSearchCriteria.keyword != null and itemSearchCriteria.keyword != ''">
+                    AND (
+                        item.item_name LIKE CONCAT('%', #{itemSearchCriteria.keyword}, '%')
+                        OR item.item_content LIKE CONCAT('%', #{itemSearchCriteria.keyword}, '%')
+                    )
+                </if>
+                LIMIT #{size}
+                OFFSET #{offset}
+            </script>
+            """)
+    List<ItemRetrieveResponseDto> searchItems(@Param("itemSearchCriteria") ItemSearchCriteria itemSearchCriteria,
+                                              @Param("offset") int offset,
+                                              @Param("size") int size);
+
+    @Select("""
+            <script>
+                SELECT COUNT(*)
                 FROM item
                 WHERE 1=1
                 AND item.item_deleted_at IS NULL
                 <if test="latitude != null and longitude != null">
                     AND ST_Distance_Sphere(
                         POINT(#{longitude}, #{latitude}),
-                        POINT(item.item_longitude, item.item_latitude)
+                        POINT(item.longitude, item.latitude)
                     ) &lt;= 300000
                 </if>
                 <if test="minPrice != null">
@@ -154,16 +206,16 @@ public interface ItemMapper {
                     AND item.sub_subcategory = #{subSubCategory}
                 </if>
                 <if test="country != null">
-                    AND item.country = #{country}
+                    AND address LIKE CONCAT('%', #{country}, '%')
                 </if>
                 <if test="province != null">
-                    AND item.province = #{province}
+                    AND address LIKE CONCAT('%', #{province}, '%')
                 </if>
                 <if test="district != null">
-                    AND item.district = #{district}
+                    AND address LIKE CONCAT('%', #{district}, '%')
                 </if>
                 <if test="town != null">
-                    AND item.town = #{town}
+                    AND address LIKE CONCAT('%', #{town}, '%')
                 </if>
                 <if test="keyword != null and keyword != ''">
                     AND (
@@ -173,8 +225,7 @@ public interface ItemMapper {
                 </if>
             </script>
             """)
-    List<ItemRetrieveResponseDto> searchItems(ItemSearchCriteria itemSearchCriteria);
-
+    int countItems(ItemSearchCriteria itemSearchCriteria);
 
     @Select("""
             SELECT
@@ -209,23 +260,35 @@ public interface ItemMapper {
             JOIN trade_review r
             ON u.user_id = r.lessee_id
             WHERE r.lessor_id = #{lessorId}
+            LIMIT #{size}
+            OFFSET #{offset}
             """)
-    List<TradeReviewDto> selectTradeReviewsByLessorId(String lessorId);
+    List<TradeReviewDto> selectTradeReviewsByLessorId(String lessorId, int offset, int size);
 
     @Select("""
-            SELECT i.item_id, i.item_name, item_price, i.thumbnail AS itemImage
-            FROM item i
-            WHERE user_id = #{lessorId}
-            AND i.item_deleted_at IS NULL
+            SELECT COUNT(*)
+            FROM user u
+            JOIN trade_review r
+            ON u.user_id = r.lessee_id
+            WHERE r.lessor_id = #{lessorId}
             """)
-    List<ItemRetrieveResponseDto> selectLendItemsByLessorId(String lessorId);
+    int countLessorReviews(String lessorId);
 
     @Select("""
             SELECT article_id, article_title
             FROM article
             WHERE writer_id = #{lessorId}
+            LIMIT #{size}
+            OFFSET #{offset}
             """)
-    List<ArticleSimpleInfo> selectArticlesByLessorId(String lessorId);
+    List<ArticleSimpleInfo> selectArticlesByLessorId(String lessorId, int offset, int size);
+
+    @Select("""
+            SELECT COUNT(*)
+            FROM article
+            WHERE writer_id = #{lessorId}
+            """)
+    int countLessorArticles(String lessorId);
 
     @Select("""
             SELECT article_image
@@ -235,12 +298,22 @@ public interface ItemMapper {
     List<String> selectArticleImagesByArticleId(int articleId);
 
     @Select("""
-            SELECT i.item_id, i.thumbnail AS itemImage, i.item_name, item_price, country, province, district, town
+            SELECT i.item_id, i.thumbnail AS itemImage, i.item_name, item_price, address
+            FROM item i
+            WHERE user_id = #{lessorId}
+            AND i.item_deleted_at IS NULL
+            LIMIT #{size}
+            OFFSET #{offset}
+            """)
+    List<ItemRetrieveResponseDto> selectLessorItemsByLessorId(String lessorId, int offset, int size);
+
+    @Select("""
+            SELECT COUNT(*)
             FROM item i
             WHERE user_id = #{lessorId}
             AND i.item_deleted_at IS NULL
             """)
-    List<ItemRetrieveResponseDto> selectLessorItemsByLessorId(String lessorId);
+    int countLessorItems(String lessorId);
 
     @Delete("""
             DELETE
@@ -256,10 +329,9 @@ public interface ItemMapper {
                 sub_category = #{itemSubCategory},
                 sub_subcategory = #{itemSubsubCategory},
                 item_price = #{itemPrice},
-                country = #{itemCountry},
-                province = #{itemProvince},
-                district = #{itemDistrict},
-                town = #{itemTown},
+                address = #{address},
+                latitude = #{latitude},
+                longitude = #{longitude},
                 item_content = #{itemContent},
                 available_rental_start_date = #{availableRentalStartDate},
                 available_rental_end_date = #{availableRentalEndDate},

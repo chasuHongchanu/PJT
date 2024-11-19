@@ -6,6 +6,7 @@ import com.example.trend.exception.ErrorCode;
 import com.example.trend.item.dto.*;
 import com.example.trend.item.service.ItemService;
 import com.example.trend.user.jwt.JwtUtil;
+import com.example.trend.util.Pagination;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,27 +23,27 @@ import java.util.Map;
 @RequestMapping("/api/item")
 public class ItemController {
     private final ItemService itemService;
-    private final JwtUtil jwtUtil;
 
     private final double DEFAULT_LATITUDE = 37.5074;
     private final double DEFAULT_LONGITUDE = 126.7218;
 
     @Autowired
-    public ItemController(ItemService itemService, JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public ItemController(ItemService itemService) {
         this.itemService = itemService;
     }
 
     @SkipJwt
     @GetMapping("/rent/list")
-    public ResponseEntity<?> list() {
+    public ResponseEntity<?> list(@RequestParam(defaultValue = "1") int page,
+                                  @RequestParam(defaultValue = "3") int size) {
         ItemSearchCriteria itemSearchCriteria = new ItemSearchCriteria();
         // 필터링하지 않았을 시 기본 위/경도 지정 후 검색
         itemSearchCriteria.setLatitude(DEFAULT_LATITUDE);
         itemSearchCriteria.setLongitude(DEFAULT_LONGITUDE);
-        List<ItemRetrieveResponseDto> itemList = itemService.searchItems(itemSearchCriteria);
+        Pagination<ItemRetrieveResponseDto> pagedItemList = itemService.searchPagedItems(itemSearchCriteria, page, size);
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(itemList);
+                .body(pagedItemList);
     }
 
     @PostMapping("/rent")
@@ -64,11 +65,13 @@ public class ItemController {
     }
 
     @PutMapping("/rent")
-    public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto, @RequestAttribute("userId") String userId) {
-        itemUpdateDto.setUserId(userId);
-        // 가격이 비어있는 경우
-        if(itemUpdateDto.getItemPrice() == 0) {
-            throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);
+    public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto,
+                                    @RequestAttribute("userId") String userId)
+        {
+            itemUpdateDto.setUserId(userId);
+            // 가격이 비어있는 경우
+            if(itemUpdateDto.getItemPrice() == 0) {
+                throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);
         }
 
         // 정상적인 데이터 DB에 등록
@@ -95,14 +98,11 @@ public class ItemController {
     @SkipJwt
     @GetMapping("/rent")
     public ResponseEntity<?> detail(@RequestParam("itemId") int itemId, HttpServletRequest request) {
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String userId = null;
-
-        if (jwtUtil.hasAuthHeader(authHeader)) {
-            // jwt token 있이 요청된 경우
-            userId = jwtUtil.getUserId(authHeader);
+        if(request.getAttribute("userId") != null) {
+            userId = request.getAttribute("userId").toString();
         }
-        System.out.println(userId);
+
         ItemDetailResponseDto itemDetailResponseDto = itemService.detail(itemId, userId);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -110,8 +110,28 @@ public class ItemController {
     }
 
     @SkipJwt
+    @GetMapping("/rent/similar")
+    public ResponseEntity<?> detailSimilarItems(@RequestParam("itemId") int itemId) {
+        List<ItemSimpleInfo> similarItems = itemService.getSimilarItems(itemId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(similarItems);
+    }
+
+    @SkipJwt
+    @GetMapping("/rent/peripheral")
+    public ResponseEntity<?> detailPeripheralItems(@RequestParam("itemId") int itemId) {
+        List<ItemSimpleInfo> peripheralItems = itemService.getPeripheralItems(itemId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(peripheralItems);
+    }
+
+    @SkipJwt
     @GetMapping("/rent/search")
-    public ResponseEntity<?> search(@ModelAttribute ItemSearchCriteria itemSearchCriteria) {
+    public ResponseEntity<?> search(@RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(defaultValue = "3") int size,
+                                    @ModelAttribute ItemSearchCriteria itemSearchCriteria) {
         // 최대 가격이 최소 가격보다 작으면 예외 발생
         Integer minPrice = itemSearchCriteria.getMinPrice();
         Integer maxPrice = itemSearchCriteria.getMaxPrice();
@@ -119,9 +139,9 @@ public class ItemController {
             throw new CustomException(ErrorCode.INVALID_PRICE_RANGE);
         }
 
-        List<ItemRetrieveResponseDto> itemList = itemService.searchItems(itemSearchCriteria);
+        Pagination<ItemRetrieveResponseDto> pagedItemList = itemService.searchPagedItems(itemSearchCriteria, page, size);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(itemList);
+                .body(pagedItemList);
     }
 
     @GetMapping("/rent/lessor/{lessorId}")
@@ -132,10 +152,34 @@ public class ItemController {
     }
 
     @GetMapping("/rent/lessor/{lessorId}/items")
-    public ResponseEntity<?> lessorItems(@PathVariable String lessorId) {
-        List<ItemRetrieveResponseDto> lessorLendItems = itemService.getLessorItems(lessorId);
+    public ResponseEntity<?> lessorItems(@RequestParam(defaultValue = "1") int page,
+                                         @RequestParam(defaultValue = "3") int size,
+                                         @PathVariable String lessorId) {
+        Pagination<ItemRetrieveResponseDto> pagedLessorItems = itemService.getPagedLessorItems(lessorId, page, size);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(lessorLendItems);
+                .body(pagedLessorItems);
+    }
+
+    @GetMapping("/rent/lessor/{lessorId}/reviews")
+    public ResponseEntity<?> lessorReviews(@RequestParam(defaultValue = "1") int page,
+                                           @RequestParam(defaultValue = "3") int size,
+                                           @PathVariable String lessorId) {
+
+        Pagination<TradeReviewDto> pagedLessorReviews = itemService.getPagedLessorReviews(lessorId, page, size);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(pagedLessorReviews);
+    }
+
+    @GetMapping("/rent/lessor/{lessorId}/articles")
+    public ResponseEntity<?> lessorArticles(@RequestParam(defaultValue = "1") int page,
+                                            @RequestParam(defaultValue = "3") int size,
+                                            @PathVariable String lessorId) {
+
+        Pagination<ArticleSimpleInfo> pagedLessorArticles = itemService.getPagedLessorArticles(lessorId, page, size);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(pagedLessorArticles);
     }
 }

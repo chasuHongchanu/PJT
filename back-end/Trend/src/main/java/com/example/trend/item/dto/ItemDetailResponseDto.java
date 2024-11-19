@@ -24,10 +24,7 @@ public class ItemDetailResponseDto {
     private String mainCategory;
     private String subCategory;
     private String subSubCategory;
-    private String itemCountry;
-    private String itemProvince;
-    private String itemDistrict;
-    private String itemTown;
+    private String address;
     private String itemContent;
     private String availableRentalStartDate;
     private String availableRentalEndDate;
@@ -40,6 +37,6 @@ public class ItemDetailResponseDto {
     // lessorId가 아니라, 로그인한 user의 id 값으로 조회해야 함을 주의
     private boolean isWishList;
 
-    private List<ItemSimpleInfo> similarItems;
+
     private List<ItemSimpleInfo> peripheralItems;
 }

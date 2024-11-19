@@ -184,10 +184,7 @@ CREATE TABLE IF NOT EXISTS `item` (
     `sub_category` VARCHAR(30) NULL DEFAULT NULL,
     `sub_subcategory` VARCHAR(30) NULL DEFAULT NULL,
     `item_price` INT NULL DEFAULT NULL,
-    `country` VARCHAR(30) NULL DEFAULT NULL,
-    `province` VARCHAR(30) NULL DEFAULT NULL,
-    `district` VARCHAR(30) NULL DEFAULT NULL,
-    `town` VARCHAR(30) NULL DEFAULT NULL,
+    `address` VARCHAR(100) NULL DEFAULT NULL,
     `item_latitude` DOUBLE NULL DEFAULT NULL,
     `item_longitude` DOUBLE NULL DEFAULT NULL,
     `item_content` TEXT NULL DEFAULT NULL,
@@ -480,16 +477,16 @@ VALUES ('user1',
         'Introduction 3', 15, 3.8, '미쿡');
 
 -- Step 2: Insert data into `item` table
-INSERT INTO `item` (`user_id`, `item_name`, `main_category`, `sub_category`, `sub_subcategory`, `item_price`, `country`,
-                    `province`, `district`, `town`, `item_latitude`, `item_longitude`, `item_content`,
+INSERT INTO `item` (`user_id`, `item_name`, `main_category`, `sub_category`, `sub_subcategory`, `item_price`, `address`,
+                    `item_latitude`, `item_longitude`, `item_content`,
                     `available_rental_start_date`, `available_rental_end_date`, `item_status`)
-VALUES ('user1', 'item1', 'Electronics', 'Camera', 'Digital', 10000, '대한민국', 'Seoul', 'Gangnam', 'Apgujeong', 37.5272,
+VALUES ('user1', 'item1', 'Electronics', 'Camera', 'Digital', 10000, '대한민국 Seoul Gangnam Apgujeong', 37.5272,
         127.0276,
         'Item 1 description', '2023-01-01', '2023-01-10', '공개'),
-       ('user2', 'item2', 'Sports', 'Bike', 'Mountain', 15000, '대한민국', 'Incheon', 'Bupyeong', 'Bupyeong Market',
+       ('user2', 'item2', 'Sports', 'Bike', 'Mountain', 15000, '대한민국 Incheon Bupyeong Bupyeong Market',
         37.5074,
         126.7218, 'Item 2 description', '2023-02-01', '2023-02-10', '공개'),
-       ('user3', 'item3', 'Fashion', 'Clothes', 'Jacket', 8000, '대한민국', 'Busan', 'Haeundae', 'Haeundae Beach', 35.1587,
+       ('user3', 'item3', 'Fashion', 'Clothes', 'Jacket', 8000, '대한민국 Busan Haeundae Haeundae Beach', 35.1587,
         129.1604, 'Item 3 description', '2023-03-01', '2023-03-10', '대여 중');
 
 -- Step 3: Insert data into `item_trade` table
