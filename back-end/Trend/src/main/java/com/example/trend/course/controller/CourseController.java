@@ -33,7 +33,7 @@ public class CourseController {
         // 유저 id 입력
         courseRegistRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
+        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
         courseRegistRequestDto.setSpotList(getSpotList(courseRegistRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -47,7 +47,7 @@ public class CourseController {
         // 유저 id 입력
         courseUpdateRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
+        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
         courseUpdateRequestDto.setSpotList(getSpotList(courseUpdateRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -63,13 +63,13 @@ public class CourseController {
         return ResponseEntity.ok("Delete CourseListResponseDto Successful");
     }
 
-    private List<SpotRequestDto> getSpotList(String spotListJson) {
-        // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
+    private List<SpotDto> getSpotList(String spotListJson) {
+        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            List<SpotRequestDto> spotList = objectMapper.readValue(
+            List<SpotDto> spotList = objectMapper.readValue(
                     spotListJson,
-                    new TypeReference<List<SpotRequestDto>>() {
+                    new TypeReference<List<SpotDto>>() {
                     }
             );
             return spotList;
@@ -89,8 +89,8 @@ public class CourseController {
     @SkipJwt
     @GetMapping("/detail/{courseId}")
     @Operation(summary = "여행 코스 상세 조회", description = "전체 여행 코스 목록을 조회")
-    public ResponseEntity<?> getCourseById(@PathVariable int courseId) {
-        CourseResponseDto courseResponseDto = courseService.getCourseById(courseId);
+    public ResponseEntity<?> getCourseDetail(@PathVariable int courseId) {
+        CourseResponseDto courseResponseDto = courseService.getCourseDetail(courseId);
         return ResponseEntity.ok(courseResponseDto);
     }
 

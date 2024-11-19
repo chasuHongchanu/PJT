@@ -57,7 +57,10 @@ public enum ErrorCode {
   FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패."),
   // 댓글
   FAIL_TO_REGIST_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 등록 실패"),
-  FAIL_TO_UPDATE_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 수정 실패");
+  FAIL_TO_UPDATE_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 수정 실패"),
+  NOT_FOUND_COURSE_INFO(HttpStatus.BAD_REQUEST, "일치하는 여행 코스 정보가 없습니다."),
+  FAIL_TO_SELECT_IMAGES(HttpStatus.BAD_REQUEST, "코스 이미지 정보를 불러오는 데 실패했습니다."),
+  FAIL_TO_SELECT_SPOT(HttpStatus.BAD_REQUEST, "관광지 정보 조회에 실패했습니다." );
 
 
 

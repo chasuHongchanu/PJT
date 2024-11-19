@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -78,11 +77,11 @@ public class CourseServiceImpl implements CourseService {
         saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
     }
 
-    private void saveCourseSpots(List<SpotRequestDto> spotList, int courseId) {
-        for (SpotRequestDto spotRequestDto : spotList) {
-            spotRequestDto.setCourseId(courseId);
+    private void saveCourseSpots(List<SpotDto> spotList, int courseId) {
+        for (SpotDto spotDto : spotList) {
+            spotDto.setCourseId(courseId);
             try {
-                spotMapper.insertCourseSpot(spotRequestDto);
+                spotMapper.insertCourseSpot(spotDto);
             } catch (Exception e) {
                 throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_SPOT, e);
             }
@@ -134,16 +133,30 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponseDto getCourseById(int courseId) {
+    public CourseResponseDto getCourseDetail(int courseId) {
+        CourseResponseDto courseResponseDto = new CourseResponseDto();
         // 코스 정보 가져오기
-        CourseResponseDto courseResponseDto = courseMapper.selectCourseByCourseId(courseId);
+        try {
+            courseResponseDto = courseMapper.selectCourseByCourseId(courseId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.NOT_FOUND_COURSE_INFO);
+        }
 
         // 이미지 정보 가져오기
-        courseResponseDto.setCourseImages(courseMapper.selectCourseImages(courseId));
+        try {
+            courseResponseDto.setCourseImages(courseMapper.selectCourseImages(courseId));
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_IMAGES);
+        }
 
-        // 댓글 정보 가져오기
-//        courseResponseDto.setComments();
-        return null;
+
+        // 추천 관광지 정보 가져오기
+        try {
+            courseResponseDto.setSpots(spotMapper.selectCourseSpots(courseId));
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_SPOT, e);
+        }
+        return courseResponseDto;
     }
 
     // -----------------좋아요-----------------

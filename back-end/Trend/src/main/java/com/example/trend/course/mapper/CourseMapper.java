@@ -1,9 +1,6 @@
 package com.example.trend.course.mapper;
 
-import com.example.trend.course.dto.CourseListResponseDto;
-import com.example.trend.course.dto.CourseRegistRequestDto;
-import com.example.trend.course.dto.CourseResponseDto;
-import com.example.trend.course.dto.CourseUpdateRequestDto;
+import com.example.trend.course.dto.*;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -37,14 +34,14 @@ public interface CourseMapper {
                 u.user_profile_img AS userProfileImg,
                 c.course_writer_id AS userId,
                 u.user_nickname AS userNickname,
-                COUNT(DISTINCT cl.course_like_id) AS likeCount,
+                COUNT(DISTINCT cl.user_id) AS likeCount,
                 COUNT(DISTINCT cc.course_comment_id) AS commentCount,
                 c.course_title AS courseTitle,
                 c.course_content AS courseContent
             FROM course c
                 left join course_comment cc on c.course_id = cc.course_id
                 left join course_like cl on c.course_id = cl.course_id
-                join user u on c.course_writer_id = u.user_id
+                left join user u on c.course_writer_id = u.user_id
             GROUP BY c.course_id
             """)
     List<CourseListResponseDto> selectAllCourse();
