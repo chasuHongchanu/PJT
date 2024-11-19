@@ -323,4 +323,12 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(returnLeaseItems);
     }
+
+    @GetMapping("/wishList")
+    public ResponseEntity<?> tradeWishListItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> wishListItems = tradeService.getWishListItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(wishListItems);
+    }
 }

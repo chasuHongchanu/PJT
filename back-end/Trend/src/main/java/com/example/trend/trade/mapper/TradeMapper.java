@@ -272,4 +272,23 @@ public interface TradeMapper {
             AND t.trade_state = "반납 완료"
             """)
     List<TradeMyItemsResponseDto> selectReturnLeaseItems(String userId);
+
+    @Select("""
+            SELECT i.item_id,
+                   item_name,
+                   item_price,
+                   available_rental_start_date,
+                   available_rental_end_date,
+                   thumbnail,
+                   country,
+                   province,
+                   district,
+                   town,
+                   item_status
+            FROM item i
+            JOIN wishlist w
+            ON i.item_id = w.item_id
+            WHERE w.user_id = #{userId}
+            """)
+    List<TradeMyItemsResponseDto> selectwishListItems(String userId);
 }
