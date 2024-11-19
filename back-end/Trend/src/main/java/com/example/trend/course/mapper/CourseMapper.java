@@ -1,9 +1,6 @@
 package com.example.trend.course.mapper;
 
-import com.example.trend.course.dto.CourseListResponseDto;
-import com.example.trend.course.dto.CourseRegistRequestDto;
-import com.example.trend.course.dto.CourseResponseDto;
-import com.example.trend.course.dto.CourseUpdateRequestDto;
+import com.example.trend.course.dto.*;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -28,7 +25,7 @@ public interface CourseMapper {
     @Select("SELECT course_writer_id FROM course WHERE course_id = #{courseId}")
     String selectWriterIdByCourseId(int courseId);
 
-    @Delete("DELETE FROM course_image WHERE course_id = #{courscId}")
+    @Delete("DELETE FROM course_image WHERE course_id = #{courseId}")
     void deleteCourseImage(int courseId);
 
     @Select("""
@@ -48,7 +45,7 @@ public interface CourseMapper {
             GROUP BY c.course_id
             LIMIT #{size} OFFSET #{offset}
             """)
-    List<CourseListResponseDto> selectAllCourse(@Param("size") int size, @Param("offset") int offset);
+    List<CourseListResponseDto> selectAllCourse(@Param("size") int size, @Param("offset") int offset); // 코스 전체 조회
 
     @Select("""
             SELECT u.user_profile_img AS writerProfileImg,
@@ -69,7 +66,7 @@ public interface CourseMapper {
                                on course_writer_id = u.user_id
             WHERE course_id = 1
             """)
-    CourseResponseDto selectCourseByCourseId(int courseId);
+    CourseResponseDto selectCourseByCourseId(int courseId); // 상세조회
 
     @Select("""
             SELECT course_img
@@ -81,5 +78,85 @@ public interface CourseMapper {
             SELECT COUNT(*) AS totalCount
             FROM course;
             """)
-    int countAllCourse();
+    int countAllCourse(); // 전체 코스 개수
+
+
+    @Select("""
+        
+            <script>
+            SELECT
+                c.course_id                          AS courseId,
+                u.user_profile_img                   AS userProfileImg,
+                c.course_writer_id                   AS userId,
+                u.user_nickname                      AS userNickname,
+                COUNT(DISTINCT cl.user_id)           AS likeCount,
+                COUNT(DISTINCT cc.course_comment_id) AS commentCount,
+                c.course_title                       AS courseTitle,
+                c.course_content                     AS courseContent
+            FROM course c
+                LEFT JOIN course_comment cc ON c.course_id = cc.course_id
+                LEFT JOIN course_like cl ON c.course_id = cl.course_id
+                LEFT JOIN user u ON c.course_writer_id = u.user_id
+            WHERE 1=1
+                <if test="searchRequest.keyword != null and searchRequest.keyword.trim() != ''">
+                    AND (c.course_title LIKE CONCAT('%', #{searchRequest.keyword}, '%')
+                         OR c.course_content LIKE CONCAT('%', #{searchRequest.keyword}, '%'))
+                </if>
+                <if test="searchRequest.province != null and searchRequest.province.trim() != ''">
+                    AND c.province = #{searchRequest.province}
+                </if>
+                <if test="searchRequest.district != null and searchRequest.district.trim() != ''">
+                    AND c.district = #{searchRequest.district}
+                </if>
+                <if test="searchRequest.town != null and searchRequest.town.trim() != ''">
+                    AND c.town = #{searchRequest.town}
+                </if>
+                <if test="searchRequest.startDate != null and searchRequest.startDate.trim() != ''">
+                    AND <![CDATA[c.course_created_at >= #{searchRequest.startDate}]]>
+                </if>
+                <if test="searchRequest.endDate != null and searchRequest.endDate.trim() != ''">
+                    AND <![CDATA[c.course_created_at <= #{searchRequest.endDate}]]>
+                </if>
+            GROUP BY c.course_id
+            <if test="searchRequest.orderBy != null">
+                ORDER BY ${searchRequest.orderBy}
+            </if>
+            LIMIT #{size} OFFSET #{offset}
+        </script>
+        """)
+    List<CourseListResponseDto> searchCourses(@Param("searchRequest") CourseSearchRequestDto searchRequest,
+                                              @Param("size") int size,
+                                              @Param("offset") int offset); // 코스 검색 및 필터링
+
+    @Select("""
+        <script>
+        SELECT COUNT(DISTINCT c.course_id) AS totalCount
+        FROM course c
+                LEFT JOIN course_comment cc ON c.course_id = cc.course_id
+                LEFT JOIN course_like cl ON c.course_id = cl.course_id
+                LEFT JOIN user u ON c.course_writer_id = u.user_id
+            WHERE 1=1
+                <if test="searchRequest.keyword != null and searchRequest.keyword.trim() != ''">
+                    AND (c.course_title LIKE CONCAT('%', #{searchRequest.keyword}, '%')
+                         OR c.course_content LIKE CONCAT('%', #{searchRequest.keyword}, '%'))
+                </if>
+                <if test="searchRequest.province != null and searchRequest.province.trim() != ''">
+                    AND c.province = #{searchRequest.province}
+                </if>
+                <if test="searchRequest.district != null and searchRequest.district.trim() != ''">
+                    AND c.district = #{searchRequest.district}
+                </if>
+                <if test="searchRequest.town != null and searchRequest.town.trim() != ''">
+                    AND c.town = #{searchRequest.town}
+                </if>
+                <if test="searchRequest.startDate != null and searchRequest.startDate.trim() != ''">
+                    AND <![CDATA[c.course_created_at >= #{searchRequest.startDate}]]>
+                </if>
+                <if test="searchRequest.endDate != null and searchRequest.endDate.trim() != ''">
+                    AND <![CDATA[c.course_created_at <= #{searchRequest.endDate}]]>
+                </if>
+            GROUP BY c.course_id
+        </script>
+        """)
+    int countSearchCourse(CourseSearchRequestDto searchRequest);
 }

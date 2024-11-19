@@ -1,6 +1,10 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.*;
+import com.example.trend.course.dto.comment.CourseCommentDeleteDto;
+import com.example.trend.course.dto.comment.CourseCommentRequestDto;
+import com.example.trend.course.dto.comment.CourseCommentResponseDto;
+import com.example.trend.course.dto.comment.CourseCommentUpdateDto;
 import com.example.trend.course.mapper.CourseCommentMapper;
 import com.example.trend.course.mapper.CourseLikeMapper;
 import com.example.trend.course.mapper.CourseMapper;
@@ -78,11 +82,11 @@ public class CourseServiceImpl implements CourseService {
         saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
     }
 
-    private void saveCourseSpots(List<SpotDto> spotList, int courseId) {
-        for (SpotDto spotDto : spotList) {
-            spotDto.setCourseId(courseId);
+    private void saveCourseSpots(List<CourseSpotDto> spotList, int courseId) {
+        for (CourseSpotDto courseSpotDto : spotList) {
+            courseSpotDto.setCourseId(courseId);
             try {
-                spotMapper.insertCourseSpot(spotDto);
+                spotMapper.insertCourseSpot(courseSpotDto);
             } catch (Exception e) {
                 throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_SPOT, e);
             }
@@ -131,6 +135,21 @@ public class CourseServiceImpl implements CourseService {
             List<CourseListResponseDto> courseList = courseMapper.selectAllCourse(size, offset);
             // 전체 개수 파악
             int totalItems = courseMapper.countAllCourse(); // 총 데이터 수
+            // 페이징 객체 반환
+            return new Pagination<>(courseList, totalItems, page, size);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
+        }
+    }
+
+    @Override
+    public Pagination<CourseListResponseDto> searchCourses(int page, int size, CourseSearchRequestDto courseSearchRequestDto) {
+        try {
+            int offset = (page - 1) * size;
+            // 코스 목록 가져오기
+            List<CourseListResponseDto> courseList = courseMapper.searchCourses(courseSearchRequestDto, size, offset);
+            // 전체 개수 파악
+            int totalItems = courseMapper.countSearchCourse(courseSearchRequestDto); // 총 데이터 수
             // 페이징 객체 반환
             return new Pagination<>(courseList, totalItems, page, size);
         } catch (Exception e) {

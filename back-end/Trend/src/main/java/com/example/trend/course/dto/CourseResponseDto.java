@@ -19,5 +19,5 @@ public class CourseResponseDto {
     private int likeCount;
     private int commentCount;
     private List<String> courseImages;
-    private List<SpotDto> spots;
+    private List<CourseSpotDto> spots;
 }

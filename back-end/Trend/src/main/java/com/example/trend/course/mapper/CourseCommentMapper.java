@@ -1,9 +1,9 @@
 package com.example.trend.course.mapper;
 
-import com.example.trend.course.dto.CourseCommentDeleteDto;
-import com.example.trend.course.dto.CourseCommentRequestDto;
-import com.example.trend.course.dto.CourseCommentResponseDto;
-import com.example.trend.course.dto.CourseCommentUpdateDto;
+import com.example.trend.course.dto.comment.CourseCommentDeleteDto;
+import com.example.trend.course.dto.comment.CourseCommentRequestDto;
+import com.example.trend.course.dto.comment.CourseCommentResponseDto;
+import com.example.trend.course.dto.comment.CourseCommentUpdateDto;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

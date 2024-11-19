@@ -2,6 +2,10 @@ package com.example.trend.course.controller;
 
 import com.example.trend.config.SkipJwt;
 import com.example.trend.course.dto.*;
+import com.example.trend.course.dto.comment.CourseCommentDeleteDto;
+import com.example.trend.course.dto.comment.CourseCommentRequestDto;
+import com.example.trend.course.dto.comment.CourseCommentResponseDto;
+import com.example.trend.course.dto.comment.CourseCommentUpdateDto;
 import com.example.trend.course.service.CourseService;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
@@ -22,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/course")
 @Slf4j
-@Tag(name = "CourseListResponseDto API", description = "API for course operations")
+@Tag(name = "Course API", description = "API for course operations")
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
@@ -33,7 +37,7 @@ public class CourseController {
         // 유저 id 입력
         courseRegistRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
+        // JSON 문자열을 파싱하여 List<CourseSpotDto>로 변환
         courseRegistRequestDto.setSpotList(getSpotList(courseRegistRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -47,7 +51,7 @@ public class CourseController {
         // 유저 id 입력
         courseUpdateRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
+        // JSON 문자열을 파싱하여 List<CourseSpotDto>로 변환
         courseUpdateRequestDto.setSpotList(getSpotList(courseUpdateRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -63,13 +67,13 @@ public class CourseController {
         return ResponseEntity.ok("Delete CourseListResponseDto Successful");
     }
 
-    private List<SpotDto> getSpotList(String spotListJson) {
-        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
+    private List<CourseSpotDto> getSpotList(String spotListJson) {
+        // JSON 문자열을 파싱하여 List<CourseSpotDto>로 변환
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            List<SpotDto> spotList = objectMapper.readValue(
+            List<CourseSpotDto> spotList = objectMapper.readValue(
                     spotListJson,
-                    new TypeReference<List<SpotDto>>() {
+                    new TypeReference<List<CourseSpotDto>>() {
                     }
             );
             return spotList;
@@ -93,6 +97,16 @@ public class CourseController {
     public ResponseEntity<?> getCourseDetail(@PathVariable int courseId) {
         CourseResponseDto courseResponseDto = courseService.getCourseDetail(courseId);
         return ResponseEntity.ok(courseResponseDto);
+    }
+
+    @SkipJwt
+    @GetMapping("/search")
+    @Operation(summary = "여행 코스 검색 및 필터링", description = "코스 검색 및 필터링 기능")
+    public ResponseEntity<?> searchCourse(@RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                          @RequestBody CourseSearchRequestDto courseSearchRequestDto) {
+        Pagination<CourseListResponseDto> courseListResponseDtos = courseService.searchCourses(page, size, courseSearchRequestDto);
+        return ResponseEntity.ok(courseListResponseDtos);
     }
 
 
