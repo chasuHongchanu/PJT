@@ -6,11 +6,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CourseCommentResponseDto {
+    private int commentId;
     private String writerId;
     private String writerNickname;
     private String writerProfileImg;
     private String content;
     private String createdAt;
-    private int parentsCommentId;
-    private int likesCount;
+    private Integer parentsCommentId;
+    private Integer likesCount;
 }

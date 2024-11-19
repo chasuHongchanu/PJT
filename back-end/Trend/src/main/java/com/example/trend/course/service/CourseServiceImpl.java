@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -134,6 +135,14 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponseDto getCourseById(int courseId) {
+        // 코스 정보 가져오기
+        CourseResponseDto courseResponseDto = courseMapper.selectCourseByCourseId(courseId);
+
+        // 이미지 정보 가져오기
+        courseResponseDto.setCourseImages(courseMapper.selectCourseImages(courseId));
+
+        // 댓글 정보 가져오기
+//        courseResponseDto.setComments();
         return null;
     }
 
@@ -246,5 +255,12 @@ public class CourseServiceImpl implements CourseService {
         } catch (Exception e) {
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT, e);
         }
+    }
+
+    @Override
+    public List<CourseCommentResponseDto> getCommentList(int courseId) {
+        // 해당 코스의 댓글 목록 가져오기
+        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentsByCourseId(courseId);
+        return commentResponseDtos;
     }
 }

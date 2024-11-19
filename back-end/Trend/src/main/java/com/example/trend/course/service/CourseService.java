@@ -35,4 +35,6 @@ public interface CourseService {
     void updateComment(CourseCommentUpdateDto commentRequestDto);
 
     void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
+
+    List<CourseCommentResponseDto> getCommentList(int courseId);
 }
