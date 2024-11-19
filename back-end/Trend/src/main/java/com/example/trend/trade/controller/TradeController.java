@@ -300,4 +300,12 @@ public class TradeController {
                 .body(lendItems);
     }
 
+    @GetMapping("/leaseItems")
+    public ResponseEntity<?> tradeLeaseItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> leaseItems = tradeService.getLeaseItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(leaseItems);
+    }
+
 }
