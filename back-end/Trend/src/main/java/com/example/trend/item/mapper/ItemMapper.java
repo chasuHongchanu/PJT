@@ -8,10 +8,32 @@ import java.util.List;
 @Mapper
 public interface ItemMapper {
     @Insert("""
-            INSERT INTO item (user_id, item_name, main_category, sub_category, sub_subcategory, item_price, country, province, district, town, item_content, available_rental_start_date, available_rental_end_date, item_status)
-                      VALUES (#{userId}, #{itemName}, #{itemMainCategory}, #{itemSubCategory}, #{itemSubsubCategory},
-                                      #{itemPrice}, #{itemCountry}, #{itemProvince}, #{itemDistrict}, #{itemTown}, #{itemContent},
-                                      #{availableRentalStartDate}, #{availableRentalEndDate}, #{itemStatus})
+            INSERT INTO item (user_id,
+                              item_name,
+                              main_category,
+                              sub_category,
+                              sub_subcategory,
+                              item_price,
+                              country,
+                              province,
+                              district,
+                              town,
+                              item_content,
+                              available_rental_start_date,
+                              available_rental_end_date)
+                      VALUES (#{userId},
+                              #{itemName},
+                              #{itemMainCategory},
+                              #{itemSubCategory},
+                              #{itemSubsubCategory},
+                              #{itemPrice},
+                              #{itemCountry},
+                              #{itemProvince},
+                              #{itemDistrict},
+                              #{itemTown},
+                              #{itemContent},
+                              #{availableRentalStartDate},
+                              #{availableRentalEndDate})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "itemId")
     int insertItem(ItemRequestDto itemRegistDto);

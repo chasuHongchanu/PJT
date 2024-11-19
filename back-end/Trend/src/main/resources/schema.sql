@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `item` (
     `item_content` TEXT NULL DEFAULT NULL,
     `available_rental_start_date` TIMESTAMP NULL DEFAULT NULL,
     `available_rental_end_date` TIMESTAMP NULL DEFAULT NULL,
-    `item_status` VARCHAR(50) NULL DEFAULT NULL COMMENT '공개, 비공개, 대여 중',
+    `item_status` VARCHAR(50) NULL DEFAULT '대여 가능' COMMENT '대여 가능, 예약 중, 대여 중',
     `view_count` INT NULL DEFAULT NULL,
     `item_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `item_deleted_at` TIMESTAMP NULL DEFAULT NULL,

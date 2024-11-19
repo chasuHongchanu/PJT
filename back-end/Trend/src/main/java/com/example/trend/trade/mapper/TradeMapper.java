@@ -145,4 +145,51 @@ public interface TradeMapper {
             WHERE trade_id = #{tradeId}
             """)
     int updateTradeStateToReturn(int tradeId);
+
+    @Update("""
+            UPDATE item
+            SET item_status = "예약 중"
+            WHERE item_id = #{itemId}
+            """)
+    void updateItemStatusToReservation(int itemId);
+
+    @Update("""
+            UPDATE item
+            SET item_status = "대여 중"
+            WHERE item_id = (
+                SELECT item_id
+                FROM item_trade
+                WHERE trade_id = #{tradeId}
+            )
+            """)
+    void updateItemStatusToLend(int tradeId);
+
+    @Update("""
+            UPDATE item
+            SET item_status = "대여 가능"
+            WHERE item_id = (
+                SELECT item_id
+                FROM item_trade
+                WHERE trade_id = #{tradeId}
+            )
+            """)
+    void updateItemStatusToLendPossible(int tradeId);
+
+    @Select("""
+            SELECT item_id,
+                   item_name,
+                   item_price,
+                   available_rental_start_date,
+                   available_rental_end_date,
+                   thumbnail,
+                   country,
+                   province,
+                   district,
+                   town,
+                   item_status
+            FROM item
+            WHERE user_id = #{userId}
+            AND item_status = "대여 가능"
+            """)
+    List<TradeMyItemsResponseDto> selectRegistItems(String userId);
 }

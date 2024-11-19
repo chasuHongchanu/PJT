@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -139,7 +140,7 @@ public class TradeController {
      * @return: 이미지 등록 완료 | 이미지 등록 실패 메세지
      */
     @PutMapping("/detail")
-    public ResponseEntity<?> imageRegist(@Valid @ModelAttribute("tradeImageRegistRequestDto") TradeImageRegistRequestDto tradeImageRegistRequestDto) {
+    public ResponseEntity<?> imageRegist(@ModelAttribute TradeImageRegistRequestDto tradeImageRegistRequestDto) {
         int result = tradeService.registItemImages(tradeImageRegistRequestDto);
 
         Map<String, Object> response = new HashMap<>();
@@ -254,6 +255,8 @@ public class TradeController {
     /**
      * 대여 중 상황에서, 물품을 반납받고 임대인은 반납 완료를 클릭합니다.
      * 물품 대여 정보를 대여 중 -> 반납 완료로 변경합니다.
+     * 물품 테이블의 물품 상태를 대여 중 -> 대여 가능으로 변경합니다.
+     *   - 반납이 완료됐으므로 다시 대여가 가능한 상태
      *
      * @param: tradeId
      * @return:
@@ -273,5 +276,19 @@ public class TradeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(response);
         }
+    }
+
+    /**
+     * 로그인 한 유저가 등록한 임대 물품들을 반환합니다.
+     *
+     * @param userId
+     * @return registItems
+     */
+    @GetMapping("/registItems")
+    public ResponseEntity<?> tradeRegistItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> registItems = tradeService.getRegistItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(registItems);
     }
 }
