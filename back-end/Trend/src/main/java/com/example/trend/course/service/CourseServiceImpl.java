@@ -77,11 +77,11 @@ public class CourseServiceImpl implements CourseService {
         saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
     }
 
-    private void saveCourseSpots(List<SpotRequestDto> spotList, int courseId) {
-        for (SpotRequestDto spotRequestDto : spotList) {
-            spotRequestDto.setCourseId(courseId);
+    private void saveCourseSpots(List<SpotDto> spotList, int courseId) {
+        for (SpotDto spotDto : spotList) {
+            spotDto.setCourseId(courseId);
             try {
-                spotMapper.insertCourseSpot(spotRequestDto);
+                spotMapper.insertCourseSpot(spotDto);
             } catch (Exception e) {
                 throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_SPOT, e);
             }
@@ -133,8 +133,30 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponseDto getCourseById(int courseId) {
-        return null;
+    public CourseResponseDto getCourseDetail(int courseId) {
+        CourseResponseDto courseResponseDto = new CourseResponseDto();
+        // 코스 정보 가져오기
+        try {
+            courseResponseDto = courseMapper.selectCourseByCourseId(courseId);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.NOT_FOUND_COURSE_INFO);
+        }
+
+        // 이미지 정보 가져오기
+        try {
+            courseResponseDto.setCourseImages(courseMapper.selectCourseImages(courseId));
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_IMAGES);
+        }
+
+
+        // 추천 관광지 정보 가져오기
+        try {
+            courseResponseDto.setSpots(spotMapper.selectCourseSpots(courseId));
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_SPOT, e);
+        }
+        return courseResponseDto;
     }
 
     // -----------------좋아요-----------------
@@ -246,5 +268,12 @@ public class CourseServiceImpl implements CourseService {
         } catch (Exception e) {
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT, e);
         }
+    }
+
+    @Override
+    public List<CourseCommentResponseDto> getCommentList(int courseId) {
+        // 해당 코스의 댓글 목록 가져오기
+        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentsByCourseId(courseId);
+        return commentResponseDtos;
     }
 }

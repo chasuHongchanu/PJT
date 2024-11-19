@@ -14,10 +14,10 @@ public class CourseResponseDto {
     private String writerNickname;
     private String courseTitle;
     private String courseContent;
-    private List<String> courseImages;
     private Timestamp courseCreatedAt;
     private int viewCount;
     private int likeCount;
     private int commentCount;
-    private List<CourseCommentResponseDto> comments;
+    private List<String> courseImages;
+    private List<SpotDto> spots;
 }

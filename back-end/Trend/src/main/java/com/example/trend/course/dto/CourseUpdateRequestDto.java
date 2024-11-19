@@ -25,7 +25,7 @@ public class CourseUpdateRequestDto {
     @NotBlank(message = "읍/면/동 입력은 필수입니다.")
     private String town;
     private String spotListJson;
-    private List<SpotRequestDto> spotList;
+    private List<SpotDto> spotList;
     private List<MultipartFile> imageList;
 
 }

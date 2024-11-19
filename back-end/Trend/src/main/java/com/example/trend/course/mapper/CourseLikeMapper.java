@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface CourseLikeMapper {
+    // ===================코스 좋아요========================
     @Insert("INSERT INTO course_like VALUES (#{courseId}, #{userId})")
     void insertLikeCourse(int courseId, String userId);
 
@@ -19,6 +20,8 @@ public interface CourseLikeMapper {
     @Select("SELECT COUNT(*) FROM course_like WHERE course_id = #{courseId}")
     int selectCourseLikeCountByCourseId(int courseId);
 
+
+    // ====================댓글 좋아요========================
     @Insert("INSERT INTO course_comment_like VALUES (#{commentId}, #{userId})")
     void insertCourseCommentLike(int commentId, String userId);
 

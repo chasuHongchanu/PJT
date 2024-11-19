@@ -14,7 +14,7 @@ public interface CourseService {
 
     List<CourseListResponseDto> getAllCourse();
 
-    CourseResponseDto getCourseById(int courseId);
+    CourseResponseDto getCourseDetail(int courseId);
 
     void likeCourse(int courseId, String userId);
 
@@ -35,4 +35,6 @@ public interface CourseService {
     void updateComment(CourseCommentUpdateDto commentRequestDto);
 
     void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
+
+    List<CourseCommentResponseDto> getCommentList(int courseId);
 }

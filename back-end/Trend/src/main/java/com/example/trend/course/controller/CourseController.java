@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +33,7 @@ public class CourseController {
         // 유저 id 입력
         courseRegistRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
+        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
         courseRegistRequestDto.setSpotList(getSpotList(courseRegistRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -46,7 +47,7 @@ public class CourseController {
         // 유저 id 입력
         courseUpdateRequestDto.setCourseWriterId(userId);
 
-        // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
+        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
         courseUpdateRequestDto.setSpotList(getSpotList(courseUpdateRequestDto.getSpotListJson()));
 
         // 코스 등록
@@ -62,13 +63,13 @@ public class CourseController {
         return ResponseEntity.ok("Delete CourseListResponseDto Successful");
     }
 
-    private List<SpotRequestDto> getSpotList(String spotListJson) {
-        // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
+    private List<SpotDto> getSpotList(String spotListJson) {
+        // JSON 문자열을 파싱하여 List<SpotDto>로 변환
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            List<SpotRequestDto> spotList = objectMapper.readValue(
+            List<SpotDto> spotList = objectMapper.readValue(
                     spotListJson,
-                    new TypeReference<List<SpotRequestDto>>() {
+                    new TypeReference<List<SpotDto>>() {
                     }
             );
             return spotList;
@@ -88,8 +89,8 @@ public class CourseController {
     @SkipJwt
     @GetMapping("/detail/{courseId}")
     @Operation(summary = "여행 코스 상세 조회", description = "전체 여행 코스 목록을 조회")
-    public ResponseEntity<?> getCourseById(@PathVariable int courseId) {
-        CourseResponseDto courseResponseDto = courseService.getCourseById(courseId);
+    public ResponseEntity<?> getCourseDetail(@PathVariable int courseId) {
+        CourseResponseDto courseResponseDto = courseService.getCourseDetail(courseId);
         return ResponseEntity.ok(courseResponseDto);
     }
 
@@ -140,6 +141,13 @@ public class CourseController {
     }
 
     // 코스 게시물의 댓글 목록 조회
+    @SkipJwt
+    @Select("/{courseId}/comment")
+    @Operation(summary = "여행 코스의 댓글 게시물 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
+    public ResponseEntity<?> getCommentList(@PathVariable int courseId) {
+        List<CourseCommentResponseDto> courseCommentResponseDtos = courseService.getCommentList(courseId);
+        return ResponseEntity.ok(courseCommentResponseDtos);
+    }
 
 
     //=================좋아요===========================
