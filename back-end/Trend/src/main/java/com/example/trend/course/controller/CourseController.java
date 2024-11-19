@@ -117,12 +117,19 @@ public class CourseController {
     }
 
     // 수정
+    @PutMapping("/{courseId}/comment/{commentId}")
+    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 댓글 작성하는 기능")
+    public ResponseEntity<?> updateComment(@PathVariable int courseId, @PathVariable int commentId, @RequestBody CourseCommentUpdateDto commentRequestDto, @RequestAttribute("userId") String userId) {
+        commentRequestDto.setCourseId(courseId);
+        commentRequestDto.setCommentId(commentId);
+        commentRequestDto.setUserId(userId);
+        courseService.updateComment(commentRequestDto);
+        return ResponseEntity.ok("Update Course Comment Successful");
+    }
 
     // 삭제
 
     // 코스 게시물의 댓글 목록 조회
-
-
 
 
     //=================좋아요===========================

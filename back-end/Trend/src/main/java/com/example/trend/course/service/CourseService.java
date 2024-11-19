@@ -31,4 +31,6 @@ public interface CourseService {
     void registComment(CourseCommentRequestDto commentRequestDto);
 
     void registCommentReply(CourseCommentRequestDto commentRequestDto);
+
+    void updateComment(CourseCommentUpdateDto commentRequestDto);
 }
