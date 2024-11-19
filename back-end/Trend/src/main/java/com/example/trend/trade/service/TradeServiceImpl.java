@@ -51,6 +51,9 @@ public class TradeServiceImpl implements TradeService{
         String accountNumber = Integer.toString(random.nextInt(1000000000));
         tradeReservationRegistRequestDto.setPaymentAccountNumber(accountNumber);
 
+        // item 테이블의 item_status를 예약 중으로 변경
+        tradeMapper.updateItemStatusToReservation(tradeReservationRegistRequestDto.getItemId());
+
         return tradeMapper.insertReservation(tradeReservationRegistRequestDto);
     }
 
@@ -97,10 +100,7 @@ public class TradeServiceImpl implements TradeService{
     @Override
     public int registItemImages(TradeImageRegistRequestDto tradeImageRegistRequestDto) {
         int tradeId = tradeImageRegistRequestDto.getTradeId();
-        List<String> itemConditionImageNames = tradeImageRegistRequestDto.getItemConditionImages().stream()
-                .map(file -> "trade/" + tradeId + "/" + file.getOriginalFilename())
-                .toList();
-
+        
         // storage에 이미지 파일 저장
         List<MultipartFile> files = tradeImageRegistRequestDto.getItemConditionImages();
         if(!(files.size() == 1 && files.get(0).isEmpty())) {
@@ -111,11 +111,19 @@ public class TradeServiceImpl implements TradeService{
             throw new CustomException(ErrorCode.NO_ITEM_CONDITION_IMAGES);
         }
 
+        // 이미지 이름 추출
+        List<String> itemConditionImageNames = tradeImageRegistRequestDto.getItemConditionImages().stream()
+                .map(file -> "trade/" + tradeId + "/" + file.getOriginalFilename())
+                .toList();
+
         // DB에 이미지 이름 저장
         int result = tradeMapper.insertItemConditionImages(tradeId, itemConditionImageNames);
 
         // 거래 상태: 대여 전 -> 대여 시작
         tradeMapper.updateTradeState(tradeId);
+
+        // 물품 상태: 예약 중 -> 대여 중
+        tradeMapper.updateItemStatusToLend(tradeImageRegistRequestDto.getTradeId());
 
         return result;
     }
@@ -153,7 +161,16 @@ public class TradeServiceImpl implements TradeService{
     @Transactional
     @Override
     public int updatetradeState(int tradeId) {
+        // 물품 상태: 대여 중 -> 대여 가능
+        tradeMapper.updateItemStatusToLendPossible(tradeId);
+        
+        // 거래 상태: 대여 중 -> 반납 완료
         return tradeMapper.updateTradeStateToReturn(tradeId);
+    }
+
+    @Override
+    public List<TradeMyItemsResponseDto> getRegistItems(String userId) {
+        return tradeMapper.selectRegistItems(userId);
     }
 
 }

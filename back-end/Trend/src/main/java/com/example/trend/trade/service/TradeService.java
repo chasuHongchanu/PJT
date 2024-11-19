@@ -3,6 +3,8 @@ package com.example.trend.trade.service;
 import com.example.trend.trade.dto.*;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 public interface TradeService {
     TradeReservationResponseDto getReservationInfo(TradeReservationRequestDto tradeReservationRequestDto);
 
@@ -25,4 +27,6 @@ public interface TradeService {
     int registReview(TradeReviewRequestDto tradeReviewRequestDto);
 
     int updatetradeState(int tradeId);
+
+    List<TradeMyItemsResponseDto> getRegistItems(String userId);
 }
