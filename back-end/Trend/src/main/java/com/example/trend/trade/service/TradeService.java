@@ -35,4 +35,6 @@ public interface TradeService {
     List<TradeMyItemsResponseDto> getLeaseItems(String userId);
 
     List<TradeMyItemsResponseDto> getReturnLendItems(String userId);
+
+    List<TradeMyItemsResponseDto> getReturnLeaseItems(String userId);
 }
