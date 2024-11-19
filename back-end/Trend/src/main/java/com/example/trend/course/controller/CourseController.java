@@ -5,6 +5,7 @@ import com.example.trend.course.dto.*;
 import com.example.trend.course.service.CourseService;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
+import com.example.trend.util.Pagination;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -142,10 +142,12 @@ public class CourseController {
 
     // 코스 게시물의 댓글 목록 조회
     @SkipJwt
-    @Select("/{courseId}/comment")
+    @GetMapping("/{courseId}/comment")
     @Operation(summary = "여행 코스의 댓글 게시물 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
-    public ResponseEntity<?> getCommentList(@PathVariable int courseId) {
-        List<CourseCommentResponseDto> courseCommentResponseDtos = courseService.getCommentList(courseId);
+    public ResponseEntity<?> getCommentList(@PathVariable int courseId,
+                                            @RequestParam(defaultValue = "1") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Pagination<CourseCommentResponseDto> courseCommentResponseDtos = courseService.getCommentList(courseId, page, size);
         return ResponseEntity.ok(courseCommentResponseDtos);
     }
 

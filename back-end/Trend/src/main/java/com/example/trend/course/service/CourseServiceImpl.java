@@ -8,6 +8,7 @@ import com.example.trend.course.mapper.SpotMapper;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.util.FileUtil;
+import com.example.trend.util.Pagination;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -271,9 +272,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseCommentResponseDto> getCommentList(int courseId) {
+    public Pagination<CourseCommentResponseDto> getCommentList(int courseId, int page, int size) {
+        int offset = (page - 1) * size;
         // 해당 코스의 댓글 목록 가져오기
-        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentsByCourseId(courseId);
-        return commentResponseDtos;
+        List<CourseCommentResponseDto> commentResponseDtos = courseCommentMapper.selectCommentsByCourseId(courseId, offset, size);
+        // 전체 개수 파악
+        int totalItems = courseCommentMapper.countCommentsByCourseId(courseId, offset, size); // 총 데이터 수
+        // 페이징 객체 반환
+        return new Pagination<>(commentResponseDtos, totalItems, page, size);
     }
 }

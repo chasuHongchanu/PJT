@@ -1,7 +1,10 @@
 package com.example.trend.util;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class Pagination<T> {
     private List<T> data;
     private int totalItems;
@@ -13,23 +16,6 @@ public class Pagination<T> {
         this.totalItems = totalItems;
         this.currentPage = currentPage;
         this.totalPages = (int) Math.ceil((double) totalItems / pageSize);
-    }
-
-    // Getter
-    public List<T> getData() {
-        return data;
-    }
-
-    public int getTotalItems() {
-        return totalItems;
-    }
-
-    public int getCurrentPage() {
-        return currentPage;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
     }
 }
 /*

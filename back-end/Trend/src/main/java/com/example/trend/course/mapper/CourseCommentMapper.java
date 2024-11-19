@@ -52,7 +52,18 @@ public interface CourseCommentMapper {
             FROM course_comment c
                   LEFT JOIN user u
                             on c.comment_writer_id = u.user_id
-            WHERE course_id = #{courseId};
+            WHERE course_id = #{courseId}
+            LIMIT #{size} OFFSET #{offset}
             """)
-    List<CourseCommentResponseDto> selectCommentsByCourseId(@Param("courseId") int courseId);
+    List<CourseCommentResponseDto> selectCommentsByCourseId(@Param("courseId") int courseId, int offset, int size);
+
+    @Select("""
+            SELECT COUNT(*)
+            FROM course_comment c
+                  LEFT JOIN user u
+                            on c.comment_writer_id = u.user_id
+            WHERE course_id = #{courseId}
+            LIMIT #{size} OFFSET #{offset}
+            """)
+    int countCommentsByCourseId(int courseId, int offset, int size);
 }

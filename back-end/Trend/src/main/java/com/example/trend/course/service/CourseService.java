@@ -1,6 +1,7 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.*;
+import com.example.trend.util.Pagination;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -36,5 +37,5 @@ public interface CourseService {
 
     void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
 
-    List<CourseCommentResponseDto> getCommentList(int courseId);
+    Pagination<CourseCommentResponseDto>  getCommentList(int courseId, int page, int size);
 }
