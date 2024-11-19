@@ -308,4 +308,11 @@ public class TradeController {
                 .body(leaseItems);
     }
 
+    @GetMapping("/returnLendItems")
+    public ResponseEntity<?> tradeReturnLendItems(@RequestAttribute("userId") String userId) {
+        List<TradeMyItemsResponseDto> returnLendItems = tradeService.getReturnLendItems(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(returnLendItems);
+    }
 }

@@ -182,4 +182,9 @@ public class TradeServiceImpl implements TradeService{
     public List<TradeMyItemsResponseDto> getLeaseItems(String userId) {
         return tradeMapper.selectLeaseItems(userId);
     }
+
+    @Override
+    public List<TradeMyItemsResponseDto> getReturnLendItems(String userId) {
+        return tradeMapper.selectReturnLendItems(userId);
+    }
 }
