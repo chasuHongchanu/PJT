@@ -23,12 +23,12 @@ public enum ErrorCode {
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 에러가 발생했습니다."),
   JSON_PROCCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱 중 에러가 발생했습니다."),
 
-  // 유저
-  // > 회원가입
+  // =====================유저=========================
+  // 회원가입
   USER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 아이디입니다."),
   FAIL_TO_SAVE_USER(HttpStatus.BAD_REQUEST, "회원 가입에 실패했습니다."),
 
-  // > 로그인
+  // 로그인
   NOT_FOUND_LOGIN_USER(HttpStatus.BAD_REQUEST, "아이디 혹은 비밀번호가 틀렸습니다."),
   NOT_FOUND_USER(HttpStatus.BAD_REQUEST, "일치하는 유저가 존재하지 않습니다."),
   FAIL_TO_UPDATE_USER(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보 업데이트에 실패했습니다."), FAIL_TO_HASING_PASSWORD(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 해싱에 실패했습니다."),
@@ -36,7 +36,7 @@ public enum ErrorCode {
   // Password reset
   FAIL_TO_RESET_PASSWORD(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호 리셋에 실패했습니다."),
 
-  // > JWT token
+  // JWT token
   INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "유효한 refresh token이 아닙니다."),
   INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "액세스 토큰이 유효하지 않거나 만료되었습니다. 액세스 토큰을 갱신하세요."),
   FAIL_TO_SAVE_REFRESH_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "Refresh token 저장에 실패했습니다."),
@@ -46,13 +46,18 @@ public enum ErrorCode {
   FAIL_TO_DELETE_USER(HttpStatus.BAD_REQUEST, "유저정보 삭제에 실패했습니다."),
   FAIL_TO_DELETE_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰 삭제에 실패했습니다."),
 
-  // Course
+
+  //===================Course=====================
   FAIL_TO_REGIST_COURSE(HttpStatus.INTERNAL_SERVER_ERROR, "코스 등록에 실패했습니다."), FAIL_TO_REGIST_COURSE_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "추천 관광지 목록 등록에 실패했습니다."),
-  FAIL_TO_UPDATE_COURSE(HttpStatus.BAD_REQUEST, "게시글 수정에 실패했습니다."),
-  FAIL_TO_DELETE_COURSE(HttpStatus.BAD_REQUEST, "게시글 삭제에 실패했습니다."),
+  FAIL_TO_UPDATE_COURSE(HttpStatus.BAD_REQUEST, "코스 게시물 수정에 실패했습니다."),
+  FAIL_TO_DELETE_COURSE(HttpStatus.BAD_REQUEST, "코스 게시물 삭제에 실패했습니다."),
+  // 좋아요
   FAIL_TO_LIKE(HttpStatus.BAD_REQUEST, "좋아요 실패."),
   FAIL_TO_UNLIKE(HttpStatus.BAD_REQUEST, "좋아요 취소 실패."),
-  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패.");
+  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패."),
+  // 댓글
+  FAIL_TO_REGIST_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 등록 실패"),
+  FAIL_TO_UPDATE_COURSE_COMMENT(HttpStatus.BAD_REQUEST, "여행 코스 댓글 수정 실패");
 
 
 

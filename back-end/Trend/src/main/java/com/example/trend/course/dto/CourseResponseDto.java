@@ -1,6 +1,5 @@
 package com.example.trend.course.dto;
 
-import com.example.trend.course.comment.dto.CommentResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,5 +19,5 @@ public class CourseResponseDto {
     private int viewCount;
     private int likeCount;
     private int commentCount;
-    private List<CommentResponseDto> comments;
+    private List<CourseCommentResponseDto> comments;
 }

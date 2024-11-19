@@ -28,7 +28,7 @@ public class CourseController {
 
     @PostMapping
     @Operation(summary = "추천 코스 등록", description = "추천 코스 등록 기능")
-    public ResponseEntity<?> regist(@Valid @ModelAttribute CourseRegistRequestDto courseRegistRequestDto, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> regist(@Valid @ModelAttribute CourseRegistRequestDto courseRegistRequestDto, @RequestAttribute("userId") String userId) {
         // 유저 id 입력
         courseRegistRequestDto.setCourseWriterId(userId);
 
@@ -42,7 +42,7 @@ public class CourseController {
 
     @PutMapping
     @Operation(summary = "추천 코스 수정", description = "추천 코스 수정 기능")
-    public ResponseEntity<?> update(@Valid @ModelAttribute CourseUpdateRequestDto courseUpdateRequestDto, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> update(@Valid @ModelAttribute CourseUpdateRequestDto courseUpdateRequestDto, @RequestAttribute("userId") String userId) {
         // 유저 id 입력
         courseUpdateRequestDto.setCourseWriterId(userId);
 
@@ -56,19 +56,20 @@ public class CourseController {
 
     @DeleteMapping
     @Operation(summary = "여행 코스 삭제", description = "추천 코스 게시물 삭제 기능")
-    public ResponseEntity<?> delete(@RequestParam int courseId, @RequestAttribute String userId){
+    public ResponseEntity<?> delete(@RequestParam int courseId, @RequestAttribute String userId) {
         // 게시글 삭제
         courseService.deleteCourse(courseId, userId);
         return ResponseEntity.ok("Delete CourseListResponseDto Successful");
     }
 
-    private List<SpotRequestDto> getSpotList(String spotListJson){
+    private List<SpotRequestDto> getSpotList(String spotListJson) {
         // JSON 문자열을 파싱하여 List<SpotRequestDto>로 변환
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             List<SpotRequestDto> spotList = objectMapper.readValue(
                     spotListJson,
-                    new TypeReference<List<SpotRequestDto>>() {}
+                    new TypeReference<List<SpotRequestDto>>() {
+                    }
             );
             return spotList;
         } catch (JsonProcessingException e) {
@@ -79,7 +80,7 @@ public class CourseController {
     @SkipJwt
     @GetMapping("/list")
     @Operation(summary = "전체 여행 코스 조회", description = "전체 여행 코스 목록을 조회")
-    public ResponseEntity<?> getAll(){
+    public ResponseEntity<?> getAll() {
         List<CourseListResponseDto> courseListResponseDtos = courseService.getAllCourse();
         return ResponseEntity.ok(courseListResponseDtos);
     }
@@ -87,50 +88,99 @@ public class CourseController {
     @SkipJwt
     @GetMapping("/detail/{courseId}")
     @Operation(summary = "여행 코스 상세 조회", description = "전체 여행 코스 목록을 조회")
-    public ResponseEntity<?> getCourseById(@PathVariable int courseId){
+    public ResponseEntity<?> getCourseById(@PathVariable int courseId) {
         CourseResponseDto courseResponseDto = courseService.getCourseById(courseId);
         return ResponseEntity.ok(courseResponseDto);
     }
 
-    //-------------------좋아요---------------------
+
+
+    //=================댓글===========================
+    // 작성
+    @PostMapping("/{courseId}/comment")
+    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 댓글 작성하는 기능")
+    public ResponseEntity<?> createComment(@PathVariable int courseId, @RequestBody CourseCommentRequestDto commentRequestDto, @RequestAttribute("userId") String userId) {
+        commentRequestDto.setCourseId(courseId);
+        commentRequestDto.setUserId(userId);
+        courseService.registComment(commentRequestDto);
+        return ResponseEntity.ok("Regist Course Comment Successful");
+    }
+    // 대댓글 작성
+    @PostMapping("/{courseId}/comment/{parentsCommentId}")
+    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 대댓글을 작성하는 기능")
+    public ResponseEntity<?> createCommentReply(@PathVariable int courseId, @PathVariable int parentsCommentId, @RequestBody CourseCommentRequestDto commentRequestDto, @RequestAttribute("userId") String userId) {
+        commentRequestDto.setCourseId(courseId);
+        commentRequestDto.setUserId(userId);
+        commentRequestDto.setParentsCommentId(parentsCommentId);
+        courseService.registCommentReply(commentRequestDto);
+        return ResponseEntity.ok("Regist Course Comment Reply Successful");
+    }
+
+    // 수정
+    @PutMapping("/{courseId}/comment/{commentId}")
+    @Operation(summary = "여행 코스 댓글 수정 기능", description = "여행 코스 댓글을 수정하는 기능")
+    public ResponseEntity<?> updateComment(@PathVariable int courseId, @PathVariable int commentId, @RequestBody CourseCommentUpdateDto commentRequestDto, @RequestAttribute("userId") String userId) {
+        commentRequestDto.setCourseId(courseId);
+        commentRequestDto.setCommentId(commentId);
+        commentRequestDto.setUserId(userId);
+        courseService.updateComment(commentRequestDto);
+        return ResponseEntity.ok("Update Course Comment Successful");
+    }
+
+    // 삭제
+    @DeleteMapping("/{courseId}/comment/{commentId}")
+    @Operation(summary = "여행 코스 댓글 삭제 기능", description = "여행 코스 댓글을 삭제하는 기능")
+    public ResponseEntity<?> deleteComment(@PathVariable int courseId, @PathVariable int commentId, @RequestAttribute("userId") String userId) {
+        CourseCommentDeleteDto courseCommentDeleteDto = new CourseCommentDeleteDto();
+        courseCommentDeleteDto.setCourseId(courseId);
+        courseCommentDeleteDto.setCommentId(commentId);
+        courseCommentDeleteDto.setUserId(userId);
+        courseService.deleteComment(courseCommentDeleteDto);
+        return ResponseEntity.ok("Delete Course Comment Successful");
+    }
+
+    // 코스 게시물의 댓글 목록 조회
+
+
+    //=================좋아요===========================
     @PostMapping("/{courseId}/like")
     @Operation(summary = "여행 코스 게시물 좋아요", description = "여행 코스 좋아요 처리 기능")
-    public ResponseEntity<?> likeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> likeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId) {
         courseService.likeCourse(courseId, userId);
         return ResponseEntity.ok("Like Course Successful");
     }
 
     @DeleteMapping("/{courseId}/like")
     @Operation(summary = "여행 코스 게시물 좋아요 취소", description = "여행 코스 좋아요  취소 처리 기능")
-    public ResponseEntity<?> unLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> unLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId) {
         courseService.unLikeCourse(courseId, userId);
         return ResponseEntity.ok("UnLike Course Successful");
     }
 
     @GetMapping("/{courseId}/like")
     @Operation(summary = "여행 코스 게시물 좋아요 확인", description = "좋아요 한 여행 코스인지 확인하는 기능")
-    public ResponseEntity<?> isLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> isLikeCourse(@PathVariable int courseId, @RequestAttribute("userId") String userId) {
         boolean result = courseService.isLikeCourse(courseId, userId);
         return ResponseEntity.ok("좋아요 여부: " + result);
     }
 
     @PostMapping("/comment/like")
     @Operation(summary = "여행 코스 게시물 댓글 좋아요", description = "여행 코스 댓글 좋아요 처리 기능")
-    public ResponseEntity<?> likeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> likeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId) {
         courseService.likeCourseComment(courseCommentId, userId);
         return ResponseEntity.ok("Like CourseComment Successful");
     }
 
     @DeleteMapping("/comment/like")
     @Operation(summary = "여행 코스 게시물 댓글 좋아요 취소", description = "여행 코스 댓글 좋아요  취소 처리 기능")
-    public ResponseEntity<?> unLikeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> unLikeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId) {
         courseService.unLikeCourseComment(courseCommentId, userId);
         return ResponseEntity.ok("UnLike CourseComment Successful");
     }
 
     @GetMapping("/comment/like")
     @Operation(summary = "여행 코스 게시물 댓글 좋아요 확인", description = "좋아요 한 여행 코스 댓글인지 확인하는 기능")
-    public ResponseEntity<?> isLikeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId){
+    public ResponseEntity<?> isLikeCourseComment(@RequestParam int courseCommentId, @RequestAttribute("userId") String userId) {
         boolean result = courseService.isLikeCourseComment(courseCommentId, userId);
         return ResponseEntity.ok("댓글 좋아요 여부: " + result);
     }

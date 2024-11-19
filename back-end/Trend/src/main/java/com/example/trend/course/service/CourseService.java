@@ -1,9 +1,6 @@
 package com.example.trend.course.service;
 
-import com.example.trend.course.dto.CourseRegistRequestDto;
-import com.example.trend.course.dto.CourseListResponseDto;
-import com.example.trend.course.dto.CourseResponseDto;
-import com.example.trend.course.dto.CourseUpdateRequestDto;
+import com.example.trend.course.dto.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -30,4 +27,12 @@ public interface CourseService {
     void unLikeCourseComment(int courseCommentId, String userId);
 
     boolean isLikeCourseComment(int courseCommentId, String userId);
+
+    void registComment(CourseCommentRequestDto commentRequestDto);
+
+    void registCommentReply(CourseCommentRequestDto commentRequestDto);
+
+    void updateComment(CourseCommentUpdateDto commentRequestDto);
+
+    void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto);
 }

@@ -1,6 +1,7 @@
 package com.example.trend.course.service;
 
 import com.example.trend.course.dto.*;
+import com.example.trend.course.mapper.CourseCommentMapper;
 import com.example.trend.course.mapper.CourseLikeMapper;
 import com.example.trend.course.mapper.CourseMapper;
 import com.example.trend.course.mapper.SpotMapper;
@@ -23,6 +24,7 @@ public class CourseServiceImpl implements CourseService {
     private final SpotMapper spotMapper;
     private final FileUtil fileUtil;
     private final CourseLikeMapper courseLikeMapper;
+    private final CourseCommentMapper courseCommentMapper;
 
     @Override
     @Transactional
@@ -30,7 +32,7 @@ public class CourseServiceImpl implements CourseService {
         // 코스 등록
         try {
             courseMapper.insertCourse(courseRegistRequestDto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE, e);
         }
         int courseId = courseRegistRequestDto.getCourseId();
@@ -57,7 +59,7 @@ public class CourseServiceImpl implements CourseService {
         // 코스 데이터 업데이트
         try {
             courseMapper.updateCourse(courseUpdateRequestDto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE, e);
         }
 
@@ -88,7 +90,7 @@ public class CourseServiceImpl implements CourseService {
 
     private void saveCourseImages(List<MultipartFile> imageList, int courseId) {
         // 이미지 저장
-        if(!(imageList.size() == 1 && imageList.get(0).isEmpty())) {
+        if (!(imageList.size() == 1 && imageList.get(0).isEmpty())) {
             fileUtil.saveFilesIntoStorage("courses", courseId, imageList);
 
 
@@ -99,7 +101,7 @@ public class CourseServiceImpl implements CourseService {
 
             // db에 이미지 경로 및 이름 저장
             // db에 물품 이미지 이름 정보 insert
-            for(String courseImageName: courseImageNames) {
+            for (String courseImageName : courseImageNames) {
                 courseMapper.insertCourseImage(courseId, courseImageName);
             }
         }
@@ -114,11 +116,10 @@ public class CourseServiceImpl implements CourseService {
         }
         // 게시글 삭제
         int result = courseMapper.deleteCourse(courseId, userId);
-        if(result != 1) {
+        if (result != 1) {
             throw new CustomException(ErrorCode.FAIL_TO_DELETE_COURSE);
         }
     }
-
 
 
     @Override
@@ -197,5 +198,53 @@ public class CourseServiceImpl implements CourseService {
             throw new CustomException(ErrorCode.FAIL_TO_SELECT_LIKE, e);
         }
         return false;
+    }
+
+    @Override
+    public void registComment(CourseCommentRequestDto commentRequestDto) {
+        try {
+            int result = courseCommentMapper.insertComment(commentRequestDto);
+            if (result != 1) {
+                throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT, e);
+        }
+    }
+
+    @Override
+    public void registCommentReply(CourseCommentRequestDto commentRequestDto) {
+        try {
+            int result = courseCommentMapper.insertCommentReply(commentRequestDto);
+            if (result != 1) {
+                throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_REGIST_COURSE_COMMENT, e);
+        }
+    }
+
+    @Override
+    public void updateComment(CourseCommentUpdateDto commentRequestDto) {
+        try {
+            int result = courseCommentMapper.updateComment(commentRequestDto);
+            if (result != 1) {
+                throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT, e);
+        }
+    }
+
+    @Override
+    public void deleteComment(CourseCommentDeleteDto courseCommentDeleteDto) {
+        try {
+            int result = courseCommentMapper.deleteComment(courseCommentDeleteDto);
+            if (result != 1) {
+                throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT);
+            }
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_UPDATE_COURSE_COMMENT, e);
+        }
     }
 }
