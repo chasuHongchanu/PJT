@@ -80,53 +80,51 @@ public interface CourseMapper {
             """)
     int countAllCourse(); // 전체 코스 개수
 
-
     @Select("""
-        
-            <script>
-            SELECT
-                c.course_id                          AS courseId,
-                u.user_profile_img                   AS userProfileImg,
-                c.course_writer_id                   AS userId,
-                u.user_nickname                      AS userNickname,
-                COUNT(DISTINCT cl.user_id)           AS likeCount,
-                COUNT(DISTINCT cc.course_comment_id) AS commentCount,
-                c.course_title                       AS courseTitle,
-                c.course_content                     AS courseContent
-            FROM course c
-                LEFT JOIN course_comment cc ON c.course_id = cc.course_id
-                LEFT JOIN course_like cl ON c.course_id = cl.course_id
-                LEFT JOIN user u ON c.course_writer_id = u.user_id
-            WHERE 1=1
-                <if test="searchRequest.keyword != null and searchRequest.keyword.trim() != ''">
-                    AND (c.course_title LIKE CONCAT('%', #{searchRequest.keyword}, '%')
-                         OR c.course_content LIKE CONCAT('%', #{searchRequest.keyword}, '%'))
-                </if>
-                <if test="searchRequest.province != null and searchRequest.province.trim() != ''">
-                    AND c.province = #{searchRequest.province}
-                </if>
-                <if test="searchRequest.district != null and searchRequest.district.trim() != ''">
-                    AND c.district = #{searchRequest.district}
-                </if>
-                <if test="searchRequest.town != null and searchRequest.town.trim() != ''">
-                    AND c.town = #{searchRequest.town}
-                </if>
-                <if test="searchRequest.startDate != null and searchRequest.startDate.trim() != ''">
-                    AND <![CDATA[c.course_created_at >= #{searchRequest.startDate}]]>
-                </if>
-                <if test="searchRequest.endDate != null and searchRequest.endDate.trim() != ''">
-                    AND <![CDATA[c.course_created_at <= #{searchRequest.endDate}]]>
-                </if>
-            GROUP BY c.course_id
-            <if test="searchRequest.orderBy != null">
-                ORDER BY ${searchRequest.orderBy}
-            </if>
-            LIMIT #{size} OFFSET #{offset}
-        </script>
-        """)
-    List<CourseListResponseDto> searchCourses(@Param("searchRequest") CourseSearchRequestDto searchRequest,
+    <script>
+    SELECT
+        c.course_id                          AS courseId,
+        u.user_profile_img                   AS userProfileImg,
+        c.course_writer_id                   AS userId,
+        u.user_nickname                      AS userNickname,
+        COUNT(DISTINCT cl.user_id)           AS likeCount,
+        COUNT(DISTINCT cc.course_comment_id) AS commentCount,
+        c.course_title                       AS courseTitle,
+        c.course_content                     AS courseContent
+    FROM course c
+        LEFT JOIN course_comment cc ON c.course_id = cc.course_id
+        LEFT JOIN course_like cl ON c.course_id = cl.course_id
+        LEFT JOIN user u ON c.course_writer_id = u.user_id
+    WHERE 1=1
+        <if test="params.keyword != null and params.keyword.trim() != ''">
+            AND (c.course_title LIKE CONCAT('%', #{params.keyword}, '%')
+                 OR c.course_content LIKE CONCAT('%', #{params.keyword}, '%'))
+        </if>
+        <if test="params.province != null and params.province.trim() != ''">
+            AND c.province = #{params.province}
+        </if>
+        <if test="params.district != null and params.district.trim() != ''">
+            AND c.district = #{params.district}
+        </if>
+        <if test="params.town != null and params.town.trim() != ''">
+            AND c.town = #{params.town}
+        </if>
+        <if test="params.startDate != null and params.startDate.trim() != ''">
+            AND <![CDATA[c.course_created_at >= #{params.startDate}]]>
+        </if>
+        <if test="params.endDate != null and params.endDate.trim() != ''">
+            AND <![CDATA[c.course_created_at <= #{params.endDate}]]>
+        </if>
+    GROUP BY c.course_id
+    <if test="params.orderBy != null and params.orderBy.trim() != ''">
+        ORDER BY ${params.orderBy}
+    </if>
+    LIMIT #{size} OFFSET #{offset}
+    </script>
+    """)
+    List<CourseListResponseDto> searchCourses(@Param("params") CourseSearchRequestDto searchRequest,
                                               @Param("size") int size,
-                                              @Param("offset") int offset); // 코스 검색 및 필터링
+                                              @Param("offset") int offset);
 
     @Select("""
         <script>
@@ -158,5 +156,5 @@ public interface CourseMapper {
             GROUP BY c.course_id
         </script>
         """)
-    int countSearchCourse(CourseSearchRequestDto searchRequest);
+    int countSearchCourse(@Param("searchRequest") CourseSearchRequestDto searchRequest);
 }
