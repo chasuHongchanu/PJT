@@ -7,12 +7,12 @@ import java.util.List;
 
 @Mapper
 public interface CourseMapper {
-    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, province, district, town) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{province}, #{district}, #{town})")
+    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, address) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{address})")
     @Options(useGeneratedKeys = true, keyProperty = "courseId")
     void insertCourse(CourseRegistRequestDto courseRegistRequestDto);
 
     @Update("UPDATE course " +
-            "SET course_title = #{courseTitle}, course_content = #{courseContent}, province = #{province}, district = #{district}, town = #{town}" +
+            "SET course_title = #{courseTitle}, course_content = #{courseContent}, address = #{address}" +
             "WHERE course_id = #{courseId} AND course_writer_id = #{courseWriterId}")
     int updateCourse(CourseUpdateRequestDto courseUpdateRequestDto);
 
@@ -157,4 +157,18 @@ public interface CourseMapper {
         </script>
         """)
     int countSearchCourse(@Param("searchRequest") CourseSearchRequestDto searchRequest);
+
+    @Update("""
+            UPDATE course
+            SET thumbnail = #{thumbnail}
+            WHERE course_id = #{courseId}
+            """)
+    void insertThumbnail(String thumbnail, int courseId);
+
+    @Select("""
+            SELECT COUNT(*)
+            FROM course
+            WHERE course_id = #{courseId}
+            """)
+    int countCourseByCourseId(int courseId);
 }
