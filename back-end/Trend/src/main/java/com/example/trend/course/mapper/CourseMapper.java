@@ -173,4 +173,11 @@ public interface CourseMapper {
             WHERE course_id = #{courseId}
             """)
     int countCourseByCourseId(int courseId);
+
+    @Update("""
+            UPDATE course
+            SET view_count = view_count + 1
+            WHERE course_id = #{courseId}
+            """)
+    void updateViewCountByCourseId(int courseId);
 }

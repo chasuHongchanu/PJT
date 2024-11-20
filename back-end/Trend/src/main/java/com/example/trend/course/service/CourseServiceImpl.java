@@ -171,6 +171,7 @@ public class CourseServiceImpl implements CourseService {
         // 코스 정보 가져오기
         try {
             courseResponseDto = courseMapper.selectCourseByCourseId(courseId);
+            courseMapper.updateViewCountByCourseId(courseId);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.NOT_FOUND_COURSE_INFO);
         }

@@ -110,6 +110,7 @@ public class ArticleServiceImpl implements ArticleService {
         // 게시물 정보 가져오기
         try {
             articleResponseDto = articleMapper.selectArticleByArticleId(articleId);
+            articleMapper.updateViewCountByArticleId(articleId);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.NOT_FOUND_ARTICLE_INFO);
         }

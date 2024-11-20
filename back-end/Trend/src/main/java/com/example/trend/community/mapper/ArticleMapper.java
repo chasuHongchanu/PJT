@@ -90,4 +90,11 @@ public interface ArticleMapper {
             WHERE article_id = #{articleId}
             """)
     void insertThumbnail(String thumbnail, int articleId);
+
+    @Update("""
+            UPDATE article
+            SET view_count = view_count + 1
+            WHERE article_id = #{articleId}
+            """)
+    void updateViewCountByArticleId(int articleId);
 }
