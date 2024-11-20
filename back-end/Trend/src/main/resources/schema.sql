@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `article` (
                                          `writer_id` VARCHAR(50) NOT NULL,
     `article_title` VARCHAR(50) NULL DEFAULT NULL,
     `article_content` TEXT NULL DEFAULT NULL,
+    `thumbnail` VARCHAR(100) NULL DEFAULT NULL,
     `view_count` INT NULL DEFAULT NULL,
     `article_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`article_id`),
@@ -93,9 +94,8 @@ CREATE TABLE IF NOT EXISTS `course` (
                                         `course_writer_id` VARCHAR(50) NOT NULL,
     `course_title` VARCHAR(50) NULL DEFAULT NULL,
     `course_content` TEXT NULL DEFAULT NULL,
-    `province` VARCHAR(30) NULL DEFAULT NULL,
-    `district` VARCHAR(30) NULL DEFAULT NULL,
-    `town` VARCHAR(30) NULL DEFAULT NULL,
+    `address` VARCHAR(30) NULL DEFAULT NULL,
+    `thumbnail` VARCHAR(100) NULL DEFAULT NULL,
     `view_count` INT NULL DEFAULT NULL,
     `course_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`course_id`),
@@ -519,11 +519,11 @@ VALUES ('Namsan Tower'),
        ('Gyeongbok Palace');
 
 -- Step 7: Insert data into `course` table
-INSERT INTO `course` (`course_writer_id`, `course_title`, `course_content`, `province`, `district`, `town`,
+INSERT INTO `course` (`course_writer_id`, `course_title`, `course_content`, `address`,
                       `view_count`)
-VALUES ('user1', 'Seoul Tour', '서울 투어 추천합니다.', 'Seoul', 'Jongno', 'Gwanghwamun', 100),
-       ('user2', 'Busan Adventure', '부산 투어 추천합니다.', 'Busan', 'Haeundae', 'Haeundae Beach', 200),
-       ('user3', 'Incheon Day Trip', '인천 투어 추천합니다.', 'Incheon', 'Songdo', 'Central Park', 150);
+VALUES ('user1', 'Seoul Tour', '서울 투어 추천합니다.', 'Seoul Jongno Gwanghwamun', 100),
+       ('user2', 'Busan Adventure', '부산 투어 추천합니다.', 'Busan Haeundae Haeundae Beach', 200),
+       ('user3', 'Incheon Day Trip', '인천 투어 추천합니다.', 'Incheon Songdo Central Park', 150);
 
 -- Step 8: Insert data into `course_comment` table
 INSERT INTO `course_comment` (`course_id`, `comment_writer_id`, `course_comment_content`)
