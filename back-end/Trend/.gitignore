@@ -257,6 +257,8 @@ serviceAccountkey.json
 firebase.properties
 # mail id, password
 mail.properties
+# AI key
+openAI.properties
 
 # logger
 logs/
