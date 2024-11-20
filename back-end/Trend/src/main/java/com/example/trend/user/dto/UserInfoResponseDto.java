@@ -20,6 +20,4 @@ public class UserInfoResponseDto {
     private double userRating;
     private String country;
     private Timestamp userCreatedAt;
-    // 물품 거래와 리뷰 작성 이후 구현
-//    private List<TradeReviewDto> tradeReviewDtos;
 }

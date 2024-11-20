@@ -62,10 +62,15 @@ public enum ErrorCode {
   // ===================Article==============
   FAIL_TO_REGIST_ARTICLE(HttpStatus.BAD_REQUEST, "게시물 저장에 실패했습니다."), FAIL_TO_UPDATE_ARTICLE(HttpStatus.BAD_REQUEST, "게시물 수정에 실패했습니다."), FAIL_TO_DELETE_ARTICLE(HttpStatus.BAD_REQUEST, "게시물 삭제에 실패했습니다."), FAIL_TO_SELECT_ALL_ARTICLE(HttpStatus.BAD_REQUEST, "전체 게시물 조회에 실패했습니다."), NOT_FOUND_ARTICLE_INFO(HttpStatus.BAD_REQUEST, "해당 게시물을 찾을 수 없습니다."), FAIL_TO_SELECT_ARTICLE_IMAGES(HttpStatus.BAD_REQUEST, "해당 게시물의 사진을 불러오는데 실패했습니다."),
 
+  // 댓글
+  FAIL_TO_REGIST_ARTICLE_COMMENT(HttpStatus.BAD_REQUEST, "댓글 저장 실패"),
+  FAIL_TO_UPDATE_ARTICLE_COMMENT(HttpStatus.BAD_REQUEST, "댓글 수정 실패"),
+  FAIL_TO_DELETE_ARTICLE_COMMENT(HttpStatus.BAD_REQUEST, "댓글 삭제 실패"),
+
   // 좋아요
   FAIL_TO_LIKE(HttpStatus.BAD_REQUEST, "좋아요 실패."),
   FAIL_TO_UNLIKE(HttpStatus.BAD_REQUEST, "좋아요 취소 실패."),
-  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패."),;
+  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패.");
 
 
 

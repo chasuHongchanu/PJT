@@ -123,7 +123,7 @@ public class CourseController {
     }
     // 대댓글 작성
     @PostMapping("/{courseId}/comment/{parentsCommentId}")
-    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 대댓글을 작성하는 기능")
+    @Operation(summary = "여행 코스 대댓글 작성 기능", description = "여행 코스 대댓글을 작성하는 기능")
     public ResponseEntity<?> createCommentReply(@PathVariable int courseId, @PathVariable int parentsCommentId, @RequestBody CourseCommentRequestDto commentRequestDto, @RequestAttribute("userId") String userId) {
         commentRequestDto.setCourseId(courseId);
         commentRequestDto.setUserId(userId);
@@ -158,7 +158,7 @@ public class CourseController {
     // 코스 게시물의 댓글 목록 조회
     @SkipJwt
     @GetMapping("/{courseId}/comment")
-    @Operation(summary = "여행 코스의 댓글 게시물 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
+    @Operation(summary = "여행 코스의 댓글 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
     public ResponseEntity<?> getCommentList(@PathVariable int courseId,
                                             @RequestParam(defaultValue = "1") int page,
                                             @RequestParam(defaultValue = "10") int size) {
@@ -169,7 +169,7 @@ public class CourseController {
     // 게시물 댓글의 대댓글 목록 조회(페이징)
     @SkipJwt
     @GetMapping("/{courseId}/comment/{commentId}")
-    @Operation(summary = "여행 코스의 댓글 게시물 목록 조회", description = "여행 코스의 댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
+    @Operation(summary = "여행 코스 댓글의 댓글 목록 조회", description = "여행 코스의 대댓글 목록만 새로 고침하거나 불러올 필요가 있을 때 사용하는 메서드")
     public ResponseEntity<?> getCommentReplyList(@PathVariable int courseId,
                                                  @PathVariable int commentId,
                                             @RequestParam(defaultValue = "1") int page,
