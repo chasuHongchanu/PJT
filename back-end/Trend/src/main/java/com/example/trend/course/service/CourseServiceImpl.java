@@ -105,6 +105,9 @@ public class CourseServiceImpl implements CourseService {
                     .toList();
 
             // db에 이미지 경로 및 이름 저장
+            // Thumbnail 경로 및 이름 저장
+            String thumbnail = courseImageNames.get(0);
+            courseMapper.insertThumbnail(thumbnail, courseId);
             // db에 물품 이미지 이름 정보 insert
             for (String courseImageName : courseImageNames) {
                 courseMapper.insertCourseImage(courseId, courseImageName);
@@ -114,13 +117,18 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourse(int courseId, String userId) {
+        // 해당 게시글이 있는지 확인
+        int result = courseMapper.countCourseByCourseId(courseId);
+        if (result != 1) {
+            throw new CustomException(ErrorCode.NOT_FOUND_COURSE_INFO);
+        }
         // 게시글 삭제 권한 확인
         String writerId = courseMapper.selectWriterIdByCourseId(courseId);
         if (!writerId.equals(userId)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
         // 게시글 삭제
-        int result = courseMapper.deleteCourse(courseId, userId);
+        result = courseMapper.deleteCourse(courseId, userId);
         if (result != 1) {
             throw new CustomException(ErrorCode.FAIL_TO_DELETE_COURSE);
         }
@@ -163,6 +171,7 @@ public class CourseServiceImpl implements CourseService {
         // 코스 정보 가져오기
         try {
             courseResponseDto = courseMapper.selectCourseByCourseId(courseId);
+            courseMapper.updateViewCountByCourseId(courseId);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.NOT_FOUND_COURSE_INFO);
         }

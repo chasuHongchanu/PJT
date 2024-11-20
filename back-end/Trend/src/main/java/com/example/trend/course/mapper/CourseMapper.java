@@ -7,12 +7,12 @@ import java.util.List;
 
 @Mapper
 public interface CourseMapper {
-    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, province, district, town) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{province}, #{district}, #{town})")
+    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, address) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{address})")
     @Options(useGeneratedKeys = true, keyProperty = "courseId")
     void insertCourse(CourseRegistRequestDto courseRegistRequestDto);
 
     @Update("UPDATE course " +
-            "SET course_title = #{courseTitle}, course_content = #{courseContent}, province = #{province}, district = #{district}, town = #{town}" +
+            "SET course_title = #{courseTitle}, course_content = #{courseContent}, address = #{address}" +
             "WHERE course_id = #{courseId} AND course_writer_id = #{courseWriterId}")
     int updateCourse(CourseUpdateRequestDto courseUpdateRequestDto);
 
@@ -37,7 +37,8 @@ public interface CourseMapper {
                 COUNT(DISTINCT cl.user_id) AS likeCount,
                 COUNT(DISTINCT cc.course_comment_id) AS commentCount,
                 c.course_title AS courseTitle,
-                c.course_content AS courseContent
+                c.course_content AS courseContent,
+                c.thumbnail
             FROM course c
                 left join course_comment cc on c.course_id = cc.course_id
                 left join course_like cl on c.course_id = cl.course_id
@@ -90,7 +91,8 @@ public interface CourseMapper {
         COUNT(DISTINCT cl.user_id)           AS likeCount,
         COUNT(DISTINCT cc.course_comment_id) AS commentCount,
         c.course_title                       AS courseTitle,
-        c.course_content                     AS courseContent
+        c.course_content                     AS courseContent,
+        c.thumbnail
     FROM course c
         LEFT JOIN course_comment cc ON c.course_id = cc.course_id
         LEFT JOIN course_like cl ON c.course_id = cl.course_id
@@ -157,4 +159,25 @@ public interface CourseMapper {
         </script>
         """)
     int countSearchCourse(@Param("searchRequest") CourseSearchRequestDto searchRequest);
+
+    @Update("""
+            UPDATE course
+            SET thumbnail = #{thumbnail}
+            WHERE course_id = #{courseId}
+            """)
+    void insertThumbnail(String thumbnail, int courseId);
+
+    @Select("""
+            SELECT COUNT(*)
+            FROM course
+            WHERE course_id = #{courseId}
+            """)
+    int countCourseByCourseId(int courseId);
+
+    @Update("""
+            UPDATE course
+            SET view_count = view_count + 1
+            WHERE course_id = #{courseId}
+            """)
+    void updateViewCountByCourseId(int courseId);
 }

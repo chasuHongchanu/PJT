@@ -10,8 +10,8 @@ import java.util.List;
 
 @Mapper
 public interface SpotMapper {
-    @Insert("INSERT INTO course_spot (course_spot_id, course_id, spot_name, visit_order, spot_address)" +
-            "VALUES (#{courseSpotId}, #{courseId}, #{spotName}, #{visitOrder}, #{spotAddress})")
+    @Insert("INSERT INTO course_spot (spot_id, course_id, spot_name, visit_order, address, latitude, longitude)" +
+            "VALUES (#{spotId}, #{courseId}, #{spotName}, #{visitOrder}, #{address}, #{latitude}, #{longitude})")
     void insertCourseSpot(CourseSpotDto courseSpotDto);
 
     @Delete("DELETE FROM course_spot WHERE course_id = #{courseId}")
