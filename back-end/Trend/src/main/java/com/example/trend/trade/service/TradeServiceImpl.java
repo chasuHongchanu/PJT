@@ -197,4 +197,24 @@ public class TradeServiceImpl implements TradeService{
     public List<TradeMyItemsResponseDto> getWishListItems(String userId) {
         return tradeMapper.selectwishListItems(userId);
     }
+
+    @Override
+    public List<TradeReviewsForMe> getLendReviewsForMe(String userId) {
+        return tradeMapper.selectLendReviewsForMe(userId);
+    }
+
+    @Override
+    public List<TradeReviewsForMe> getLeaseReviewsForMe(String userId) {
+        return tradeMapper.selectLeaseReviewsForMe(userId);
+    }
+
+    @Override
+    public List<TradeReviewsForMe> getMyReviews(String userId) {
+        return tradeMapper.selectMyReviews(userId);
+    }
+
+    @Override
+    public List<TradeNotWrittenReview> getNotWrittenReviews(String userId) {
+        return tradeMapper.selectNotWrittenReviews(userId);
+    }
 }

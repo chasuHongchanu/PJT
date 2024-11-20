@@ -14,9 +14,6 @@ public class TradeMyItemsResponseDto {
     private String availableRentalStartDate;
     private String availableRentalEndDate;
     private String thumbnail;
-    private String country;
-    private String province;
-    private String district;
-    private String town;
+    private String address;
     private String itemStatus;
 }

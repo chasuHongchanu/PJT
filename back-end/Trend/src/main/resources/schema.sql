@@ -90,8 +90,7 @@ CREATE TABLE IF NOT EXISTS `article_comment_like`
     FOREIGN KEY (`user_id`)
     REFERENCES `user` (`user_id`)
     ON DELETE CASCADE
-    ON UPDATE RESTRICT
-    );
+    ON UPDATE RESTRICT);
 
 
 -- -----------------------------------------------------
@@ -195,29 +194,25 @@ CREATE TABLE IF NOT EXISTS `article_like`
 -- -----------------------------------------------------
 -- Table `item`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `item`
-(
-    `item_id`                     INT         NOT NULL AUTO_INCREMENT,
-    `user_id`                     VARCHAR(50) NOT NULL,
-    `item_name`                   VARCHAR(50) NULL DEFAULT NULL,
-    `main_category`               VARCHAR(30) NULL DEFAULT NULL,
-    `sub_category`                VARCHAR(30) NULL DEFAULT NULL,
-    `sub_subcategory`             VARCHAR(30) NULL DEFAULT NULL,
-    `item_price`                  INT         NULL DEFAULT NULL,
-    `country`                     VARCHAR(30) NULL DEFAULT NULL,
-    `province`                    VARCHAR(30) NULL DEFAULT NULL,
-    `district`                    VARCHAR(30) NULL DEFAULT NULL,
-    `town`                        VARCHAR(30) NULL DEFAULT NULL,
-    `item_latitude`               DOUBLE      NULL DEFAULT NULL,
-    `item_longitude`              DOUBLE      NULL DEFAULT NULL,
-    `item_content`                TEXT        NULL DEFAULT NULL,
-    `available_rental_start_date` TIMESTAMP   NULL DEFAULT NULL,
-    `available_rental_end_date`   TIMESTAMP   NULL DEFAULT NULL,
-    `item_status`                 VARCHAR(50) NULL DEFAULT '대여 가능' COMMENT '대여 가능, 예약 중, 대여 중',
-    `view_count`                  INT         NULL DEFAULT NULL,
-    `item_created_at`             TIMESTAMP   NULL DEFAULT CURRENT_TIMESTAMP,
-    `item_deleted_at`             TIMESTAMP   NULL DEFAULT NULL,
-    `thumbnail`                   VARCHAR(50) NULL DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `item` (
+                                      `item_id` INT NOT NULL AUTO_INCREMENT,
+                                      `user_id` VARCHAR(50) NOT NULL,
+    `item_name` VARCHAR(50) NULL DEFAULT NULL,
+    `main_category` VARCHAR(30) NULL DEFAULT NULL,
+    `sub_category` VARCHAR(30) NULL DEFAULT NULL,
+    `sub_subcategory` VARCHAR(30) NULL DEFAULT NULL,
+    `item_price` INT NULL DEFAULT NULL,
+    `address` VARCHAR(100) NULL DEFAULT NULL,
+    `item_latitude` DOUBLE NULL DEFAULT NULL,
+    `item_longitude` DOUBLE NULL DEFAULT NULL,
+    `item_content` TEXT NULL DEFAULT NULL,
+    `available_rental_start_date` TIMESTAMP NULL DEFAULT NULL,
+    `available_rental_end_date` TIMESTAMP NULL DEFAULT NULL,
+    `item_status` VARCHAR(50) NULL DEFAULT '대여 가능' COMMENT '대여 가능, 예약 중, 대여 중',
+    `view_count` INT NULL DEFAULT NULL,
+    `item_created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `item_deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    `thumbnail` VARCHAR(50) NULL DEFAULT NULL,
     PRIMARY KEY (`item_id`),
     CONSTRAINT `FK_user_TO_item_1`
     FOREIGN KEY (`user_id`)
@@ -517,16 +512,16 @@ VALUES
     ('user10', 'bc547750b92797f955b36112cc9bdd5cddf7d0862151d03a167ada8995aa24a9ad24610b36a68bc02da24141ee51670aea13ed6469099a4453f335cb239db5da', 'Judy', 'Sejong', 'judy@example.com', '010-1010-1010', 'img10.jpg', '세종 Judy입니다.', 85.0, 4.5, 'South Korea');
 
 -- Step 2: Insert data into `item` table
-INSERT INTO `item` (`user_id`, `item_name`, `main_category`, `sub_category`, `sub_subcategory`, `item_price`, `country`,
-                    `province`, `district`, `town`, `item_latitude`, `item_longitude`, `item_content`,
+INSERT INTO `item` (`user_id`, `item_name`, `main_category`, `sub_category`, `sub_subcategory`, `item_price`, `address`,
+                    `item_latitude`, `item_longitude`, `item_content`,
                     `available_rental_start_date`, `available_rental_end_date`, `item_status`)
-VALUES ('user1', 'item1', 'Electronics', 'Camera', 'Digital', 10000, '대한민국', 'Seoul', 'Gangnam', 'Apgujeong', 37.5272,
+VALUES ('user1', 'item1', 'Electronics', 'Camera', 'Digital', 10000, '대한민국 Seoul Gangnam Apgujeong', 37.5272,
         127.0276,
         'Item 1 description', '2023-01-01', '2023-01-10', '공개'),
-       ('user2', 'item2', 'Sports', 'Bike', 'Mountain', 15000, '대한민국', 'Incheon', 'Bupyeong', 'Bupyeong Market',
+       ('user2', 'item2', 'Sports', 'Bike', 'Mountain', 15000, '대한민국 Incheon Bupyeong Bupyeong Market',
         37.5074,
         126.7218, 'Item 2 description', '2023-02-01', '2023-02-10', '공개'),
-       ('user3', 'item3', 'Fashion', 'Clothes', 'Jacket', 8000, '대한민국', 'Busan', 'Haeundae', 'Haeundae Beach', 35.1587,
+       ('user3', 'item3', 'Fashion', 'Clothes', 'Jacket', 8000, '대한민국 Busan Haeundae Haeundae Beach', 35.1587,
         129.1604, 'Item 3 description', '2023-03-01', '2023-03-10', '대여 중');
 
 -- Step 3: Insert data into `item_trade` table

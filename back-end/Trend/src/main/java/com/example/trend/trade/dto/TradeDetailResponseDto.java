@@ -15,10 +15,7 @@ public class TradeDetailResponseDto {
     private String tradeRentalEndDate;
     private String itemName;
     private int itemPrice;
-    private String country;
-    private String province;
-    private String district;
-    private String town;
+    private String address;
     private String thumbnail;
     private String lessorId;
     private String lesseeId;

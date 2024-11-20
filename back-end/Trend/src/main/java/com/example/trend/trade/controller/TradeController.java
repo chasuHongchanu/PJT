@@ -331,4 +331,60 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(wishListItems);
     }
+
+    /**
+     * 내가 임차인인 입장에서, 임대인들이 물건을 빌려주고 임차인인 나에게 남긴 후기 목록입니다.
+     *
+     * @param userId
+     * @return List<TradeReviewsForMe>
+     */
+    @GetMapping("/lendReviewsForMe")
+    public ResponseEntity<?> tradeLendReviewsForMe(@RequestAttribute("userId") String userId) {
+        List<TradeReviewsForMe> lendReviewsForMe = tradeService.getLendReviewsForMe(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(lendReviewsForMe);
+    }
+
+    /**
+     * 내가 임대인인 입장에서, 임차인들이 물건을 빌리고 임대인인 나에게 남긴 후기 목록입니다.
+     *
+     * @param userId
+     * @return List<TradeReviewsForMe>
+     */
+    @GetMapping("/leaseReviewsForMe")
+    public ResponseEntity<?> tradeLeaseReviewsForMe(@RequestAttribute("userId") String userId) {
+        List<TradeReviewsForMe> leaseReviewsForMe = tradeService.getLeaseReviewsForMe(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(leaseReviewsForMe);
+    }
+
+    /**
+     * 내가 임대인/임차인 모두의 입장에서 다른 사람들에게 작성한 후기입니다.
+     *
+     * @param userId
+     * @return List<TradeReviewsForMe>
+     */
+    @GetMapping("/myReviews")
+    public ResponseEntity<?> tradeMyReviews(@RequestAttribute("userId") String userId) {
+        List<TradeReviewsForMe> myReviews = tradeService.getMyReviews(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(myReviews);
+    }
+
+    /**
+     * 내가 임대인/임차인 모두의 입장에서, 아직 다른 사람들에게 작성하지 않은 후기입니다.
+     *
+     * @param userId
+     * @return List<TradeReviewsForMe>
+     */
+    @GetMapping("/notWrittenReviews")
+    public ResponseEntity<?> tradeNotWrittenReviews(@RequestAttribute("userId") String userId) {
+        List<TradeNotWrittenReview> notWrittenReviews = tradeService.getNotWrittenReviews(userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(notWrittenReviews);
+    }
 }
