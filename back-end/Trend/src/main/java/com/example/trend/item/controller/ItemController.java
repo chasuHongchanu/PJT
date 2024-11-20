@@ -182,4 +182,42 @@ public class ItemController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(pagedLessorArticles);
     }
+
+    @PostMapping("/rent/{itemId}/like")
+    public ResponseEntity<?> itemLike(@PathVariable String itemId,
+                                      @RequestAttribute("userId") String userId) {
+        int result = itemService.like(userId, itemId);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result == 1) {
+            response.put("message", "성공적으로 수정되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        }
+
+        else {
+            response.put("message", "좋아요에 실패했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+    }
+
+    @DeleteMapping("/rent/{itemId}/likeCancel")
+    public ResponseEntity<?> itemLikeCancel(@PathVariable String itemId,
+                                      @RequestAttribute("userId") String userId) {
+        int result = itemService.likeCancel(userId, itemId);
+
+        Map<String, Object> response = new HashMap<>();
+        if(result != 0) {
+            response.put("message", "성공적으로 수정되었습니다.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        }
+
+        else {
+            response.put("message", "수정에 실패했습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+        }
+    }
 }

@@ -4,13 +4,13 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class TradeReviewResponseDto {
+public class TradeNotWrittenReview {
+    private int tradeId;
     private int itemId;
-    private String itemName;
-    private int itemPrice;
-    private String address;
     private String thumbnail;
+    private String itemName;
+    private String rentalEndDate;
 }

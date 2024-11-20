@@ -27,4 +27,8 @@ public interface ItemService {
     Pagination<TradeReviewDto> getPagedLessorReviews(String lessorId, int page, int size);
 
     Pagination<ArticleSimpleInfo> getPagedLessorArticles(String lessorId, int page, int size);
+
+    int like(String userId, String itemId);
+
+    int likeCancel(String userId, String itemId);
 }

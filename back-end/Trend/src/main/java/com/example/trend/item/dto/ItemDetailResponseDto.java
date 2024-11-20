@@ -36,7 +36,5 @@ public class ItemDetailResponseDto {
     // from wishlist table
     // lessorId가 아니라, 로그인한 user의 id 값으로 조회해야 함을 주의
     private boolean isWishList;
-
-
-    private List<ItemSimpleInfo> peripheralItems;
+    private int likesCount;
 }

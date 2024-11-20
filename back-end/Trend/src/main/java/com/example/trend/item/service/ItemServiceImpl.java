@@ -237,4 +237,16 @@ public class ItemServiceImpl implements ItemService{
 
         return new Pagination<>(articles, totalArticles, page, size);
     }
+
+    @Transactional
+    @Override
+    public int like(String userId, String itemId) {
+        return itemMapper.insertWishList(userId, itemId);
+    }
+
+    @Transactional
+    @Override
+    public int likeCancel(String userId, String itemId) {
+        return itemMapper.deleteWishList(userId, itemId);
+    }
 }

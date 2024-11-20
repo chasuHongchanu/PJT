@@ -50,7 +50,23 @@ public interface ItemMapper {
     void updateUserActivityScore(String userId);
 
     @Select("""
-            SELECT user_profile_img, user_nickname, u.user_id, user_rating, i.item_id, item_name, item_price, main_category, sub_category, sub_subcategory, address, item_content, available_rental_start_date, available_rental_end_date, view_count
+            SELECT user_profile_img,
+                   user_nickname,
+                   u.user_id,
+                   user_rating,
+                   i.item_id,
+                   item_name,
+                   item_price,
+                   main_category,
+                   sub_category,
+                   sub_subcategory,
+                   address,
+                   item_content,
+                   available_rental_start_date,
+                   available_rental_end_date,
+                   view_count,
+                   (SELECT COUNT(*) FROM wishlist WHERE item_id = {itemId}) AS likesCount
+
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
@@ -353,4 +369,17 @@ public interface ItemMapper {
             WHERE item_id = #{itemId}
             """)
     void insertThumbnail(String thumbnail, int itemId);
+
+    @Insert("""
+            INSERT wishlist (user_id, item_id)
+            VALUES (#{userId}, #{itemId})
+            """)
+    int insertWishList(String userId, String itemId);
+
+    @Delete("""
+            DELETE FROM wishlist
+            WHERE user_id = #{userId}
+            AND item_id = #{itemId}
+            """)
+    int deleteWishList(String userId, String itemId);
 }
