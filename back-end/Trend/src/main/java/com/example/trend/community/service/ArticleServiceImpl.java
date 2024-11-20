@@ -67,6 +67,8 @@ public class ArticleServiceImpl implements ArticleService {
                     .toList();
 
             // db에 이미지 경로 및 이름 저장
+            String thumbnail = articleImageNames.get(0);
+            articleMapper.insertThumbnail(thumbnail, articleId);
             // db에 게시글 이미지 이름 정보 insert
             for (String articleImageName : articleImageNames) {
                 articleMapper.insertArticleImage(articleId, articleImageName);

@@ -1,7 +1,7 @@
 package com.example.trend.community.mapper;
 
-import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleListResponseDto;
+import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleResponseDto;
 import org.apache.ibatis.annotations.*;
 
@@ -43,7 +43,8 @@ public interface ArticleMapper {
                 COUNT(DISTINCT al.user_id) AS likeCount,
                 COUNT(DISTINCT ac.article_comment_id) AS commentCount,
                 a.article_title AS articleTitle,
-                a.article_content AS articleContent
+                a.article_content AS articleContent,
+                a.thumbnail
             FROM article a
                 left join article_comment ac on a.article_id = ac.article_id
                 left join article_like al on a.article_id = al.article_id
@@ -82,4 +83,11 @@ public interface ArticleMapper {
             FROM article_image WHERE article_id = #{articleId}
             """)
     List<String> selectArticleImages(int articleId);
+
+    @Update("""
+            UPDATE article
+            SET thumbnail = #{thumbnail}
+            WHERE article_id = #{articleId}
+            """)
+    void insertThumbnail(String thumbnail, int articleId);
 }

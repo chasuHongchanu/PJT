@@ -12,6 +12,7 @@ public class ArticleListResponseDto {
     private String userNickname;
     private String articleTitle;
     private String articleContent;
+    private String thumbnail;
     private int likeCount;
     private int commentCount;
 }
