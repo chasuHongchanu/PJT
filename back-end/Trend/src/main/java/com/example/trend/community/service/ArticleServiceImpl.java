@@ -4,6 +4,7 @@ import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleListResponseDto;
 import com.example.trend.community.dto.ArticleResponseDto;
 import com.example.trend.community.mapper.ArticleMapper;
+import com.example.trend.course.mapper.CourseLikeMapper;
 import com.example.trend.exception.CustomException;
 import com.example.trend.exception.ErrorCode;
 import com.example.trend.util.FileUtil;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ArticleServiceImpl implements ArticleService {
     private final ArticleMapper articleMapper;
     private final FileUtil fileUtil;
+    private final CourseLikeMapper articleLikeMapper;
 
 
     @Override
