@@ -5,6 +5,7 @@ import com.example.trend.exception.ErrorCode;
 import com.example.trend.item.dto.*;
 import com.example.trend.item.mapper.ItemMapper;
 import com.example.trend.util.FileUtil;
+import com.example.trend.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,13 @@ public class ItemServiceImpl implements ItemService{
     }
 
     @Override
-    public List<ItemRetrieveResponseDto> searchItems(ItemSearchCriteria itemSearchCriteria) {
-        return itemMapper.searchItems(itemSearchCriteria);
+    public Pagination<ItemRetrieveResponseDto> searchPagedItems(ItemSearchCriteria itemSearchCriteria, int page, int size) {
+        System.out.println(page + " " + size);
+        int offset = (page - 1) * size;
+        List<ItemRetrieveResponseDto> items = itemMapper.searchItems(itemSearchCriteria, offset, size);
+        int totalItems = itemMapper.countItems(itemSearchCriteria);
+
+        return new Pagination<>(items, totalItems, page, size);
     }
 
     @Transactional
@@ -70,12 +76,8 @@ public class ItemServiceImpl implements ItemService{
             }
         }
 
-
-
         // 물품 등록한 유저 활동점수 증가
         itemMapper.updateUserActivityScore(userId);
-
-        // TODO: 입력받은 지역을 토대로 지역 JSON을 이용해 위/경도 추출
 
         return result;
     }
@@ -125,8 +127,6 @@ public class ItemServiceImpl implements ItemService{
             }
         }
 
-        // TODO: 업데이트된 지역을 토대로 지역 JSON을 이용해 위/경도 업데이트
-
         return result;
     }
 
@@ -143,6 +143,17 @@ public class ItemServiceImpl implements ItemService{
 
         // DB에서 아무 이상 없을 경우 item_image table, Storage에서 이미지 삭제 (hard delete)
         // fileUtil.deleteFiles(itemId);
+    }
+
+    @Override
+    public List<ItemSimpleInfo> getSimilarItems(int itemId) {
+        // 유사 물품 정보 추출
+        return itemMapper.selectSimilarItems(itemId);
+    }
+
+    @Override
+    public List<ItemSimpleInfo> getPeripheralItems(int itemId) {
+        return itemMapper.selectPeripheralItems(itemId);
     }
 
     @Override
@@ -167,19 +178,6 @@ public class ItemServiceImpl implements ItemService{
         }
         itemDetailResponseDto.setWishList(isWishList);
 
-        // 유사 물품 정보 추출
-        // 판매자 활동 점수에 맞게 sql에서 활동 점수로 내림차순 후, 5개만 추출
-        String subSubCategory = itemDetailResponseDto.getSubSubCategory();
-        List<ItemSimpleInfo> similarItems = itemMapper.selectSimilarItems(itemId, subSubCategory);
-        itemDetailResponseDto.setSimilarItems(similarItems);
-
-        // 인근 물품 정보 추출
-        // 판매자 활동 점수에 맞게 sql에서 활동 점수로 내림차순 후, 5개만 추출
-        String district = itemDetailResponseDto.getItemDistrict();
-        String town = itemDetailResponseDto.getItemTown();
-        List<ItemSimpleInfo> peripheralItems = itemMapper.selectPeripheralItems(itemId, district, town);
-        itemDetailResponseDto.setPeripheralItems(peripheralItems);
-
         // 게시물 조회수 증가
         itemMapper.updateViewCount(itemId);
 
@@ -195,9 +193,37 @@ public class ItemServiceImpl implements ItemService{
             throw new CustomException(ErrorCode.NO_SUCH_LESSOR);
         }
 
-        List<TradeReviewDto> tradeReviewDtos = itemMapper.selectTradeReviewsByLessorId(lessorId);
-        List<ItemRetrieveResponseDto> lendItems = itemMapper.selectLendItemsByLessorId(lessorId);
-        List<ArticleSimpleInfo> articles = itemMapper.selectArticlesByLessorId(lessorId);
+        return itemLessorInfoDto;
+    }
+
+    @Override
+    public Pagination<ItemRetrieveResponseDto> getPagedLessorItems(String lessorId, int page, int size) {
+        int offset = (page - 1) * size;
+        List<ItemRetrieveResponseDto> lessorItems = itemMapper.selectLessorItemsByLessorId(lessorId, offset, size);
+        int totalItems = itemMapper.countLessorItems(lessorId);
+
+        // lessorId가 존재하지 않을 때 (없는 판매자 정보에 접근할 때)
+        if(lessorItems == null) {
+            throw new CustomException(ErrorCode.NO_SUCH_LESSOR);
+        }
+
+        return new Pagination<>(lessorItems, totalItems, page, size);
+    }
+
+    @Override
+    public Pagination<TradeReviewDto> getPagedLessorReviews(String lessorId, int page, int size) {
+        int offset = (page - 1) * size;
+        List<TradeReviewDto> lessorReviews = itemMapper.selectTradeReviewsByLessorId(lessorId, offset, size);
+        int totalReviews = itemMapper.countLessorReviews(lessorId);
+
+        return new Pagination<>(lessorReviews, totalReviews, page, size);
+    }
+
+    @Override
+    public Pagination<ArticleSimpleInfo> getPagedLessorArticles(String lessorId, int page, int size) {
+        int offset = (page - 1) * size;
+        List<ArticleSimpleInfo> articles = itemMapper.selectArticlesByLessorId(lessorId, offset, size);
+        int totalArticles = itemMapper.countLessorArticles(lessorId);
 
         // 게시글을 한 개 이상 작성한 경우
         if(!articles.isEmpty()) {
@@ -209,23 +235,6 @@ public class ItemServiceImpl implements ItemService{
             }
         }
 
-        itemLessorInfoDto.setTradeReviews(tradeReviewDtos);
-        itemLessorInfoDto.setLessorLendItems(lendItems);
-        itemLessorInfoDto.setLessorArticles(articles);
-
-        return itemLessorInfoDto;
+        return new Pagination<>(articles, totalArticles, page, size);
     }
-
-    @Override
-    public List<ItemRetrieveResponseDto> getLessorItems(String lessorId) {
-        List<ItemRetrieveResponseDto> lessorItems = itemMapper.selectLessorItemsByLessorId(lessorId);
-
-        // lessorId가 존재하지 않을 때 (없는 판매자 정보에 접근할 때)
-        if(lessorItems == null) {
-            throw new CustomException(ErrorCode.NO_SUCH_LESSOR);
-        }
-
-        return lessorItems;
-    }
-
 }

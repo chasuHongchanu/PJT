@@ -12,8 +12,5 @@ public class ItemRetrieveResponseDto {
     private String itemImage;
     private String itemName;
     private int itemPrice;
-    private String country;
-    private String province;
-    private String district;
-    private String town;
+    private String address;
 }
