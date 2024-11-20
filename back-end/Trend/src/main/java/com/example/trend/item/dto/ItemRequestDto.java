@@ -29,17 +29,11 @@ public class ItemRequestDto {
 
     private String itemSubsubCategory;
 
-    @NotBlank(message="국가는 필수 값입니다.")
-    private String itemCountry;
+    private double latitude;
 
-    @NotBlank(message="지역은 필수 값입니다.")
-    private String itemProvince;
+    private double longitude;
 
-    @NotBlank(message="도시는 필수 값입니다.")
-    private String itemDistrict;
-
-    @NotBlank(message="마을은 필수 값입니다.")
-    private String itemTown;
+    private String address;
 
     private String itemContent;
 

@@ -8,7 +8,13 @@ import java.util.List;
 @Mapper
 public interface TradeMapper {
     @Select("""
-            SELECT item_id, available_rental_start_date, available_rental_end_date, item_name, item_price, country, province, district, town, thumbnail,
+            SELECT item_id,
+                   available_rental_start_date,
+                   available_rental_end_date,
+                   item_name,
+                   item_price,
+                   address,
+                   thumbnail,
             (SELECT user_nickname FROM user WHERE user_id = #{lessorId}) AS lessor_nickname,
             (SELECT user_nickname FROM user WHERE user_id = #{lesseeId}) AS lessee_nickname
             FROM item
@@ -38,10 +44,7 @@ public interface TradeMapper {
                 i.item_id,
                 i.item_name,
                 i.item_price,
-                i.country,
-                i.province,
-                i.district,
-                i.town,
+                i.address,
                 i.thumbnail,
 
                 t.rental_start_date AS trade_rental_start_date,
@@ -107,10 +110,7 @@ public interface TradeMapper {
             SELECT t.item_id,
                    i.item_name,
                    i.item_price,
-                   i.country,
-                   i.province,
-                   i.district,
-                   i.town,
+                   i.address,
                    i.thumbnail
             FROM item_trade t
             JOIN item i
@@ -182,10 +182,7 @@ public interface TradeMapper {
                    available_rental_start_date,
                    available_rental_end_date,
                    thumbnail,
-                   country,
-                   province,
-                   district,
-                   town,
+                   address,
                    item_status
             FROM item
             WHERE user_id = #{userId}
@@ -200,10 +197,7 @@ public interface TradeMapper {
                    available_rental_start_date,
                    available_rental_end_date,
                    thumbnail,
-                   country,
-                   province,
-                   district,
-                   town,
+                   address,
                    item_status
             FROM item i
             JOIN item_trade t
@@ -220,10 +214,7 @@ public interface TradeMapper {
                    available_rental_start_date,
                    available_rental_end_date,
                    thumbnail,
-                   country,
-                   province,
-                   district,
-                   town,
+                   address,
                    item_status
             FROM item i
             JOIN item_trade t
@@ -240,10 +231,7 @@ public interface TradeMapper {
                    available_rental_start_date,
                    available_rental_end_date,
                    thumbnail,
-                   country,
-                   province,
-                   district,
-                   town,
+                   address,
                    item_status
             FROM item i
             JOIN item_trade t
@@ -260,10 +248,7 @@ public interface TradeMapper {
                    available_rental_start_date,
                    available_rental_end_date,
                    thumbnail,
-                   country,
-                   province,
-                   district,
-                   town,
+                   address,
                    item_status
             FROM item i
             JOIN item_trade t
@@ -280,10 +265,7 @@ public interface TradeMapper {
                    available_rental_start_date,
                    available_rental_end_date,
                    thumbnail,
-                   country,
-                   province,
-                   district,
-                   town,
+                   address,
                    item_status
             FROM item i
             JOIN wishlist w
@@ -291,4 +273,63 @@ public interface TradeMapper {
             WHERE w.user_id = #{userId}
             """)
     List<TradeMyItemsResponseDto> selectwishListItems(String userId);
+
+    @Select("""
+            SELECT u.user_id,
+                   u.user_profile_img,
+                   r.trade_review_id,
+                   r.review_created_at,
+                   r.trade_review_content
+            FROM user u
+            JOIN trade_review r
+            ON u.user_id = r.lessee_id
+            WHERE u.user_id = #{userId}
+            AND r.author_user_id != #{userId}
+            """)
+    List<TradeReviewsForMe> selectLendReviewsForMe(String userId);
+
+    @Select("""
+            SELECT u.user_id,
+                   u.user_profile_img,
+                   r.trade_review_id,
+                   r.review_created_at,
+                   r.trade_review_content
+            FROM user u
+            JOIN trade_review r
+            ON u.user_id = r.lessor_id
+            WHERE u.user_id = #{userId}
+            AND r.author_user_id != #{userId}
+            """)
+    List<TradeReviewsForMe> selectLeaseReviewsForMe(String userId);
+
+    @Select("""
+            SELECT u.user_id,
+                   u.user_profile_img,
+                   r.trade_review_id,
+                   r.review_created_at,
+                   r.trade_review_content
+            FROM user u
+            JOIN trade_review r
+            ON u.user_id = r.lessee_id
+            WHERE r.author_user_id = #{userId}
+            """)
+    List<TradeReviewsForMe> selectMyReviews(String userId);
+
+    @Select("""
+            SELECT i.item_id,
+                   i.thumbnail,
+                   i.item_name,
+                   t.rental_end_date,
+                   t.trade_id
+            FROM item i
+            JOIN item_trade t
+            ON t.item_id = i.item_id
+            WHERE (t.lessee_id = #{userId} OR t.lessor_id = #{userId})
+            AND t.trade_id NOT IN (
+                SELECT trade_id
+                FROM trade_review
+                WHERE author_user_id = #{userId}
+            )
+            """)
+    List<TradeNotWrittenReview> selectNotWrittenReviews(String userId);
 }

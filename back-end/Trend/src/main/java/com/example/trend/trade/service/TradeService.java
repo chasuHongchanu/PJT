@@ -39,4 +39,12 @@ public interface TradeService {
     List<TradeMyItemsResponseDto> getReturnLeaseItems(String userId);
 
     List<TradeMyItemsResponseDto> getWishListItems(String userId);
+
+    List<TradeReviewsForMe> getLendReviewsForMe(String userId);
+
+    List<TradeReviewsForMe> getLeaseReviewsForMe(String userId);
+
+    List<TradeReviewsForMe> getMyReviews(String userId);
+
+    List<TradeNotWrittenReview> getNotWrittenReviews(String userId);
 }
