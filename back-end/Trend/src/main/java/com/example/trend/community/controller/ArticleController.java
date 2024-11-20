@@ -3,6 +3,7 @@ package com.example.trend.community.controller;
 import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleListResponseDto;
 import com.example.trend.community.dto.ArticleResponseDto;
+import com.example.trend.community.service.ArticleLikeService;
 import com.example.trend.community.service.ArticleService;
 import com.example.trend.config.SkipJwt;
 import com.example.trend.util.Pagination;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ArticleController {
     private final ArticleService articleService;
+    private final ArticleLikeService articleLikeService;
 
     @PostMapping("/article")
     @Operation(summary = "게시글 등록", description = "게시글 등록 기능")
@@ -66,7 +68,53 @@ public class ArticleController {
         return ResponseEntity.ok(articleResponseDto);
     }
 
-
-
     // 게시물 검색 조회 필요
+
+    /*
+    좋아요: 게시글 및 댓글 좋아요
+     */
+    @PostMapping("/{articleId}/like")
+    @Operation(summary = "커뮤니티 게시물 좋아요", description = "게시물 좋아요 처리 기능")
+    public ResponseEntity<?> likeArticle(@PathVariable int articleId, @RequestAttribute("userId") String userId) {
+        articleLikeService.likeAticle(articleId, userId);
+        return ResponseEntity.ok("Like Article Successful");
+    }
+
+    @DeleteMapping("/{articleId}/like")
+    @Operation(summary = "커뮤니티 게시물 좋아요 취소", description = "커뮤니티 게시물 좋아요 취소 처리 기능")
+    public ResponseEntity<?> unLikeArticle(@PathVariable int articleId, @RequestAttribute("userId") String userId) {
+        articleLikeService.unLikeArticle(articleId, userId);
+        return ResponseEntity.ok("UnLike Article Successful");
+    }
+
+    @GetMapping("/{articleId}/like")
+    @Operation(summary = "커뮤니티 게시물 좋아요 확인", description = "좋아요 한 게시물인지 확인하는 기능")
+    public ResponseEntity<?> isLikeArticle(@PathVariable int articleId, @RequestAttribute("userId") String userId) {
+        boolean result = articleLikeService.isLikeArticle(articleId, userId);
+        return ResponseEntity.ok("좋아요 여부: " + result);
+    }
+    
+    /*
+    좋아요: 댓글 좋아요
+     */
+    @PostMapping("/comment/{articleCommentId}/like")
+    @Operation(summary = "커뮤니티 댓글 좋아요", description = "커뮤니티 댓글 좋아요 처리 기능")
+    public ResponseEntity<?> likeArticleComment(@PathVariable int articleCommentId, @RequestAttribute("userId") String userId) {
+        articleLikeService.likeArticleComment(articleCommentId, userId);
+        return ResponseEntity.ok("Like ArticleComment Successful");
+    }
+
+    @DeleteMapping("/comment/{articleCommentId}/like")
+    @Operation(summary = "커뮤니티 게시물 댓글 좋아요 취소", description = "커뮤니티 댓글 좋아요  취소 처리 기능")
+    public ResponseEntity<?> unLikeArticleComment(@PathVariable int articleCommentId, @RequestAttribute("userId") String userId) {
+        articleLikeService.unLikeArticleComment(articleCommentId, userId);
+        return ResponseEntity.ok("UnLike ArticleComment Successful");
+    }
+
+    @GetMapping("/comment/{articleCommentId}/like")
+    @Operation(summary = "커뮤니티 게시물 댓글 좋아요 확인", description = "좋아요 한 커뮤니티 댓글인지 확인하는 기능")
+    public ResponseEntity<?> isLikeArticleComment(@PathVariable int articleCommentId, @RequestAttribute("userId") String userId) {
+        boolean result = articleLikeService.isLikeArticleComment(articleCommentId, userId);
+        return ResponseEntity.ok("댓글 좋아요 여부: " + result);
+    }
 }
