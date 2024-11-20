@@ -3,6 +3,7 @@ package com.example.trend.community.controller;
 import com.example.trend.community.dto.ArticleListResponseDto;
 import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleResponseDto;
+import com.example.trend.community.dto.ArticleSearchRequestDto;
 import com.example.trend.community.dto.comment.ArticleCommentRequestDto;
 import com.example.trend.community.dto.comment.ArticleCommentResponseDto;
 import com.example.trend.community.service.ArticleCommentService;
@@ -72,7 +73,15 @@ public class ArticleController {
         return ResponseEntity.ok(articleResponseDto);
     }
 
-    // 게시물 검색 조회 필요
+    @SkipJwt
+    @GetMapping("/article/search")
+    @Operation(summary = "게시물 검색", description = "게시물 목록을 검색")
+    public ResponseEntity<?> search(@RequestParam(defaultValue = "1") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                    @RequestBody ArticleSearchRequestDto articleSearchRequestDto) {
+        Pagination<ArticleListResponseDto> articleListResponseDtos = articleService.searchArticles(page, size, articleSearchRequestDto);
+        return ResponseEntity.ok(articleListResponseDtos);
+    }
 
     /*
     좋아요: 게시글 및 댓글 좋아요
