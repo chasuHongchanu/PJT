@@ -3,6 +3,7 @@ package com.example.trend.community.service;
 import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleListResponseDto;
 import com.example.trend.community.dto.ArticleResponseDto;
+import com.example.trend.community.dto.ArticleSearchRequestDto;
 import com.example.trend.community.mapper.ArticleMapper;
 import com.example.trend.course.mapper.CourseLikeMapper;
 import com.example.trend.exception.CustomException;
@@ -102,6 +103,22 @@ public class ArticleServiceImpl implements ArticleService {
             return new Pagination<>(articles, totalItems, page, size);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.FAIL_TO_SELECT_ALL_ARTICLE, e);
+        }
+    }
+
+    @Override
+    public Pagination<ArticleListResponseDto> searchArticles(int page, int size, ArticleSearchRequestDto articleSearchRequestDto) {
+        try {
+            int offset = (page - 1) * size;
+            // 코스 목록 가져오기
+            List<ArticleListResponseDto> articleList = articleMapper.searchArticles(articleSearchRequestDto, size, offset);
+            log.info(String.valueOf(articleList.size()));
+            // 전체 개수 파악
+            int totalItems = articleMapper.countSearchArticles(articleSearchRequestDto); // 총 데이터 수
+            // 페이징 객체 반환
+            return new Pagination<>(articleList, totalItems, page, size);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
     }
 

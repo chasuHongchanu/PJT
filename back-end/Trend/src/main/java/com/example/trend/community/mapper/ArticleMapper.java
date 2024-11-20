@@ -3,6 +3,7 @@ package com.example.trend.community.mapper;
 import com.example.trend.community.dto.ArticleListResponseDto;
 import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleResponseDto;
+import com.example.trend.community.dto.ArticleSearchRequestDto;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -97,4 +98,68 @@ public interface ArticleMapper {
             WHERE article_id = #{articleId}
             """)
     void updateViewCountByArticleId(int articleId);
+
+    @Select("""
+    <script>
+    SELECT
+        a.article_id                          AS articleId,
+        u.user_profile_img                   AS writerProfileImg,
+        a.writer_id                   AS writerId,
+        u.user_nickname                      AS userNickname,
+        COUNT(DISTINCT al.user_id)           AS likeCount,
+        COUNT(DISTINCT ac.article_comment_id) AS commentCount,
+        a.article_title                       AS articleTitle,
+        a.article_content                     AS articleContent,
+        a.thumbnail
+    FROM article a
+        LEFT JOIN article_comment ac ON a.article_id = ac.article_id
+        LEFT JOIN article_like al ON a.article_id = al.article_id
+        LEFT JOIN user u ON a.writer_id = u.user_id
+    WHERE 1=1
+        <if test="params.keyword != null">
+            AND (a.article_title LIKE CONCAT('%', #{params.keyword}, '%')
+            OR a.article_content LIKE CONCAT('%', #{params.keyword}, '%'))
+        </if>
+        <if test="params.startDate != null and params.startDate.trim() != ''">
+            AND <![CDATA[a.article_created_at >= #{params.startDate}]]>
+        </if>
+        <if test="params.endDate != null and params.endDate.trim() != ''">
+            AND <![CDATA[a.article_created_at <= #{params.endDate}]]>
+        </if>
+    GROUP BY a.article_id
+    <choose>
+        <when test="params.orderBy != null and params.startDate.trim() != ''">
+            ORDER BY ${params.orderBy.column}
+        </when>
+        <otherwise>
+            ORDER BY a.article_created_at
+        </otherwise>
+    </choose>
+    LIMIT #{size} OFFSET #{offset}
+    </script>
+    """)
+    List<ArticleListResponseDto> searchArticles(@Param("params") ArticleSearchRequestDto articleSearchRequestDto, @Param("size") int size, @Param("offset") int offset);
+
+    @Select("""
+    <script>
+    SELECT
+        COUNT(DISTINCT a.article_id) AS totalCount
+    FROM article a
+        LEFT JOIN article_comment ac ON a.article_id = ac.article_id
+        LEFT JOIN article_like al ON a.article_id = al.article_id
+        LEFT JOIN user u ON a.writer_id = u.user_id
+    WHERE 1=1
+        <if test="params.keyword != null and params.keyword.trim() != ''">
+            AND (a.article_title LIKE CONCAT('%', #{params.keyword}, '%')
+                 OR a.article_content LIKE CONCAT('%', #{params.keyword}, '%'))
+        </if>
+        <if test="params.startDate != null and params.startDate.trim() != ''">
+            AND <![CDATA[a.article_created_at >= #{params.startDate}]]>
+        </if>
+        <if test="params.endDate != null and params.endDate.trim() != ''">
+            AND <![CDATA[a.article_created_at <= #{params.endDate}]]>
+        </if>
+    </script>
+    """)
+    int countSearchArticles(@Param("params") ArticleSearchRequestDto articleSearchRequestDto);
 }

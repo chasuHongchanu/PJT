@@ -3,6 +3,7 @@ package com.example.trend.community.service;
 import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleListResponseDto;
 import com.example.trend.community.dto.ArticleResponseDto;
+import com.example.trend.community.dto.ArticleSearchRequestDto;
 import com.example.trend.util.Pagination;
 import jakarta.validation.Valid;
 
@@ -16,4 +17,6 @@ public interface ArticleService {
     Pagination<ArticleListResponseDto> getAllList(int page, int size);
 
     ArticleResponseDto getArticle(int articleId);
+
+    Pagination<ArticleListResponseDto> searchArticles(int page, int size, ArticleSearchRequestDto articleSearchRequestDto);
 }
