@@ -1,8 +1,10 @@
 package com.example.trend.community.controller;
 
-import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleListResponseDto;
+import com.example.trend.community.dto.ArticleRegistRequestDto;
 import com.example.trend.community.dto.ArticleResponseDto;
+import com.example.trend.community.dto.comment.ArticleCommentRequestDto;
+import com.example.trend.community.service.ArticleCommentService;
 import com.example.trend.community.service.ArticleLikeService;
 import com.example.trend.community.service.ArticleService;
 import com.example.trend.config.SkipJwt;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class ArticleController {
     private final ArticleService articleService;
     private final ArticleLikeService articleLikeService;
+    private final ArticleCommentService articleCommentService;
 
     @PostMapping("/article")
     @Operation(summary = "게시글 등록", description = "게시글 등록 기능")
@@ -116,5 +119,57 @@ public class ArticleController {
     public ResponseEntity<?> isLikeArticleComment(@PathVariable int articleCommentId, @RequestAttribute("userId") String userId) {
         boolean result = articleLikeService.isLikeArticleComment(articleCommentId, userId);
         return ResponseEntity.ok("댓글 좋아요 여부: " + result);
+    }
+    
+    /*
+    댓글
+     */
+    @PostMapping("/{articleId}/comment")
+    @Operation(summary = "게시글 댓글 작성 기능", description = "게시글 댓글 작성하는 기능")
+    public ResponseEntity<?> createComment(
+            @PathVariable int articleId,
+            @RequestBody ArticleCommentRequestDto articleCommentRequestDto,
+            @RequestAttribute("userId") String userId) {
+        articleCommentRequestDto.setArticleId(articleId);
+        articleCommentRequestDto.setUserId(userId);
+        articleCommentService.registComment(articleCommentRequestDto);
+        return ResponseEntity.ok("Regist Article Comment Successful");
+    }
+
+    @PostMapping("/{articleId}/comment/{parentCommentId}")
+    @Operation(summary = "게시글 대댓글 작성 기능", description = "게시글 대댓글 작성하는 기능")
+    public ResponseEntity<?> createCommentReply(
+            @PathVariable int articleId,
+            @PathVariable int parentCommentId,
+            @RequestBody ArticleCommentRequestDto articleCommentRequestDto,
+            @RequestAttribute("userId") String userId) {
+        articleCommentRequestDto.setArticleId(articleId);
+        articleCommentRequestDto.setParentsCommentId(parentCommentId);
+        articleCommentRequestDto.setUserId(userId);
+        articleCommentService.registReply(articleCommentRequestDto);
+        return ResponseEntity.ok("Regist Article reply Successful");
+    }
+
+    @PutMapping("/{articleId}/comment/{commentId}")
+    @Operation(summary = "게시글 댓글 수정 기능", description = "게시글 댓글 수정 기능")
+    public ResponseEntity<?> updateCommentReply(
+            @PathVariable int articleId,
+            @PathVariable int commentId,
+            @RequestBody ArticleCommentRequestDto articleCommentRequestDto,
+            @RequestAttribute("userId") String userId) {
+        articleCommentRequestDto.setArticleId(articleId);
+        articleCommentRequestDto.setCommentId(commentId);
+        articleCommentRequestDto.setUserId(userId);
+        articleCommentService.updateComment(articleCommentRequestDto);
+        return ResponseEntity.ok("Update Article Comment Successful");
+    }
+
+    @DeleteMapping("/{articleId}/comment/{commentId}")
+    @Operation(summary = "게시글 댓글 삭제 기능", description = "게시글 댓글 삭제 기능")
+    public ResponseEntity<?> deleteComment(
+            @PathVariable int commentId,
+            @RequestAttribute("userId") String userId) {
+        articleCommentService.deleteComment(commentId, userId);
+        return ResponseEntity.ok("Delete Article Comment Successful");
     }
 }

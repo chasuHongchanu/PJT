@@ -123,7 +123,7 @@ public class CourseController {
     }
     // 대댓글 작성
     @PostMapping("/{courseId}/comment/{parentsCommentId}")
-    @Operation(summary = "여행 코스 댓글 작성 기능", description = "여행 코스 대댓글을 작성하는 기능")
+    @Operation(summary = "여행 코스 대댓글 작성 기능", description = "여행 코스 대댓글을 작성하는 기능")
     public ResponseEntity<?> createCommentReply(@PathVariable int courseId, @PathVariable int parentsCommentId, @RequestBody CourseCommentRequestDto commentRequestDto, @RequestAttribute("userId") String userId) {
         commentRequestDto.setCourseId(courseId);
         commentRequestDto.setUserId(userId);
