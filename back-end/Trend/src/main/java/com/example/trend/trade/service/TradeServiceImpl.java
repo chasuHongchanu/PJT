@@ -79,7 +79,7 @@ public class TradeServiceImpl implements TradeService{
     @Override
     public int deleteReservation(int tradeId) {
         // storage에서 삭제
-        fileUtil.deleteFiles("trade", tradeId);
+        fileUtil.deleteFiles("trade", String.valueOf(tradeId));
 
         // db에서 삭제
         int result = tradeMapper.deleteReservation(tradeId);
