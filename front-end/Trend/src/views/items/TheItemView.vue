@@ -1,54 +1,47 @@
 <template>
-  <div class="items-view">
-    <header class="header">
-      <!-- Filtering button -->
-      <button class="filter-btn" @click="filterItems">필터</button>
-      <!-- Search area -->
-      <div class="search-container">
-        <input 
-          type="text" 
-          class="search-bar" 
-          v-model="searchQuery" 
-          placeholder="Search items..."
-          @input="filterItems"
-        />
-        <button class="search-btn">
-          <i class="fa fa-search"></i>
-        </button>
+  <PageLayout>
+    <div class="items-view">
+      <header class="header">
+        <!-- Filtering button -->
+        <button class="filter-btn" @click="filterItems">필터</button>
+        <!-- Search bar -->
+        <ItemSearchBox @search="handleSearch" />
+      </header>
+
+      <!-- Registering button -->
+      <div class="register-container">
+        <button class="register-btn" @click="registerItem">글쓰기</button>
       </div>
-    </header>
 
-    <!-- Registering button -->
-    <div class="register-container">
-      <button class="register-btn" @click="registerItem">글쓰기</button>
+      <!-- Items list -->
+      <div class="items-list">
+        <ItemDetail
+          v-for="item in filteredItems"
+          :key="item.id"
+          :photo-url="item.photoUrl"
+          :name="item.name"
+          :price="item.price"
+          :address="item.address"
+        />
+      </div>
+      <!-- Map button -->
+      <footer class="footer">
+        <button class="map-btn" @click="goToMapPage">지도보기</button>
+      </footer>
     </div>
-    
-    <!-- Items list -->
-    <div class="items-list">
-      <ItemDetail
-        v-for="item in filteredItems"
-        :key="item.id"
-        :photo-url="item.photoUrl"
-        :name="item.name"
-        :price="item.price"
-        :address="item.address"
-      />
-    </div>
-
-    <!-- Map button -->
-    <footer class="footer">
-      <button class="map-btn" @click="showMap">지도보기</button>
-    </footer>
-  </div>
+  </PageLayout>
 </template>
 
 <script>
 import ItemDetail from "@/components/items/ItemDetail.vue";
+import PageLayout from "@/components/layout/PageLayout.vue";
+import ItemSearchBox from "@/components/items/ItemSearchBox.vue";
 
 export default {
   name: "TheItemsView",
   components: {
     ItemDetail,
+    ItemSearchBox,
   },
   data() {
     return {
@@ -77,7 +70,7 @@ export default {
       if (!this.searchQuery) {
         this.filteredItems = this.items;
       } else {
-        this.filteredItems = this.items.filter(item =>
+        this.filteredItems = this.items.filter((item) =>
           item.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
@@ -85,8 +78,8 @@ export default {
     registerItem() {
       alert("Redirect to item registration page.");
     },
-    showMap() {
-      alert("Redirect to map page.");
+    goToMapPage() {
+      this.$router.push("/items/map");
     },
   },
   mounted() {
