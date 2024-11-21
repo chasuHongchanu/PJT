@@ -2,6 +2,7 @@ package com.example.trend.chat.controller;
 
 import com.example.trend.chat.dto.ChatMessageDto;
 import com.example.trend.chat.dto.ChatRoomDto;
+import com.example.trend.chat.dto.ChatRoomResponseDto;
 import com.example.trend.chat.service.ChatService;
 import com.example.trend.util.Pagination;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -43,14 +42,18 @@ public class ChatController {
             @RequestParam String userId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pagination<ChatRoomDto> chatRoomDtos = chatService.getUserChatRooms(userId, page, size);
+        Pagination<ChatRoomResponseDto> chatRoomDtos = chatService.getUserChatRooms(userId, page, size);
         return ResponseEntity.ok(chatRoomDtos);
     }
 
     // 채팅 메시지 조회
     @GetMapping("/rooms/{roomId}/messages")
-    public Pagination<?> getChatMessages(@PathVariable int roomId, @RequestParam int page) {
-        Pagination<ChatMessageDto> chatMessages = chatService.getChatMessages(roomId, page);
+    public ResponseEntity<?> getChatMessages(
+            @PathVariable int roomId,
+            @RequestAttribute("userId") String userId,
+            @RequestParam int page,
+            @RequestParam int size) {
+        Pagination<ChatMessageDto> chatMessages = chatService.getChatMessages(roomId, userId, page, size);
         return ResponseEntity.ok(chatMessages);
     }
 

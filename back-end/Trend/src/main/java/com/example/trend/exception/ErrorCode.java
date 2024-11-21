@@ -70,7 +70,10 @@ public enum ErrorCode {
   // 좋아요
   FAIL_TO_LIKE(HttpStatus.BAD_REQUEST, "좋아요 실패."),
   FAIL_TO_UNLIKE(HttpStatus.BAD_REQUEST, "좋아요 취소 실패."),
-  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패.");
+  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패."),
+
+  // 채팅
+  FAIL_TO_SELECT_CHATROOMS(HttpStatus.BAD_REQUEST, "채팅 목록 조회 실패");
 
 
 

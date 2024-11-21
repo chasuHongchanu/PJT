@@ -1,14 +1,16 @@
 package com.example.trend.chat.service;
 
 import com.example.trend.chat.dto.ChatMessageDto;
+import com.example.trend.chat.dto.ChatRoomResponseDto;
 import com.example.trend.chat.dto.ChatRoomDto;
 import com.example.trend.chat.dto.UserChatroomDto;
 import com.example.trend.chat.mapper.ChatMessageMapper;
 import com.example.trend.chat.mapper.ChatRoomMapper;
 import com.example.trend.chat.mapper.UserChatroomMapper;
+import com.example.trend.exception.CustomException;
+import com.example.trend.exception.ErrorCode;
 import com.example.trend.util.Pagination;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,19 +55,34 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Pagination<ChatRoomDto> getUserChatRooms(String userId, int page, int size) {
-        int offset = (page - 1) * size;
-        // 유저 채팅방 목록 조회
-        // 구현 필요
-        return null;
+    public Pagination<ChatRoomResponseDto> getUserChatRooms(String userId, int page, int size) {
+        try {
+            int offset = (page - 1) * size;
+            // 유저 채팅방 목록 조회
+            List<ChatRoomResponseDto> chatRooms = chatRoomMapper.getChatRoomsByUserId(userId, size, offset);
+            // 전체 개수 파악
+            int totalItems = chatRoomMapper.countChatRoomsByUserId(userId);
+            // 페이징 객체 반환
+            return new Pagination<>(chatRooms, totalItems, page, size);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_CHATROOMS ,e);
+        }
+
     }
 
     @Override
-    public Pagination<ChatMessageDto> getChatMessages(int roomId, int page) {
-        int limit = 30;
-        int offset = (page - 1) * limit;
-        chatMessageMapper.getMessagesByRoomId(roomId, offset, limit);
-        return null;
+    public Pagination<ChatMessageDto> getChatMessages(int roomId, String userId, int page, int size) {
+        try {
+            int offset = (page - 1) * size;
+            // 유저 채팅방 목록 조회
+            List<ChatRoomResponseDto> chatRooms = chatRoomMapper.getChatRoomsByUserId(userId, size, offset);
+            // 전체 개수 파악
+            int totalItems = chatRoomMapper.countChatRoomsByUserId(userId);
+            // 페이징 객체 반환
+            return new Pagination<>(chatRooms, totalItems, page, size);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.FAIL_TO_SELECT_CHATROOMS ,e);
+        }
     }
 
     @Override
