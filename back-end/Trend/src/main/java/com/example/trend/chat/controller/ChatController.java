@@ -72,7 +72,7 @@ public class ChatController {
     // 이미지 전송
     @PostMapping("/rooms/{roomId}/images")
     @Operation(summary = "이미지 전송", description = "이미지 메시지 전송")
-    public void sendImage(@PathVariable int roomId, @RequestAttribute String senderId, @RequestParam MultipartFile image) {
+    public void sendImage(@PathVariable int roomId, @RequestAttribute("userId") String senderId, @RequestParam MultipartFile image) {
 
         ChatMessageDto message = new ChatMessageDto();
         message.setRoomId(roomId);
