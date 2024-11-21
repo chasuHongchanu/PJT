@@ -35,11 +35,6 @@ const router = createRouter({
         }
       ]
     },
-    // {
-    //   path: 'reviews',
-    //   name: 'AllReviews',
-    //   component: () => import('@/views/user/UserReviewsView.vue')
-    // }
   ]
 })
 

@@ -1,9 +1,11 @@
 <!-- src/views/user/TheProfileInfoView.vue -->
 <template>
-  <div class="profile-page">
-    <ProfileCard :profileData="profileData" />
-    <div class="divider"></div>
-    <ReviewCarousel :reviews="reviews" />
+  <div class="profile-container">
+    <div class="profile-page">
+      <ProfileCard :profileData="profileData" />
+      <div class="divider"></div>
+      <ReviewCarousel :reviews="reviews" />
+    </div>
   </div>
 </template>
 
@@ -33,8 +35,7 @@ export default {
           reviewerName: '이름',
           reviewerImage: '/reviewer-image.jpg',
           date: '2024.10 31일'
-        },
-        // 더미 데이터 추가...
+        }
       ]
     }
   }
@@ -42,15 +43,44 @@ export default {
 </script>
 
 <style scoped>
-.profile-page {
-  max-width: 600px;
-  margin: 0 auto;
+.profile-container {
+  width: 100%;
   padding: 20px;
+  background-color: var(--color-white);
+}
+
+.profile-page {
+  width: 90%; /* 양쪽에 5%씩 여백 */
+  max-width: 600px; /* 최대 너비 설정 */
+  margin: 0 auto;
 }
 
 .divider {
+  width: 100%;
   height: 1px;
   background-color: #eee;
   margin: 24px 0;
+}
+
+/* 태블릿 이상 디바이스에서의 여백 조정 */
+@media (min-width: 768px) {
+  .profile-container {
+    padding: 24px;
+  }
+  
+  .profile-page {
+    width: 85%; /* 더 큰 화면에서는 여백을 더 늘림 */
+  }
+}
+
+/* 작은 모바일 화면에서의 여백 조정 */
+@media (max-width: 375px) {
+  .profile-container {
+    padding: 16px;
+  }
+  
+  .profile-page {
+    width: 95%; /* 매우 작은 화면에서는 여백을 줄임 */
+  }
 }
 </style>
