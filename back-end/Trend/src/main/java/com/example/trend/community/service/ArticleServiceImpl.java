@@ -52,7 +52,7 @@ public class ArticleServiceImpl implements ArticleService {
         // 이미지 수정
         // 기존 이미지 파일 삭제
         articleMapper.deleteArticleImage(articleId);
-        fileUtil.deleteFiles("articles", articleId);
+        fileUtil.deleteFiles("articles", String.valueOf(articleId));
 
         // 수정할 이미지 저장
         saveArticleImages(requestDto.getImageList(), requestDto.getArticleId());

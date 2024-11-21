@@ -28,6 +28,7 @@ public interface ChatRoomMapper {
     @Select("""
                 SELECT 
                     cr.room_id AS roomId,
+                    u.user_id AS userId,
                     u.user_nickname AS userNickname,
                     u.user_profile_img AS userProfileImg,
                     cm_last.message_content AS lastMessage,
@@ -75,11 +76,19 @@ public interface ChatRoomMapper {
                 JOIN 
                     user u
                 ON 
-                    (cr.lessor_id = u.userId AND cr.lessee_id = #{userId})
-                    OR (cr.lessee_id = u.userId AND cr.lessor_id = #{userId})
+                    (cr.lessor_id = u.user_id AND cr.lessee_id = #{userId})
+                    OR (cr.lessee_id = u.user_id AND cr.lessor_id = #{userId})
                 WHERE 
                     cr.lessor_id = #{userId}
                     OR cr.lessee_id = #{userId};
             """)
     int countChatRoomsByUserId(String userId);
+
+    @Select("""
+            SELECT COUNT(*)
+            FROM chat_room
+            WHERE room_id = #{roomId}
+            AND (lessor_id = #{userId} OR lessee_id = #{userId})
+            """)
+    int isUserInChatRoom(int roomId, String userId);
 }

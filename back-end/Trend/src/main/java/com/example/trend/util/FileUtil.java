@@ -1,5 +1,7 @@
 package com.example.trend.util;
 
+import com.example.trend.exception.CustomException;
+import com.example.trend.exception.ErrorCode;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
@@ -9,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class FileUtil {
@@ -33,19 +36,20 @@ public class FileUtil {
 
         for (MultipartFile file : files) {
             try {
+                // 파일 이름 설정
+                String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
                 // 파일 버켓에 저장
-                String filePath = blob + file.getOriginalFilename();
+                String filePath = blob + fileName;
 
                 // 이미 존재하면 파일 삭제
-                if (bucket.get(filePath) != null) {
-                    bucket.get(filePath).delete();
-                }
+                deleteFiles(controller, String.valueOf(id));
 
                 bucket.create(filePath, file.getBytes(), file.getContentType());
 
             } catch (IOException e) {
                 // custom exception 만들어야 할듯
                 e.printStackTrace();
+                throw new CustomException(ErrorCode.FAIL_TO_SAVE_IMAGE);
             }
         }
     }
@@ -60,28 +64,29 @@ public class FileUtil {
         saveFileIntoStorage(controller, String.valueOf(id), file);
     }
 
-    public void saveFileIntoStorage(String controller, String id, MultipartFile file) {
+    public String saveFileIntoStorage(String controller, String id, MultipartFile file) {
         String blob = controller + "/" +
                 id + "/";
 
         try {
+            // 파일 이름 설정
+            String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
             // 파일 버켓에 저장
-            String filePath = blob + file.getOriginalFilename();
+            String filePath = blob + fileName;
 
             // 이미 존재하면 파일 삭제
-            if (bucket.get(filePath) != null) {
-                bucket.get(filePath).delete();
-            }
+            deleteFiles(controller, id);
 
             bucket.create(filePath, file.getBytes(), file.getContentType());
-
+            return filePath;
         } catch (IOException e) {
             // custom exception 만들어야 할듯
             e.printStackTrace();
+            throw new CustomException(ErrorCode.FAIL_TO_SAVE_IMAGE);
         }
     }
 
-    public void deleteFiles(String controller, int id) {
+    public void deleteFiles(String controller, String id) {
         // Prefix로 지정된 경로의 Blob 리스트 가져오기
         Iterable<Blob> blobs = bucket.list(Storage.BlobListOption.prefix(controller + "/" + id + "/")).iterateAll();
 
