@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.StorageClient;
+import com.google.firebase.database.FirebaseDatabase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class FirebaseConfig {
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccountkey))
+                    .setDatabaseUrl("https://trend-ba3ac-default-rtdb.firebaseio.com/") // Realtime Database URL 추가
                     .setStorageBucket(firebaseUrl)
                     .build();
 
@@ -43,5 +45,10 @@ public class FirebaseConfig {
     @Bean
     public Bucket bucket() throws IOException {
         return StorageClient.getInstance(firebaseApp()).bucket();
+    }
+
+    @Bean
+    public FirebaseDatabase firebaseDatabase(FirebaseApp firebaseApp) {
+        return FirebaseDatabase.getInstance(firebaseApp);
     }
 }
