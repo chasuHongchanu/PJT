@@ -25,6 +25,7 @@ public class FirebaseConfig {
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccountkey))
+                    .setDatabaseUrl("https://trend-ba3ac-default-rtdb.firebaseio.com/") // Realtime Database URL 추가
                     .setStorageBucket(firebaseUrl)
                     .build();
 
