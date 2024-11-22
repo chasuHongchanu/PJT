@@ -37,6 +37,12 @@ public class JwtInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        log.info(request.getMethod() + " : " + request.getRequestURI());
+        log.info("Authorization:" + request.getHeader("Authorization"));
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         // @SkitJwt 설정한 url메서드에 대해 인터셉터 로직 건너뛰기
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;

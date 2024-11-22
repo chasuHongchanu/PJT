@@ -77,7 +77,7 @@ public class CourseServiceImpl implements CourseService {
         // 이미지 수정(db와 storage 모두 기존 파일 삭제 후 새로 등록)
         // 기존 이미지 파일 삭제
         courseMapper.deleteCourseImage(courseId);
-        fileUtil.deleteFiles("courses", courseId);
+        fileUtil.deleteFiles("courses", String.valueOf(courseId));
         // 수정할 이미지 저장
         saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
     }

@@ -111,7 +111,7 @@ public class ItemServiceImpl implements ItemService{
         itemMapper.deleteItemImage(itemId);
 
         // Storage에서 삭제 (다 날리고 다시 새로 삽입)
-        fileUtil.deleteFiles("items", itemId);
+        fileUtil.deleteFiles("items", String.valueOf(itemId));
 
         // 아무런 예외도 발생하지 않은 경우 이미지 저장
         // 이미지가 정상적으로 1개 이상 들어온 경우 storage에 이미지 업데이트

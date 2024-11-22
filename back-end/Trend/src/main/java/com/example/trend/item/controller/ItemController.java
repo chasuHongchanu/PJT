@@ -35,7 +35,7 @@ public class ItemController {
     @SkipJwt
     @GetMapping("/rent/list")
     public ResponseEntity<?> list(@RequestParam(defaultValue = "1") int page,
-                                  @RequestParam(defaultValue = "3") int size) {
+                                  @RequestParam(defaultValue = "20") int size) {
         ItemSearchCriteria itemSearchCriteria = new ItemSearchCriteria();
         // 필터링하지 않았을 시 기본 위/경도 지정 후 검색
         itemSearchCriteria.setLatitude(DEFAULT_LATITUDE);

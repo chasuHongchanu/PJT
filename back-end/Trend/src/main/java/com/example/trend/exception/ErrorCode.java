@@ -22,6 +22,7 @@ public enum ErrorCode {
   FAIL_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 에러가 발생했습니다."),
   JSON_PROCCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱 중 에러가 발생했습니다."),
+  FAIL_TO_SAVE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 저장에 실패했습니다"),
 
   // =====================유저=========================
   // 회원가입
@@ -70,7 +71,11 @@ public enum ErrorCode {
   // 좋아요
   FAIL_TO_LIKE(HttpStatus.BAD_REQUEST, "좋아요 실패."),
   FAIL_TO_UNLIKE(HttpStatus.BAD_REQUEST, "좋아요 취소 실패."),
-  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패.");
+  FAIL_TO_SELECT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 조회 실패."),
+
+  // 채팅
+  FAIL_TO_SELECT_CHATROOMS(HttpStatus.BAD_REQUEST, "채팅 목록 조회 실패"),
+  FAIL_TO_ACCESS_CHATROOM(HttpStatus.FORBIDDEN, "해당 채팅방에 참여한 유저가 아닙니다."), FAIL_TO_SEND_MESSAGE(HttpStatus.BAD_REQUEST, "메시지를 전송하는데 실패했습니다.");
 
 
 

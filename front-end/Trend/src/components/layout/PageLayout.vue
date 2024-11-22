@@ -2,14 +2,24 @@
 <template>
     <div class="page-container">
       <div class="page-content">
-        <slot></slot>
+        <aside class="side-menu-container">
+          <SideMenu />
+        </aside>
+        <main class="main-content">
+          <slot></slot>
+        </main>
       </div>
     </div>
   </template>
   
   <script>
+  import SideMenu from '@/components/menu/SideMenu.vue'
+  
   export default {
-    name: 'PageLayout'
+    name: 'PageLayout',
+    components: {
+      SideMenu
+    }
   }
   </script>
   
@@ -22,27 +32,28 @@
   
   .page-content {
     width: 90%;
-    max-width: 600px;
+    max-width: 1200px;
     margin: 0 auto;
+    display: flex;
+    gap: 24px;
   }
   
-  @media (min-width: 768px) {
-    .page-container {
-      padding: 24px;
-    }
-    
-    .page-content {
-      width: 85%;
-    }
+  .side-menu-container {
+    width: 240px;
+    flex-shrink: 0;
   }
   
-  @media (max-width: 375px) {
-    .page-container {
-      padding: 16px;
-    }
-    
+  .main-content {
+    flex: 1;
+  }
+  
+  @media (max-width: 768px) {
     .page-content {
-      width: 95%;
+      flex-direction: column;
+    }
+  
+    .side-menu-container {
+      width: 100%;
     }
   }
   </style>
