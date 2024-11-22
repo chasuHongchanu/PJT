@@ -56,7 +56,9 @@ public class WebConfig implements WebMvcConfigurer {
                         .allowedOrigins("http://localhost:5173") // 허용할 Origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
                         .allowedHeaders("*") // 허용할 헤더
-                        .allowCredentials(true); // 인증 정보 포함 허용 (쿠키 등)
+                        .allowCredentials(true)
+                        .exposedHeaders("Authorization"); // Authorization 헤더 노출 // 인증 정보 포함 허용 (쿠키 등)
+
             }
         };
     }
