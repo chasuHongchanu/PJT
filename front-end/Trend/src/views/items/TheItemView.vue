@@ -66,7 +66,7 @@
       </div>
 
       <!-- Fixed Map Button -->
-      <button class="map-button">
+      <button class="map-button" @click="goToMap">
         <svg xmlns="http://www.w3.org/2000/svg" class="map-icon" viewBox="0 0 24 24">
           <path
             d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 13l5.447-2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 13V7m0 0L9 4"
@@ -85,6 +85,7 @@
 <script setup>
 import { useItemsStore } from '@/stores/items'
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import ItemDetail from '@/components/items/ItemDetail.vue'
 import ItemSearchBox from '@/components/items/ItemSearchBox.vue'
 
@@ -92,6 +93,7 @@ const itemsStore = useItemsStore()
 const searchQuery = ref('')
 const filteredItems = computed(() => itemsStore.filteredItems)
 const isLoading = ref(true)
+const router = useRouter()
 
 onMounted(async () => {
   try {
@@ -110,7 +112,51 @@ const filterItems = () => {
 const registerItem = () => {
   alert('Redirect to item registration page.')
 }
+
+const goToMap = () => {
+  router.push('/items/map') // /map 경로로 이동
+}
 </script>
+
+<style>
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
+
+<style scoped>
+.loading-spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 59, 48, 0.1);
+  border-top: 3px solid #ff3b30;
+  border-right: 3px solid #ff3b30;
+  border-radius: 50%;
+  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  margin-bottom: 16px;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 48px 0;
+}
+
+.loading-state p {
+  font-size: 16px;
+  color: #666;
+  margin-top: 8px;
+}
+</style>
 
 <style scoped>
 .items-view {
@@ -255,34 +301,6 @@ const registerItem = () => {
 
   .search-wrapper {
     padding: 0 12px;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 0;
-    color: #666;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #ff3b30;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
   }
 }
 </style>
