@@ -1,128 +1,135 @@
 <!-- src/views/user/UserProfileEdit.vue -->
 <template>
-  <div class="profile-edit-container">
-    <h1 class="page-title">프로필 수정</h1>
-    
-    <!-- Profile Image Section -->
-    <div class="profile-image-section">
-      <div class="image-container">
-        <img 
-          :src="previewImage || '/default-profile.jpg'" 
-          alt="Profile"
-          class="profile-image"
-        />
-        <input
-          type="file"
-          ref="fileInput"
-          @change="handleImageChange"
-          accept="image/*"
-          class="hidden"
-        />
-        <button 
-          @click="$refs.fileInput.click()"
-          class="upload-button"
-        >
-          사진 업로드
-        </button>
-      </div>
-    </div>
-
-    <!-- Profile Form -->
-    <form @submit.prevent="handleSubmit" class="profile-form">
-      <!-- Nickname -->
-      <div class="form-group">
-        <label>닉네임</label>
-        <input
-          v-model="userInfo.nickname"
-          type="text"
-        />
-      </div>
-
-      <!-- Birthday -->
-      <div class="form-group">
-        <label>내생일 날짜</label>
-        <input
-          v-model="userInfo.birthday"
-          type="text"
-        />
-      </div>
-
-      <!-- Verification Status -->
-      <div class="form-group">
-        <label>비밀번호 확인</label>
-        <input
-          v-model="userInfo.verificationStatus"
-          type="password"
-        />
-      </div>
-
-      <!-- Email -->
-      <div class="form-group">
-        <label>이메일 주소</label>
-        <div class="email-container">
-          <input
-            v-model="userInfo.email"
-            type="email"
-            class="email-input"
+  <DefaultLayout>
+    <div class="profile-edit-container">
+      <h1 class="page-title">프로필 수정</h1>
+      
+      <!-- Profile Image Section -->
+      <div class="profile-image-section">
+        <div class="image-container">
+          <img 
+            :src="previewImage || '/default-profile.jpg'" 
+            alt="Profile"
+            class="profile-image"
           />
-          <span class="email-divider">@</span>
           <input
-            v-model="userInfo.emailDomain"
-            type="text"
-            class="domain-input"
-          />
-        </div>
-      </div>
-
-      <!-- Address -->
-      <div class="form-group">
-        <label>주소</label>
-        <div class="address-container">
-          <input
-            v-model="userInfo.address"
-            type="text"
-            readonly
-            class="address-input"
+            type="file"
+            ref="fileInput"
+            @change="handleImageChange"
+            accept="image/*"
+            class="hidden"
           />
           <button 
-            type="button"
-            @click="searchAddress"
-            class="search-button"
+            @click="$refs.fileInput.click()"
+            class="upload-button"
           >
-            검색
+            사진 업로드
           </button>
         </div>
-        <input
-          v-model="userInfo.detailAddress"
-          type="text"
-          placeholder="상세주소"
-          class="detail-address-input"
-        />
       </div>
 
-      <!-- Phone -->
-      <div class="form-group">
-        <label>연락처</label>
-        <input
-          v-model="userInfo.phone"
-          type="tel"
-        />
-      </div>
+      <!-- Profile Form -->
+      <form @submit.prevent="handleSubmit" class="profile-form">
+        <!-- Nickname -->
+        <div class="form-group">
+          <label>닉네임</label>
+          <input
+            v-model="userInfo.nickname"
+            type="text"
+          />
+        </div>
 
-      <!-- Submit Button -->
-      <button
-        type="submit"
-        class="submit-button"
-      >
-        수정 완료
-      </button>
-    </form>
-  </div>
+        <!-- Birthday -->
+        <div class="form-group">
+          <label>내생일 날짜</label>
+          <input
+            v-model="userInfo.birthday"
+            type="text"
+          />
+        </div>
+
+        <!-- Verification Status -->
+        <div class="form-group">
+          <label>비밀번호 확인</label>
+          <input
+            v-model="userInfo.verificationStatus"
+            type="password"
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>이메일 주소</label>
+          <div class="email-container">
+            <input
+              v-model="userInfo.email"
+              type="email"
+              class="email-input"
+            />
+            <span class="email-divider">@</span>
+            <input
+              v-model="userInfo.emailDomain"
+              type="text"
+              class="domain-input"
+            />
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="form-group">
+          <label>주소</label>
+          <div class="address-container">
+            <input
+              v-model="userInfo.address"
+              type="text"
+              readonly
+              class="address-input"
+            />
+            <button 
+              type="button"
+              @click="searchAddress"
+              class="search-button"
+            >
+              검색
+            </button>
+          </div>
+          <input
+            v-model="userInfo.detailAddress"
+            type="text"
+            placeholder="상세주소"
+            class="detail-address-input"
+          />
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label>연락처</label>
+          <input
+            v-model="userInfo.phone"
+            type="tel"
+          />
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="submit-button"
+        >
+          수정 완료
+        </button>
+      </form>
+    </div>
+  </DefaultLayout>
 </template>
 
 <script>
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+
 export default {
   name: 'UserProfileEdit',
+  components: {
+    DefaultLayout
+  },
   data() {
     return {
       userInfo: {
@@ -137,37 +144,36 @@ export default {
         phone: '010-1234-5678'
       },
       previewImage: null
-    };
+    }
   },
-  
   methods: {
     handleImageChange(event) {
-      const file = event.target.files[0];
+      const file = event.target.files[0]
       if (file) {
-        this.previewImage = URL.createObjectURL(file);
+        this.previewImage = URL.createObjectURL(file)
       }
     },
     
     searchAddress() {
-      alert('주소 검색 기능은 아직 구현되지 않았습니다.');
+      alert('주소 검색 기능은 아직 구현되지 않았습니다.')
     },
     
     handleSubmit() {
-      alert('프로필 수정이 완료되었습니다. (테스트)');
-      console.log('제출된 데이터:', this.userInfo);
+      alert('프로필 수정이 완료되었습니다. (테스트)')
+      console.log('제출된 데이터:', this.userInfo)
     }
   }
-};
+}
 </script>
 
 <style scoped>
+/* 기존 스타일 유지하되 컨테이너 스타일 수정 */
 .profile-edit-container {
+  width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .page-title {

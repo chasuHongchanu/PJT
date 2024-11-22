@@ -1,45 +1,47 @@
 <!-- src/views/user/TheProfileInfoView.vue -->
 <template>
-  <div class="profile-container">
-    <div class="profile-page">
+  <DefaultLayout>
+    <div class="profile-container">
       <ProfileCard :profileData="profileData" />
       <div class="divider"></div>
       <ReviewCarousel :reviews="reviews" />
     </div>
-  </div>
+  </DefaultLayout>
 </template>
 
 <script>
-import ProfileCard from '@/components/user/ProfileCard.vue';
-import ReviewCarousel from '@/components/user/ReviewCarousel.vue';
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import ProfileCard from "@/components/user/ProfileCard.vue";
+import ReviewCarousel from "@/components/user/ReviewCarousel.vue";
 
 export default {
-  name: 'TheProfileInfoView',
+  name: "TheProfileInfoView",
   components: {
+    DefaultLayout,
     ProfileCard,
-    ReviewCarousel
+    ReviewCarousel,
   },
   data() {
     return {
       profileData: {
-        name: '홍길동',
-        email: 'email@email.com',
-        location: '대한민국 서울시',
-        imageUrl: '/profile-image.jpg',
-        introduction: '안녕하세요. 소개글입니다.'
+        name: "홍길동",
+        email: "email@email.com",
+        location: "대한민국 서울시",
+        imageUrl: "/profile-image.jpg",
+        introduction: "안녕하세요. 소개글입니다.",
       },
       reviews: [
         {
           id: 1,
-          content: '안녕하세요. 거래 좋았습니다. 깔끔하고 좋았습니다!',
-          reviewerName: '이름',
-          reviewerImage: '/reviewer-image.jpg',
-          date: '2024.10 31일'
-        }
-      ]
-    }
-  }
-}
+          content: "안녕하세요. 거래 좋았습니다. 깔끔하고 좋았습니다!",
+          reviewerName: "이름",
+          reviewerImage: "/reviewer-image.jpg",
+          date: "2024.10 31일",
+        },
+      ],
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -67,7 +69,7 @@ export default {
   .profile-container {
     padding: 24px;
   }
-  
+
   .profile-page {
     width: 85%; /* 더 큰 화면에서는 여백을 더 늘림 */
   }
@@ -78,7 +80,7 @@ export default {
   .profile-container {
     padding: 16px;
   }
-  
+
   .profile-page {
     width: 95%; /* 매우 작은 화면에서는 여백을 줄임 */
   }
