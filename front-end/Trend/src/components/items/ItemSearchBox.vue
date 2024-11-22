@@ -1,35 +1,42 @@
 <template>
   <div class="search-container">
-    <input
-      type="text"
-      class="search-bar"
-      placeholder="Search location..."
-      v-model="searchText"
-    />
+    <input type="text" class="search-bar" :placeholder="placeholder" v-model="searchText" />
     <button class="search-btn" @click="onSearch">
-      <i class="fa fa-search"></i>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
     </button>
   </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from "vue";
+import { defineProps, defineEmits, ref } from 'vue'
 
 defineProps({
   placeholder: {
     type: String,
-    default: "Search location...",
+    default: 'Search location...',
   },
-});
+})
 
-const emit = defineEmits(["search"]);
-const searchText = ref("");
+const emit = defineEmits(['search'])
+const searchText = ref('')
 
 const onSearch = () => {
   if (searchText.value.trim()) {
-    emit("search", searchText.value.trim()); // 검색어 전달
+    emit('search', searchText.value.trim())
   }
-};
+}
 </script>
 
 <style scoped>
@@ -40,14 +47,10 @@ const onSearch = () => {
   border-radius: 30px;
   padding: 5px 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  width: 90%; /* Default width for larger screens */
+  width: 90%;
   max-width: 400px;
-  position: absolute;
-  top: 120px; /* Fixed vertical position */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  transition: all 0.3s ease; /* Smooth resizing */
+  margin: 0 auto;
+  transition: all 0.3s ease;
 }
 
 .search-bar {
@@ -55,7 +58,7 @@ const onSearch = () => {
   border: none;
   outline: none;
   padding: 8px 12px;
-  font-size: 16px; /* Default font size for larger screens */
+  font-size: 16px;
   border-radius: 20px 0 0 20px;
 }
 
@@ -66,41 +69,60 @@ const onSearch = () => {
   padding: 8px 16px;
   border-radius: 0 20px 20px 0;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
 }
 
-/* Media query for smaller screens (max-width: 768px) */
+.search-btn:hover {
+  background: #ff2d20;
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+}
+
 @media screen and (max-width: 768px) {
   .search-container {
-    width: 80%; /* Reduce width for smaller screens */
-    max-width: 300px; /* Reduce the maximum width */
-    /* Top position remains fixed */
+    width: 80%;
+    max-width: 300px;
   }
 
   .search-bar {
-    font-size: 14px; /* Reduce font size */
-    padding: 6px 10px; /* Adjust padding for smaller inputs */
+    font-size: 14px;
+    padding: 6px 10px;
   }
 
   .search-btn {
-    padding: 6px 12px; /* Adjust button padding */
+    padding: 6px 12px;
+  }
+
+  .search-icon {
+    width: 16px;
+    height: 16px;
   }
 }
 
-/* Media query for very small screens (max-width: 480px) */
 @media screen and (max-width: 480px) {
   .search-container {
-    width: 70%; /* Further reduce width */
-    max-width: 250px; /* Further reduce maximum width */
-    /* Top position remains fixed */
+    width: 70%;
+    max-width: 250px;
   }
 
   .search-bar {
-    font-size: 12px; /* Reduce font size further */
-    padding: 4px 8px; /* Adjust padding for very small inputs */
+    font-size: 12px;
+    padding: 4px 8px;
   }
 
   .search-btn {
-    padding: 4px 8px; /* Adjust button padding for smaller buttons */
+    padding: 4px 8px;
+  }
+
+  .search-icon {
+    width: 14px;
+    height: 14px;
   }
 }
 </style>

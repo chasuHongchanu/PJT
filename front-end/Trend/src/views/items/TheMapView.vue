@@ -1,13 +1,11 @@
 <template>
   <PageLayout>
     <div class="map-view">
-      <!-- Search bar -->
       <ItemSearchBox @search="handleSearch" />
 
-      <!-- Google Map -->
-      <GoogleMap class="map-container" :api-key="apiKey" :center="center" :zoom="14">
+      <GoogleMap class="map-container" :api-key="apiKey" :center="mapCenter" :zoom="14">
         <Marker
-          v-for="item in items"
+          v-for="item in searchResults"
           :key="item.id"
           :options="{
             position: { lat: item.latitude, lng: item.longitude },
@@ -16,7 +14,6 @@
         />
       </GoogleMap>
 
-      <!-- Footer -->
       <footer class="footer">
         <button class="list-btn" @click="goToListPage">목록보기</button>
       </footer>
@@ -25,55 +22,28 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { GoogleMap, Marker } from "vue3-google-map";
-import ItemSearchBox from "@/components/items/ItemSearchBox.vue";
-import PageLayout from "@/components/layout/PageLayout.vue";
-import { useRouter } from "vue-router";
+import { useItemsStore } from '@/stores/items'
+import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 
-const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY;
+const itemsStore = useItemsStore()
+const router = useRouter()
 
-// 지도 중심점 및 마커 데이터
-const center = ref({ lat: 37.5665, lng: 126.978 });
-const items = ref([]);
+const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY
 
-// Vue Router 사용
-const router = useRouter();
+const mapCenter = computed(() => itemsStore.mapCenter)
+const searchResults = computed(() => itemsStore.searchResults)
 
-// 검색 처리 함수
-const handleSearch = async (searchText) => {
-  try {
-    // 백엔드 API 호출
-    const response = await fetch(
-      `https://api.example.com/search?query=${encodeURIComponent(searchText)}`
-    );
-    const data = await response.json();
+// 검색 처리
+const handleSearch = async (keyword) => {
+  await itemsStore.searchItems({ keyword: keyword })
+}
 
-    if (data && data.results) {
-      // 첫 번째 검색 결과를 중심점으로 설정
-      const firstResult = data.results[0];
-      center.value = {
-        lat: firstResult.latitude,
-        lng: firstResult.longitude,
-      };
-
-      // 검색 결과를 items로 설정 (마커 추가)
-      items.value = data.results.map((result, index) => ({
-        id: index,
-        name: result.name,
-        latitude: result.latitude,
-        longitude: result.longitude,
-      }));
-    }
-  } catch (error) {
-    console.error("Error fetching search results:", error);
-  }
-};
-
-// 목록 페이지 이동 함수
+// 목록 보기로 이동
 const goToListPage = () => {
-  router.push("/items/view");
-};
+  itemsStore.applySearchResults() // 검색 결과를 목록에 반영
+  router.push('/items/view')
+}
 </script>
 
 <style scoped>
@@ -130,5 +100,9 @@ const goToListPage = () => {
   color: white;
   font-size: 14px;
   cursor: pointer;
+}
+
+.gm-fullscreen-control {
+  display: none !important;
 }
 </style>

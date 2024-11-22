@@ -1,213 +1,288 @@
 <template>
   <PageLayout>
     <div class="items-view">
-      <header class="header">
-        <!-- Filtering button -->
-        <button class="filter-btn" @click="filterItems">필터</button>
-        <!-- Search bar -->
-        <ItemSearchBox @search="handleSearch" />
-      </header>
+      <div class="main-content">
+        <!-- Search Box -->
+        <div class="search-wrapper">
+          <ItemSearchBox
+            v-model="searchQuery"
+            @search="filterItems"
+            placeholder="지역, 매물을 검색해보세요"
+          />
+        </div>
 
-      <!-- Registering button -->
-      <div class="register-container">
-        <button class="register-btn" @click="registerItem">글쓰기</button>
+        <!-- Filter Actions -->
+        <div class="filter-actions">
+          <div class="filter-buttons">
+            <button class="filter-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" class="filter-icon" viewBox="0 0 24 24">
+                <path
+                  d="M3 6h18M6 12h12m-9 6h6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              필터
+            </button>
+          </div>
+          <button @click="registerItem" class="write-btn">글쓰기</button>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="isLoading" class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>데이터를 불러오는 중입니다...</p>
+        </div>
+
+        <!-- Items Grid -->
+        <div v-else-if="filteredItems.length" class="grid-container">
+          <ItemDetail
+            v-for="item in filteredItems"
+            :key="item.itemId"
+            :itemImage="item.itemImage"
+            :itemName="item.itemName"
+            :itemPrice="item.itemPrice"
+            :address="item.address"
+          />
+        </div>
+        <div v-else class="empty-state">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="empty-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <p class="empty-text">검색 결과가 없습니다.</p>
+        </div>
       </div>
 
-      <!-- Items list -->
-      <div class="items-list">
-        <ItemDetail
-          v-for="item in filteredItems"
-          :key="item.id"
-          :photo-url="item.photoUrl"
-          :name="item.name"
-          :price="item.price"
-          :address="item.address"
-        />
-      </div>
-      <!-- Map button -->
-      <footer class="footer">
-        <button class="map-btn" @click="goToMapPage">지도보기</button>
-      </footer>
+      <!-- Fixed Map Button -->
+      <button class="map-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="map-icon" viewBox="0 0 24 24">
+          <path
+            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 13l5.447-2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 13V7m0 0L9 4"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        지도보기
+      </button>
     </div>
   </PageLayout>
 </template>
 
-<script>
-import ItemDetail from "@/components/items/ItemDetail.vue";
-import PageLayout from "@/components/layout/PageLayout.vue";
-import ItemSearchBox from "@/components/items/ItemSearchBox.vue";
+<script setup>
+import { useItemsStore } from '@/stores/items'
+import { computed, onMounted, ref } from 'vue'
+import ItemDetail from '@/components/items/ItemDetail.vue'
+import ItemSearchBox from '@/components/items/ItemSearchBox.vue'
 
-export default {
-  name: "TheItemsView",
-  components: {
-    ItemDetail,
-    ItemSearchBox,
-  },
-  data() {
-    return {
-      items: [
-        {
-          id: 1,
-          photoUrl: "https://via.placeholder.com/150",
-          name: "스마트폰",
-          price: 35000,
-          address: "대한민국 서울시 강남구",
-        },
-        {
-          id: 2,
-          photoUrl: "https://via.placeholder.com/150",
-          name: "Camera",
-          price: 50,
-          address: "California, USA",
-        },
-      ],
-      searchQuery: "",
-      filteredItems: [],
-    };
-  },
-  methods: {
-    filterItems() {
-      if (!this.searchQuery) {
-        this.filteredItems = this.items;
-      } else {
-        this.filteredItems = this.items.filter((item) =>
-          item.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      }
-    },
-    registerItem() {
-      alert("Redirect to item registration page.");
-    },
-    goToMapPage() {
-      this.$router.push("/items/map");
-    },
-  },
-  mounted() {
-    this.filterItems();
-  },
-};
+const itemsStore = useItemsStore()
+const searchQuery = ref('')
+const filteredItems = computed(() => itemsStore.filteredItems)
+const isLoading = ref(true)
+
+onMounted(async () => {
+  try {
+    await itemsStore.fetchItems()
+  } finally {
+    isLoading.value = false
+  }
+})
+
+const filterItems = () => {
+  itemsStore.filteredItems = itemsStore.items.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
+}
+
+const registerItem = () => {
+  alert('Redirect to item registration page.')
+}
 </script>
 
 <style scoped>
-/* Header layout */
-.header {
+.items-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filter-actions {
+  margin: 16px auto;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 20px;
+  align-items: center;
+  padding: 0 20px;
 }
 
-/* Filter button on the left */
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 8px 16px;
+  border: 1px solid #ddd;
   border-radius: 20px;
-  background: #fff;
+  background: white;
   color: #333;
-  border: 1px solid #333;
-  cursor: pointer;
   font-size: 14px;
-  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Search bar in the center */
-.search-container {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 30px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 0 10px;
+.filter-btn:hover {
+  background: #f5f5f5;
 }
 
-.search-bar {
-  flex: 1;
+.filter-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.write-btn {
+  padding: 8px 24px;
+  background: #ff3b30;
+  color: white;
   border: none;
-  outline: none;
-  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.write-btn:hover {
+  background: #ff2d20;
+  transform: translateY(-1px);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 20px;
+}
+
+.map-button {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 25px;
   font-size: 16px;
-}
-
-.search-btn {
-  background: #ff3b30;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-weight: 500;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 1000;
 }
 
-/* Register button beneath search */
-.register-container {
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px 0;
+.map-button:hover {
+  background: #222;
+  transform: translateX(-50%) translateY(-2px);
 }
 
-.register-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
-  background: #ff3b30;
-  color: white;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  border: none;
+.map-icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 
-/* Items list centered */
-.items-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-/* Footer */
-.footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.map-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 20px;
-  background-color: #f04e30;
-  color: white;
-  cursor: pointer;
-}
-
-/* Mobile responsiveness */
+/* Responsive Design */
 @media screen and (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    align-items: stretch;
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+
+  .filter-actions {
+    padding: 0 16px;
+  }
+
+  .search-wrapper {
+    padding: 0 16px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    padding: 0 12px;
+  }
+
+  .write-btn {
+    padding: 6px 16px;
+    font-size: 13px;
   }
 
   .filter-btn {
-    margin-bottom: 10px;
-    align-self: flex-start;
+    padding: 6px 12px;
+    font-size: 13px;
   }
 
-  .search-container {
-    width: 100%;
+  .search-wrapper {
+    padding: 0 12px;
   }
 
-  .register-container {
-    justify-content: center;
-  }
-
-  .items-list {
+  .loading-state {
+    display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    color: #666;
+  }
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #ff3b30;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 }
 </style>
