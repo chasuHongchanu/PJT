@@ -15,8 +15,8 @@ public interface ItemMapper {
                               sub_subcategory,
                               item_price,
                               address,
-                              latitude,
-                              longitude,
+                              item_latitude,
+                              item_longitude,
                               item_content,
                               available_rental_start_date,
                               available_rental_end_date)
@@ -150,7 +150,7 @@ public interface ItemMapper {
                 <if test="itemSearchCriteria.latitude != null and itemSearchCriteria.longitude != null">
                     AND ST_Distance_Sphere(
                         POINT(#{itemSearchCriteria.longitude}, #{itemSearchCriteria.latitude}),
-                        POINT(item.longitude, item.latitude)
+                        POINT(item.item_longitude, item.item_latitude)
                     ) &lt;= 300000
                 </if>
                 <if test="itemSearchCriteria.minPrice != null">
@@ -203,7 +203,7 @@ public interface ItemMapper {
                 <if test="latitude != null and longitude != null">
                     AND ST_Distance_Sphere(
                         POINT(#{longitude}, #{latitude}),
-                        POINT(item.longitude, item.latitude)
+                        POINT(item.item_longitude, item.item_latitude)
                     ) &lt;= 300000
                 </if>
                 <if test="minPrice != null">
