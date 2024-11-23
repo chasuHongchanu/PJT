@@ -1,7 +1,7 @@
 <template>
   <div class="signup-container">
     <!-- 로고 섹션 수정 -->
-    <div class="logo-section">
+    <div class="logo-section" @click="GoToHome">
       <div class="logo-wrapper">
         <!-- 이 div 추가 -->
         <img src="@/assets/logo.png" alt="Trend" class="logo-image" />
@@ -194,6 +194,11 @@ export default {
   setup() {
     // 라우터 객체 가져오기
     const router = useRouter();
+
+    // 홈으로 이동
+    const GoToHome = () => {
+      router.push("/");
+    }
 
     // 입력 필드
     const userId = ref("");
@@ -487,6 +492,7 @@ export default {
       validateEmail,
       searchAddress,
       handleSignup,
+      GoToHome
     };
   },
 };
@@ -502,6 +508,7 @@ export default {
 .logo-section {
   text-align: center;
   margin-bottom: 40px;
+  cursor: pointer;
 }
 
 .logo-wrapper {
