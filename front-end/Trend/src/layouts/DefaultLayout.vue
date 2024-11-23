@@ -1,9 +1,12 @@
-<!-- src/layouts/DefaultLayout.vue -->
 <template>
   <div class="default-layout">
     <NavigationBar />
     <main class="main-content">
-      <slot></slot>
+      <div class="content-container">
+        <div class="content-wrapper">
+          <slot></slot>
+        </div>
+      </div>
     </main>
   </div>
 </template>
@@ -26,13 +29,33 @@ export default {
 }
 
 .main-content {
-  padding-top: 60px; /* NavigationBar 높이만큼 여백 */
+  /* NavigationBar 높이만큼 여백 */
+  padding-top: 60px; 
   min-height: calc(100vh - 60px);
 }
 
+.content-container {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.content-wrapper {
+  background-color: white;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+}
+
 @media (max-width: 767px) {
-  .main-content {
-    width: 100%;
+  .content-container {
+    flex-direction: column;
+
+  }
+  
+  .content-wrapper {
+    padding: 22px;
   }
 }
 </style>
