@@ -1,12 +1,12 @@
 <template>
-  <PageLayout>
+  <DefaultLayout>
     <div class="items-view">
       <div class="main-content">
         <!-- Search Box -->
         <div class="search-wrapper">
           <ItemSearchBox
             v-model="searchQuery"
-            @search="filterItems"
+            @search="performSearch"
             placeholder="지역, 매물을 검색해보세요"
           />
         </div>
@@ -14,8 +14,12 @@
         <!-- Filter Actions -->
         <div class="filter-actions">
           <div class="filter-buttons">
-            <button class="filter-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" class="filter-icon" viewBox="0 0 24 24">
+            <button class="filter-btn" @click="openFilterModal">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="filter-icon"
+                viewBox="0 0 24 24"
+              >
                 <path
                   d="M3 6h18M6 12h12m-9 6h6"
                   stroke="currentColor"
@@ -78,44 +82,76 @@
         </svg>
         지도보기
       </button>
+
+      <!-- Filter Modal -->
+      <Teleport to="body">
+        <FilterModal
+          v-if="showFilterModal"
+          @close="closeFilterModal"
+          @apply="applyFilters"
+        />
+      </Teleport>
     </div>
-  </PageLayout>
+  </DefaultLayout>
 </template>
 
 <script setup>
-import { useItemsStore } from '@/stores/items'
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import ItemDetail from '@/components/items/ItemDetail.vue'
-import ItemSearchBox from '@/components/items/ItemSearchBox.vue'
+import { useItemsStore } from "@/stores/items";
+import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import ItemDetail from "@/components/items/ItemDetail.vue";
+import ItemSearchBox from "@/components/items/ItemSearchBox.vue";
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import FilterModal from "@/components/items/FilterModal.vue";
 
-const itemsStore = useItemsStore()
-const searchQuery = ref('')
-const filteredItems = computed(() => itemsStore.filteredItems)
-const isLoading = ref(true)
-const router = useRouter()
+const itemsStore = useItemsStore();
+const searchQuery = ref("");
+const filteredItems = computed(() => itemsStore.filteredItems);
+const isLoading = ref(true);
+const router = useRouter();
+const showFilterModal = ref(false);
 
 onMounted(async () => {
+  isLoading.value = true;
   try {
-    await itemsStore.fetchItems()
+    await itemsStore.initializeItems(); // 최초 데이터 로드
+    await itemsStore.restoreLastState(); // 마지막 검색/필터 상태 복원
+  } catch (error) {
+    console.error("Error loading items:", error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-})
-
-const filterItems = () => {
-  itemsStore.filteredItems = itemsStore.items.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase()),
-  )
-}
-
+});
 const registerItem = () => {
-  alert('Redirect to item registration page.')
-}
+  alert("Redirect to item registration page.");
+};
 
 const goToMap = () => {
-  router.push('/items/map') // /map 경로로 이동
-}
+  router.push("/items/map"); // /map 경로로 이동
+};
+
+// 검색 실행
+const performSearch = async (keyword) => {
+  await itemsStore.searchItems(keyword);
+};
+
+// 필터 모달 열기
+const openFilterModal = () => {
+  showFilterModal.value = true;
+  document.body.style.overflow = "hidden"; // 스크롤 비활성화
+};
+
+// 필터 모달 닫기
+const closeFilterModal = () => {
+  showFilterModal.value = false;
+  document.body.style.overflow = ""; // 스크롤 활성화
+};
+
+// 필터 적용
+const applyFilters = async (filters) => {
+  await itemsStore.filterItems(filters); // Pinia의 filterItems 호출
+  closeFilterModal();
+};
 </script>
 
 <style>

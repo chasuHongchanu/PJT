@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import ProfilePage from '@/views/mypage/ProfilePage.vue';
-import MainView from '@/views/MainView.vue';
 import TheItemView from '@/views/items/TheItemView.vue';
 import TheMapView from '@/views/items/TheMapView.vue';
 

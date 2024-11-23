@@ -1,6 +1,12 @@
 <template>
   <div class="search-container">
-    <input type="text" class="search-bar" :placeholder="placeholder" v-model="searchText" />
+    <input
+      type="text"
+      class="search-bar"
+      :placeholder="placeholder"
+      v-model="searchText"
+      @keyup.enter="onSearch"
+    />
     <button class="search-btn" @click="onSearch">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -20,23 +26,23 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue'
+import { defineProps, defineEmits, ref } from "vue";
 
 defineProps({
   placeholder: {
     type: String,
-    default: 'Search location...',
+    default: "Search location...",
   },
-})
+});
 
-const emit = defineEmits(['search'])
-const searchText = ref('')
+const emit = defineEmits(["search"]);
+const searchText = ref("");
 
 const onSearch = () => {
   if (searchText.value.trim()) {
-    emit('search', searchText.value.trim())
+    emit("search", searchText.value.trim());
   }
-}
+};
 </script>
 
 <style scoped>

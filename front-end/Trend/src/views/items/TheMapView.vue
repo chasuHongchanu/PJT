@@ -1,124 +1,177 @@
 <template>
-  <PageLayout>
+  <DefaultLayout>
     <div class="map-view">
+      <!-- Google 지도 -->
       <div class="map-container">
-        <GoogleMap v-if="isLoaded" class="google-map" :center="mapCenter" :zoom="14">
+        <GoogleMap
+          class="google-map"
+          :api-key="apiKey"
+          :center="mapCenter"
+          :zoom="14"
+          @ready="onMapReady"
+        >
           <Marker
-            v-for="item in searchResults"
-            :key="item.id"
+            v-for="marker in markers"
+            :key="marker.id"
             :options="{
-              position: { lat: item.latitude, lng: item.longitude },
-              title: item.name,
+              position: marker.position,
+              title: marker.title,
             }"
+            @click="handleMarkerClick(marker)"
           />
+          <!-- 커스텀 정보창 -->
+          <div
+            v-if="selectedMarker"
+            class="custom-info-window"
+            :style="{
+              position: 'absolute',
+              top: selectedMarker.position.top + 'px',
+              left: selectedMarker.position.left + 'px',
+            }"
+          >
+            <ItemInfoWindow :item="selectedMarker" />
+            <button class="close-btn" @click="closeInfoWindow">닫기</button>
+          </div>
         </GoogleMap>
 
+        <!-- 검색 및 필터 UI -->
         <div class="floating-search">
           <ItemSearchBox @search="handleSearch" />
         </div>
 
-        <!-- Fixed Bottom Buttons -->
         <div class="bottom-buttons">
-          <button class="filter-btn" @click="openFilterModal">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="filter-icon"
-              fill="none"
-            >
-              <path
-                d="M3 6h18M6 12h12m-9 6h6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-            필터
-          </button>
-          <button class="list-btn" @click="goToListPage">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="list-icon"
-              fill="none"
-            >
-              <path
-                d="M4 6h16M4 12h16M4 18h16"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-            목록보기
-          </button>
+          <button class="filter-btn" @click="openFilterModal">필터</button>
+          <button class="list-btn" @click="goToListPage">목록보기</button>
         </div>
       </div>
 
-      <!-- Filter Modal -->
+      <!-- 필터 모달 -->
       <Teleport to="body">
-        <FilterModal v-if="showFilterModal" @close="closeFilterModal" @apply="applyFilter" />
+        <FilterModal
+          v-if="showFilterModal"
+          @close="closeFilterModal"
+          @apply="applyFilter"
+        />
       </Teleport>
     </div>
-  </PageLayout>
+  </DefaultLayout>
 </template>
 
 <script setup>
-import { useItemsStore } from '@/stores/items'
-import { useRouter } from 'vue-router'
-import { computed, ref, onMounted } from 'vue'
-import { GoogleMap, Marker } from 'vue3-google-map'
-import ItemSearchBox from '@/components/items/ItemSearchBox.vue'
-import FilterModal from '@/components/items/FilterModal.vue'
+import { ref, computed, onMounted, watch } from "vue";
+import { useItemsStore } from "@/stores/items";
+import { useRouter } from "vue-router";
+import { GoogleMap, Marker } from "vue3-google-map";
+import ItemSearchBox from "@/components/items/ItemSearchBox.vue";
+import FilterModal from "@/components/items/FilterModal.vue";
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import ItemInfoWindow from "@/components/items/ItemInfoWindow.vue";
 
-const itemsStore = useItemsStore()
-const router = useRouter()
-const isLoaded = ref(false)
-const showFilterModal = ref(false)
+const itemsStore = useItemsStore();
+const router = useRouter();
+const showFilterModal = ref(false);
+const selectedMarker = ref(null);
 
-const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY
+// Google Maps API 키
+const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY;
 
-const mapCenter = computed(
-  () =>
-    itemsStore.mapCenter || {
-      lat: 37.5665,
-      lng: 126.978,
+// 지도 중심
+const mapCenter = computed(() => itemsStore.mapCenter || { lat: 37.5665, lng: 126.978 });
+
+// 마커 데이터 (Pinia의 filteredItems 기반)
+const markers = computed(() =>
+  itemsStore.filteredItems.map((item) => ({
+    id: item.itemId,
+    position: {
+      lat: parseFloat(item.latitude),
+      lng: parseFloat(item.longitude),
     },
-)
+    title: item.itemName,
+    itemName: item.itemName,
+    itemImage: item.itemImage,
+    itemAddress: item.address,
+    itemPrice: item.itemPrice,
+  }))
+);
 
-const searchResults = computed(() => itemsStore.searchResults)
+// 마커 클릭 핸들러
+const handleMarkerClick = (marker) => {
+  selectedMarker.value = marker;
+};
 
-onMounted(() => {
-  if (window.google && window.google.maps) {
-    isLoaded.value = true
-  } else {
-    console.error('Google Maps API is not loaded')
-  }
-})
+// 정보창 닫기
+const closeInfoWindow = () => {
+  selectedMarker.value = null;
+};
 
+// 검색 실행
 const handleSearch = async (keyword) => {
-  await itemsStore.searchItems({ keyword: keyword })
-}
+  await itemsStore.searchItems(keyword);
+};
 
+// 목록 페이지로 이동
 const goToListPage = () => {
-  itemsStore.applySearchResults()
-  router.push('/items/view')
-}
+  router.push("/items/view");
+};
 
+// 필터 모달 열기
 const openFilterModal = () => {
-  showFilterModal.value = true
-  document.body.style.overflow = 'hidden'
-}
+  showFilterModal.value = true;
+  document.body.style.overflow = "hidden";
+};
 
+// 필터 모달 닫기
 const closeFilterModal = () => {
-  showFilterModal.value = false
-  document.body.style.overflow = ''
-}
+  showFilterModal.value = false;
+  document.body.style.overflow = "";
+};
 
-const applyFilter = (filters) => {
-  console.log('Applied filters:', filters)
-  closeFilterModal()
-  // 필터 적용 로직 구현
-}
+// 필터 적용
+const applyFilter = async (filters) => {
+  try {
+    await itemsStore.filterItems(filters); // Pinia의 filterItems 호출
+    if (itemsStore.filteredItems.length > 0) {
+      const firstItem = itemsStore.filteredItems[0];
+      mapCenter.value = {
+        lat: parseFloat(firstItem.latitude),
+        lng: parseFloat(firstItem.longitude),
+      };
+    }
+  } catch (error) {
+    console.error("Error applying filters:", error);
+  } finally {
+    closeFilterModal();
+  }
+};
+
+// 지도 준비 완료
+const onMapReady = (mapInstance) => {
+  const style = document.createElement("style");
+  style.innerHTML = `
+    .gm-fullscreen-control {
+      display: none !important;
+    }
+    .gm-control-active {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  mapInstance.setOptions({
+    disableDefaultUI: true,
+    mapTypeControl: false,
+    fullscreenControl: false,
+  });
+};
+
+onMounted(async () => {
+  try {
+    await itemsStore.initializeItems(); // 최초 데이터 로드
+    await itemsStore.restoreLastState(); // 마지막 검색/필터 상태 복원
+  } catch (error) {
+    console.error("Error loading markers:", error);
+  }
+});
 </script>
 
 <style scoped>
@@ -141,8 +194,8 @@ const applyFilter = (filters) => {
 }
 
 .floating-search {
-  position: absolute;
-  top: 40px;
+  position: fixed;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -153,11 +206,12 @@ const applyFilter = (filters) => {
 .bottom-buttons {
   position: fixed;
   bottom: 24px;
-  left: 24px;
-  right: 24px;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   z-index: 1000;
+  padding: 0 24px;
 }
 
 .filter-btn,
@@ -178,17 +232,28 @@ const applyFilter = (filters) => {
 .filter-btn {
   background-color: white;
   color: #333;
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
 }
 
 .list-btn {
-  background-color: #333;
-  color: white;
+  background-color: white;
+  color: #ff3b30;
 }
 
 .filter-btn:hover,
 .list-btn:hover {
   transform: translateY(-2px);
+}
+
+.filter-btn:hover {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.list-btn:hover {
+  box-shadow: 0 6px 16px rgba(255, 59, 48, 0.15);
+  background-color: #fff5f5;
 }
 
 .filter-icon,
@@ -198,7 +263,7 @@ const applyFilter = (filters) => {
 }
 
 .list-icon {
-  stroke: white;
+  stroke: #ff3b30;
 }
 
 .filter-icon {
@@ -208,13 +273,17 @@ const applyFilter = (filters) => {
 @media screen and (max-width: 768px) {
   .floating-search {
     width: 85%;
-    top: 30px;
+    top: 70px;
   }
 
   .bottom-buttons {
     bottom: 16px;
+    padding: 0 16px;
+  }
+
+  .filter-btn {
     left: 16px;
-    right: 16px;
+    bottom: 16px;
   }
 
   .filter-btn,
@@ -227,7 +296,7 @@ const applyFilter = (filters) => {
 @media screen and (max-width: 480px) {
   .floating-search {
     width: 90%;
-    top: 20px;
+    top: 60px;
   }
 
   .filter-btn,
@@ -241,5 +310,42 @@ const applyFilter = (filters) => {
     width: 16px;
     height: 16px;
   }
+}
+
+:deep(.gm-style .gm-style-iw-c) {
+  padding: 0 !important;
+  border-radius: 12px !important;
+}
+
+:deep(.gm-style .gm-style-iw-d) {
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+:deep(.gm-style .gm-style-iw-t::after) {
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 0) 51%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  box-shadow: none !important;
+}
+
+:deep(.gm-ui-hover-effect) {
+  top: 0 !important;
+  right: 0 !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-radius: 50% !important;
+  margin: 4px !important;
+}
+
+.custom-info-window {
+  position: absolute;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  z-index: 1000;
 }
 </style>
