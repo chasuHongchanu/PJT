@@ -34,14 +34,12 @@ public class FileUtil {
         String blob = controller + "/" +
                 id + "/";
 
+        // 해당 경로가 이미 존재하면 폴더 삭제
+        deleteFiles(controller, String.valueOf(id));
         for (MultipartFile file : files) {
             try {
                 // 파일 버켓에 저장
                 String filePath = blob + file.getOriginalFilename();
-
-                // 이미 존재하면 파일 삭제
-                deleteFiles(controller, String.valueOf(id));
-
                 bucket.create(filePath, file.getBytes(), file.getContentType());
 
             } catch (IOException e) {
