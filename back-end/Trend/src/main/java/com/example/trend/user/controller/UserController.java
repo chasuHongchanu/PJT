@@ -89,7 +89,7 @@ public class UserController {
         // 성공 응답 반환
         return ResponseEntity.ok()
                 .headers(headers)
-                .body("Login successful");
+                .body(tokenDto.getUserLoginResponseDto());
     }
 
     @SkipJwt
