@@ -198,11 +198,9 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
         userUpdateRequestDto.setUserPassword(hashedPassword);
 
-        //image file의 이름을 경로를 추가한 이름으로 변경
         String userId = userUpdateRequestDto.getUserId();
-        log.info("userId: {}", userId);
 
-        // storage에 이미지 저장
+        // storage에 이미지 저장 후 경로 반환
         String imgUrl = fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
         log.info("imgUrl: {}", imgUrl);
 
