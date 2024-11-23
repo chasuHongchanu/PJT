@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import TheItemView from '@/views/items/TheItemView.vue';
 import TheMapView from '@/views/items/TheMapView.vue';
+import TheItemDetailView from '@/views/items/TheItemDetailView.vue';
+import TheItemRegistView from '@/views/items/TheItemRegistView.vue';
 
 
 const router = createRouter({
@@ -49,7 +51,17 @@ const router = createRouter({
           path: "map",
           name: "Map",
           component: TheMapView
-        }
+        },
+        {
+          path: "detail",
+          name: "Detail",
+          component: TheItemDetailView
+        },
+        {
+          path: "regist",
+          name: "Regist",
+          component: TheItemRegistView
+        },
       ]
     },
     {
