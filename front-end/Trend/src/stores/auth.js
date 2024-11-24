@@ -110,11 +110,10 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await authApi.refreshToken()
         const newAccessToken = response.headers['authorization'] || 
-                             response.headers['Authorization']
-
+                              response.headers['Authorization']
+    
         if (newAccessToken) {
           this.setAccessToken(newAccessToken)
-          this.isAuthenticated = true
           return newAccessToken
         }
         throw new Error('No access token received')

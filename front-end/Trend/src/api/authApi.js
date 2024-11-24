@@ -10,10 +10,15 @@ export const authApi = {
   },
 
   refreshToken: async () => {
-    const response = await axiosInstance.post('/user/refresh-token')
-    return response
+    // axios import 추가 및 baseURL 포함
+    return axios.post('http://localhost:8080/api/user/refresh-token', {}, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
   },
-
+  
   logout: async () => {
     const response = await axiosInstance.post('/user/logout')
     return response
