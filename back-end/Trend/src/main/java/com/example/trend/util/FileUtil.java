@@ -65,10 +65,8 @@ public class FileUtil {
                 id + "/";
 
         try {
-            // 파일 이름 설정
-            String fileName = file.getOriginalFilename();
             // 파일 버켓에 저장
-            String filePath = blob + fileName;
+            String filePath = blob + file.getOriginalFilename();
 
             // 이미 존재하면 파일 삭제
             deleteFiles(controller, id);
@@ -76,7 +74,6 @@ public class FileUtil {
             bucket.create(filePath, file.getBytes(), file.getContentType());
             return filePath;
         } catch (IOException e) {
-            // custom exception 만들어야 할듯
             e.printStackTrace();
             throw new CustomException(ErrorCode.FAIL_TO_SAVE_IMAGE);
         }

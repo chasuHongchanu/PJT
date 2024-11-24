@@ -232,4 +232,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+#firebase
+firebase.js
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,visualstudiocode,vue,vuejs,node

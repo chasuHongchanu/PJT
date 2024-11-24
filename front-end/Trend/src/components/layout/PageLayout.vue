@@ -31,7 +31,7 @@
   }
   
   .page-content {
-    width: 90%;
+    width: 80%;
     max-width: 1200px;
     margin: 0 auto;
     display: flex;

@@ -19,9 +19,9 @@ public class UserUpdateRequestDto {
     @Email(message = "이메일 형식이 아닙니다.")
     private String userEmail;
     private String userPhoneNumber;
+    private String userProfileImgUrl;
     private MultipartFile userProfileImg;
     private String userIntroduction;
-    private double userRating;
     private String country;
     private Timestamp userCreatedAt;
 }

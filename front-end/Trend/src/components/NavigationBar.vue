@@ -8,7 +8,7 @@
 
     <!-- Desktop Navigation Links -->
     <div class="navbar-center desktop-only">
-      <router-link to="/rental" class="nav-link">여행 물품 대여</router-link>
+      <router-link to="/items/view" class="nav-link">여행 물품 대여</router-link>
       <router-link to="/course" class="nav-link">여행 코스</router-link>
       <router-link to="/community" class="nav-link">커뮤니티</router-link>
     </div>
@@ -21,15 +21,12 @@
       </button>
 
       <!-- Profile Section (Desktop Only) -->
-      <div
-        v-if="isAuthenticated"
-        class="profile-section desktop-only"
-        @click="toggleProfilePopup"
-      >
+      <div v-if="isAuthenticated" class="profile-section desktop-only" @click="toggleProfilePopup">
         <img
-          :src="userProfile?.profileImage || '/default-profile.jpg'"
-          alt="Profile"
+          v-if="isAuthenticated"
+          :src="profileImage"
           class="profile-image"
+          alt="Profile"
         />
         <NavProfilePop :is-visible="isProfilePopupOpen" @close="closeProfilePopup" />
       </div>
@@ -44,22 +41,12 @@
     </div>
   </nav>
 
-  <!-- Mobile Side Menu -->
-  <!-- <div v-show="isMenuOpen" class="mobile-menu-backdrop">
-    <Transition name="slide">
-      <div v-show="isMenuOpen" class="mobile-menu-content">
-        <SideMenu @close="closeMenu" />
-      </div>
-    </Transition>
-  </div> -->
-
-
   <!-- Mobile Menu Container -->
   <Transition name="fade">
     <div v-if="isMenuOpen" class="mobile-menu-container">
       <!-- Backdrop -->
       <div class="mobile-menu-backdrop" @click="closeMenu"></div>
-      
+
       <!-- Menu Content with Animation -->
       <Transition name="slide">
         <div v-if="isMenuOpen" class="mobile-menu-content">
@@ -71,12 +58,12 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
-import { storeToRefs } from "pinia";
-import SideMenu from "./menu/SideMenu.vue";
-import NavProfilePop from "./NavProfilePop.vue";
+import { ref, computed, onMounted, onUnmounted } from "vue"
+import { useRouter } from "vue-router"
+import { useAuthStore } from "@/stores/auth"
+import { storeToRefs } from "pinia"
+import SideMenu from "./menu/SideMenu.vue"
+import NavProfilePop from "./NavProfilePop.vue"
 
 export default {
   name: "NavigationBar",
@@ -85,94 +72,78 @@ export default {
     NavProfilePop,
   },
   setup() {
-    const router = useRouter();
-    const authStore = useAuthStore();
-    const { isAuthenticated, userProfile } = storeToRefs(authStore);
-    const isMenuOpen = ref(false);
-    const isProfilePopupOpen = ref(false);
+    const router = useRouter()
+    const authStore = useAuthStore()
+    const { isAuthenticated, profileImage } = storeToRefs(authStore)
 
-    const toggleProfilePopup = (e) => {
-      e.stopPropagation();
-      isProfilePopupOpen.value = !isProfilePopupOpen.value;
-    };
+    const isMenuOpen = ref(false)
+    const isProfilePopupOpen = ref(false)
 
-    const closeProfilePopup = () => {
-      isProfilePopupOpen.value = false;
-    };
-
-    const toggleMenu = () => {
-      isMenuOpen.value = !isMenuOpen.value;
-    };
-
-    const closeMenu = () => {
-      isMenuOpen.value = false;
-    };
-
-    // 외부 클릭 이벤트 핸들러
-    const handleClickOutside = (event) => {
-      const profileSection = document.querySelector(".profile-section");
-      const popupContent = document.querySelector(".popup-content");
-
-      if (
-        isProfilePopupOpen.value &&
-        profileSection &&
-        !profileSection.contains(event.target) &&
-        popupContent &&
-        !popupContent.contains(event.target)
-      ) {
-        isProfilePopupOpen.value = false;
-      }
-    };
-
-    // 컴포넌트 마운트/언마운트 시 이벤트 리스너 관리
-    onMounted(() => {
-      document.addEventListener("click", handleClickOutside);
-    });
-
-    onUnmounted(() => {
-      document.removeEventListener("click", handleClickOutside);
-    });
-
-    // 화면 크기 변경 감지 - 애니메이션을 위해 타이머 추가
+    // 화면 크기 변경 감지 및 처리
     const handleResize = () => {
       if (window.innerWidth >= 768 && isMenuOpen.value) {
         isMenuOpen.value = false
       }
     }
 
-    // 이벤트 리스너는 이전과 동일
+    // 프로필 팝업 토글
+    const toggleProfilePopup = (e) => {
+      e.stopPropagation()
+      isProfilePopupOpen.value = !isProfilePopupOpen.value
+    }
+
+    // 외부 클릭 시 팝업 닫기
+    const handleClickOutside = (e) => {
+      if (isProfilePopupOpen.value) {
+        closeProfilePopup()
+      }
+    }
+
+    // 컴포넌트 마운트/언마운트 시 이벤트 리스너 관리
     onMounted(() => {
       window.addEventListener('resize', handleResize)
+      document.addEventListener('click', handleClickOutside)
     })
 
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize)
+      document.removeEventListener('click', handleClickOutside)
     })
 
-    const goToHome = () => router.push("/");
-    const goToLogin = () => router.push("/auth/login");
-    const goToProfile = () => router.push("/user/profile/info");
+
+    const closeProfilePopup = () => {
+      isProfilePopupOpen.value = false
+    }
+
+    const toggleMenu = () => {
+      isMenuOpen.value = !isMenuOpen.value
+    }
+
+    const closeMenu = () => {
+      isMenuOpen.value = false
+    }
+
+    const goToHome = () => router.push("/")
+    const goToLogin = () => router.push("/auth/login")
     const openChat = () => {
-      // 채팅 팝업 로직 구현
-      console.log("Open chat");
-    };
+      console.log("Open chat")
+    }
 
     return {
       isAuthenticated,
-      userProfile,
+      profileImage,
       isMenuOpen,
       toggleMenu,
       closeMenu,
       goToHome,
       goToLogin,
-      goToProfile,
       openChat,
       isProfilePopupOpen,
       toggleProfilePopup,
       closeProfilePopup,
-    };
+    }
   },
-};
+}
 </script>
 
 <style scoped>
@@ -287,7 +258,7 @@ export default {
   bottom: 0;
   width: 280px;
   background: white;
-  box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 배경 페이드 애니메이션 */
@@ -300,7 +271,6 @@ export default {
 .fade-leave-to {
   opacity: 0;
 }
-
 
 /* 메뉴 슬라이드 애니메이션 */
 .slide-enter-active,
