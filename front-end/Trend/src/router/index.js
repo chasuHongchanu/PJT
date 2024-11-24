@@ -5,6 +5,7 @@ import TheMapView from '@/views/items/TheMapView.vue';
 import TheItemDetailView from '@/views/items/TheItemDetailView.vue';
 import TheItemRegistView from '@/views/items/TheItemRegistView.vue';
 import TheItemEditView from '@/views/items/TheItemEditView.vue';
+import TheLessorProfile from '@/views/items/TheLessorProfile.vue';
 
 
 const router = createRouter({
@@ -67,6 +68,11 @@ const router = createRouter({
           path: "update/:id",
           name: "Update",
           component: TheItemEditView
+        },
+        {
+          path: "lessor/:id",
+          name: "LessorProfile",
+          component: TheLessorProfile
         }
       ]
     },
