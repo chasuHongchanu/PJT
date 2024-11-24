@@ -72,7 +72,7 @@ export default {
     }
 
     const goToRental = () => {
-      router.push('/rental')
+      router.push('/items/view')
       emit('close')
     }
 

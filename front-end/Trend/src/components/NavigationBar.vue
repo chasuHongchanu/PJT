@@ -8,7 +8,7 @@
 
     <!-- Desktop Navigation Links -->
     <div class="navbar-center desktop-only">
-      <router-link to="/rental" class="nav-link">여행 물품 대여</router-link>
+      <router-link to="/items/view" class="nav-link">여행 물품 대여</router-link>
       <router-link to="/course" class="nav-link">여행 코스</router-link>
       <router-link to="/community" class="nav-link">커뮤니티</router-link>
     </div>
