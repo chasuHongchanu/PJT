@@ -13,4 +13,6 @@ public class ItemRetrieveResponseDto {
     private String itemName;
     private int itemPrice;
     private String address;
+    private double latitude;
+    private double longitude;
 }
