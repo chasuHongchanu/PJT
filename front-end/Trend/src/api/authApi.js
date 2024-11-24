@@ -5,12 +5,12 @@ export const authApi = {
   login: async (userId, userPassword) => {
     const response = await axios.post('/user/login', {
       userId,
-      userPassword
+      userPassword,
     })
-    console.log("전체 응답", response);
-    console.log("헤더:", response.headers);
-    console.log("Authorization 헤더", response.headers.authorization);
-    
+    console.log('전체 응답', response)
+    console.log('헤더:', response.headers)
+    console.log('Authorization 헤더', response.headers.authorization)
+
     return response
   },
 
@@ -36,5 +36,5 @@ export const authApi = {
   checkDuplicateId: async (userId) => {
     const response = await axios.get(`/user/duplicate-check/${userId}`)
     return response
-  }
+  },
 }

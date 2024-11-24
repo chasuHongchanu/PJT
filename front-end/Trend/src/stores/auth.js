@@ -3,6 +3,7 @@ import { authApi } from '@/api/authApi'
 import axios from 'axios'
 import { storage } from '@/../firebase';
 import { ref as firebaseRef, getDownloadURL } from 'firebase/storage';
+import DefaultProfileImage from '@/assets/default-profile.svg';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -11,7 +12,8 @@ export const useAuthStore = defineStore('auth', {
     isInitialized: false,
     userId: null,
     userNickname: null,
-    profileImageUrl: null,
+    profileImgUrl: null,
+    profileImage: null,
   }),
 
   actions: {
@@ -31,10 +33,10 @@ export const useAuthStore = defineStore('auth', {
 
         if (accessToken) {
           // Firebase에서 프로필 이미지 미리 가져오기
-          const profileImageUrl = await this.loadFirebaseImage(userData.profileImgUrl);
+          const profileImage = await this.loadFirebaseImage(userData.profileImgUrl);
 
-          this.setAuthData(accessToken, userData, profileImageUrl)
-          this.saveToLocalStorage(); // 로컬 스토리지 저장
+          this.setAuthData(accessToken, userData, profileImage)
+          this.saveToLocalStorage()
           console.log('토큰 및 사용자 데이터 저장 완료:', this.accessToken, this.userId)
           return response
         } else {
@@ -49,13 +51,41 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async loadFirebaseImage(imagePath) {
-      if (!imagePath) return '/default-profile.svg'; // 기본 이미지 경로
+      if (!imagePath) return DefaultProfileImage; // 기본 이미지 경로
       try {
         const storageRef = firebaseRef(storage, imagePath);
-        return await getDownloadURL(storageRef);
+        const imageUrl = await getDownloadURL(storageRef);
+        return imageUrl;
       } catch (error) {
         console.error('Firebase에서 프로필 이미지를 가져오는 데 실패했습니다:', error);
-        return '/default-profile.svg';
+        return DefaultProfileImage;
+      }
+    },
+
+    async initializeAuth() {
+      try {
+        const savedAuth = localStorage.getItem('auth')
+        if (savedAuth) {
+          const parsedAuth = JSON.parse(savedAuth)
+          // Firebase에서 이미지 다시 로드
+          const profileImage = await this.loadFirebaseImage(parsedAuth.profileImgUrl);
+          
+          // 전역 상태 복원 (이미지 포함)
+          this.setAuthData(
+            parsedAuth.accessToken,
+            {
+              userId: parsedAuth.userId,
+              nickName: parsedAuth.userNickname,
+              profileImageUrl: parsedAuth.profileImgUrl
+            },
+            profileImage
+          );
+        }
+      } catch (error) {
+        console.error('인증 초기화 실패:', error);
+        this.clearAuth();
+      } finally {
+        this.isInitialized = true;
       }
     },
 
@@ -86,12 +116,18 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // 전역 상태 설정
-    setAuthData(accessToken, userData, profileImageUrl) {
+    setAuthData(accessToken, userData, profileImage) {
       this.accessToken = accessToken
       this.userId = userData.userId
       this.userNickname = userData.nickName
-      this.profileImageUrl = profileImageUrl
+      this.profileImgUrl = userData.profileImgUrl
+      this.profileImage = profileImage
       this.isAuthenticated = true
+    },
+
+    setAccessToken(token) {
+      this.accessToken = token;
+      this.saveToLocalStorage();
     },
 
     // 상태 초기화
@@ -99,8 +135,10 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = null
       this.userId = null
       this.userNickname = null
-      this.profileImageUrl = null
+      this.profileImgUrl = null
+      this.profileImage = null
       this.isAuthenticated = false
+      this.isInitialized = false
     },
 
     // 로컬 스토리지 저장
@@ -111,22 +149,12 @@ export const useAuthStore = defineStore('auth', {
           accessToken: this.accessToken,
           userId: this.userId,
           userNickname: this.userNickname,
-          profileImageUrl: this.profileImageUrl,
+          profileImgUrl: this.profileImgUrl,
           isAuthenticated: this.isAuthenticated,
         }),
       )
     },
 
-    // 로컬 스토리지 복원
-    restoreFromLocalStorage() {
-      const savedAuth = localStorage.getItem('auth')
-      if (savedAuth) {
-        const parsedAuth = JSON.parse(savedAuth)
-        this.setAuthData(parsedAuth.accessToken, parsedAuth)
-      }
-    },
-
-    // 로컬 스토리지 삭제
     removeFromLocalStorage() {
       localStorage.removeItem('auth')
     },
