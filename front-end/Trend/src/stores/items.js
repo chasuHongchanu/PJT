@@ -66,7 +66,7 @@ export const useItemsStore = defineStore("items", {
       try {
         const queryParams = new URLSearchParams(filters).toString();
         const response = await fetch(
-          `http://localhost:8080/api/item/rent/filter?${queryParams}`
+          `http://localhost:8080/api/item/rent/search?${queryParams}`
         );
         const data = await response.json();
         this.filteredItems = data.data || [];
