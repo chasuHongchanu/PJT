@@ -64,9 +64,31 @@ export const useItemsStore = defineStore("items", {
     // 필터 처리
     async filterItems(filters) {
       try {
-        const queryParams = new URLSearchParams(filters).toString();
+        const queryParams = new URLSearchParams(filters);
+
+        // 필터 키를 DTO 필드와 일치하도록 매핑
+        // category 처리
+        if (filters.category) {
+          if (filters.category.main) queryParams.append("mainCategory", filters.category.main);
+          if (filters.category.sub) queryParams.append("subCategory", filters.category.sub);
+          if (filters.category.item) queryParams.append("subSubCategory", filters.category.item);
+        }
+
+        // region 처리
+        if (filters.region) {
+          if (filters.region.main) queryParams.append("country", filters.region.main);
+          if (filters.region.city) queryParams.append("province", filters.region.city);
+          if (filters.region.area) queryParams.append("district", filters.region.area);
+        }
+
+        // price 처리
+        if (filters.price) {
+          if (filters.price.min !== undefined) queryParams.append("minPrice", filters.price.min);
+          if (filters.price.max !== undefined) queryParams.append("maxPrice", filters.price.max);
+        }
+
         const response = await fetch(
-          `http://localhost:8080/api/item/rent/search?${queryParams}`
+          `http://localhost:8080/api/item/rent/search?${queryParams.toString()}`
         );
         const data = await response.json();
         this.filteredItems = data.data || [];
