@@ -1,7 +1,9 @@
 <!-- src/views/user/TheProfileInfoView.vue -->
 <template>
   <DefaultLayout>
-    <div class="profile-container">
+    <div v-if="loading" class="loading">Loading...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else class="profile-container">
       <ProfileCard :profileData="profileData" />
       <div class="divider"></div>
       <ReviewCarousel :reviews="reviews" />
@@ -10,41 +12,106 @@
 </template>
 
 <script>
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import ProfileCard from "@/components/user/ProfileCard.vue";
-import ReviewCarousel from "@/components/user/ReviewCarousel.vue";
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import ProfileCard from '@/components/user/ProfileCard.vue'
+import ReviewCarousel from '@/components/user/ReviewCarousel.vue'
+import { userApi } from '@/api/userApi'
+import { useAuthStore } from '@/stores/auth'
+import { firebaseUtils } from '@/utils/firebaseUtils'
+import { onBeforeMount, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default {
-  name: "TheProfileInfoView",
+  name: 'TheProfileInfoView',
   components: {
     DefaultLayout,
     ProfileCard,
     ReviewCarousel,
   },
-  data() {
+  setup() {
+    const authStore = useAuthStore()
+    const router = useRouter()
+    const loading = ref(true)
+    const error = ref(null)
+    const profileData = ref({
+      name: '',
+      email: '',
+      location: '',
+      imageUrl: '',
+      introduction: '',
+      rating: 0,
+      createdAt: '',
+    })
+    const reviews = ref([/* ... */])
+
+    const fetchUserInfo = async () => {
+      try {
+        // 인증 초기화가 완료될 때까지 대기
+        if (!authStore.isInitialized) {
+          await authStore.initializeAuth()
+        }
+
+        // 인증 상태 확인
+        if (!authStore.isAuthenticated) {
+          router.push('/login')
+          return
+        }
+
+        const userData = await userApi.getUserInfo()
+        const imageUrl = await firebaseUtils.getImageUrl(userData.userProfileImg)
+
+        profileData.value = {
+          name: userData.userNickname,
+          email: userData.userEmail,
+          location: `${userData.country} ${userData.userAddress}`,
+          imageUrl: imageUrl,
+          introduction: userData.userIntroduction,
+          rating: userData.userRating,
+          createdAt: new Date(userData.userCreatedAt).toLocaleDateString(),
+        }
+      } catch (error) {
+        console.error('유저 정보 조회 실패:', error)
+        if (error.response?.status === 401) {
+          try {
+            await authStore.refreshToken()
+            // 토큰 갱신 성공 시 다시 시도
+            return await fetchUserInfo()
+          } catch (refreshError) {
+            router.push('/login')
+          }
+        } else {
+          error.value = '유저 정보를 불러오는데 실패했습니다.'
+        }
+      } finally {
+        loading.value = false
+      }
+    }
+
+    onBeforeMount(fetchUserInfo)
+
     return {
-      profileData: {
-        name: "홍길동",
-        email: "email@email.com",
-        location: "대한민국 서울시",
-        imageUrl: "/profile-image.jpg",
-        introduction: "안녕하세요. 소개글입니다.",
-      },
-      reviews: [
-        {
-          id: 1,
-          content: "안녕하세요. 거래 좋았습니다. 깔끔하고 좋았습니다!",
-          reviewerName: "이름",
-          reviewerImage: "/reviewer-image.jpg",
-          date: "2024.10 31일",
-        },
-      ],
-    };
+      loading,
+      error,
+      profileData,
+      reviews,
+    }
   },
-};
+}
 </script>
 
 <style scoped>
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  color: #dc3545;
+}
 .profile-container {
   width: 100%;
   padding: 20px;

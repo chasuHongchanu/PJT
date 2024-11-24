@@ -1,25 +1,31 @@
-import axios from 'axios'
+import axiosInstance from './axiosInstance'
 
 export const authApi = {
   login: async (userId, userPassword) => {
-    const response = await axios.post('/user/login', {
+    const response = await axiosInstance.post('/user/login', {
       userId,
-      userPassword
+      userPassword,
     })
-    console.log("전체 응답", response);
-    console.log("헤더:", response.headers);
-    console.log("Authorization 헤더", response.headers.authorization);
-    
     return response
   },
 
   refreshToken: async () => {
-    const response = await axios.post('/user/refresh-token')
+    const response = await axiosInstance.post('/user/refresh-token')
     return response
   },
 
   logout: async () => {
-    const response = await axios.post('/user/logout')
+    const response = await axiosInstance.post('/user/logout')
     return response
-  }
+  },
+
+  signup: async (signupData) => {
+    const response = await axiosInstance.post('/user/signup', signupData)
+    return response
+  },
+
+  checkDuplicateId: async (userId) => {
+    const response = await axiosInstance.get(`/user/duplicate-check/${userId}`)
+    return response
+  },
 }
