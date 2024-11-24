@@ -34,16 +34,12 @@ public class FileUtil {
         String blob = controller + "/" +
                 id + "/";
 
+        // 해당 경로가 이미 존재하면 폴더 삭제
+        deleteFiles(controller, String.valueOf(id));
         for (MultipartFile file : files) {
             try {
-                // 파일 이름 설정
-                String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
                 // 파일 버켓에 저장
-                String filePath = blob + fileName;
-
-                // 이미 존재하면 파일 삭제
-                deleteFiles(controller, String.valueOf(id));
-
+                String filePath = blob + file.getOriginalFilename();
                 bucket.create(filePath, file.getBytes(), file.getContentType());
 
             } catch (IOException e) {
@@ -70,7 +66,7 @@ public class FileUtil {
 
         try {
             // 파일 이름 설정
-            String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+            String fileName = file.getOriginalFilename();
             // 파일 버켓에 저장
             String filePath = blob + fileName;
 
