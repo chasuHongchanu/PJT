@@ -299,7 +299,7 @@ public interface ItemMapper {
     int countLessorReviews(String lessorId);
 
     @Select("""
-            SELECT article_id, article_title
+            SELECT article_id, article_title, article_content
             FROM article
             WHERE writer_id = #{lessorId}
             LIMIT #{size}
