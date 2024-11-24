@@ -1,6 +1,6 @@
 <template>
   <div class="item-detail">
-    <div class="image-container">
+    <div class="image-container" @click="goToDetailPage(itemId)">
       <img
         :src="imageUrl"
         :alt="itemName"
@@ -39,8 +39,15 @@
 import { defineProps, ref, onMounted } from "vue";
 import { storage } from "@/firebase";
 import { ref as storageRef, getDownloadURL } from "firebase/storage";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const props = defineProps({
+  itemId: {
+    type: Number,
+    required: true,
+  },
   itemImage: {
     type: String,
     required: true,
@@ -68,6 +75,10 @@ const formatPrice = (price) => {
 const handleImageError = () => {
   console.error("Image failed to load");
   imageUrl.value = null;
+};
+
+const goToDetailPage = (itemId) => {
+  router.push(`/items/detail/${itemId}`);
 };
 
 onMounted(async () => {

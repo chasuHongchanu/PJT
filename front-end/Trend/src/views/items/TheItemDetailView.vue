@@ -96,7 +96,11 @@
                 <ReputationIcons :score="itemDetail.lessorReputation" />
               </div>
             </div>
-            <button class="chat-button" @click="startChat">채팅하기</button>
+            <!-- 작성자와 현재 사용자가 같으면 수정하기, 다르면 채팅하기 버튼 표시 -->
+            <button v-if="isAuthor" class="edit-button" @click="goToEdit">
+              수정하기
+            </button>
+            <button v-else class="chat-button" @click="startChat">채팅하기</button>
           </div>
 
           <!-- 물품 상세 정보 -->
@@ -163,7 +167,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import ItemRecommend from "@/components/items/ItemRecommend.vue";
 import ReputationIcons from "@/components/items/icons/ReputationIcons.vue";
@@ -171,6 +175,7 @@ import { storage } from "@/firebase";
 import { ref as storageRef, getDownloadURL } from "firebase/storage";
 
 const route = useRoute();
+const router = useRouter();
 const itemDetail = ref(null);
 const currentSlide = ref(0);
 const isLiked = ref(false);
@@ -179,6 +184,23 @@ const isLoadingImages = ref(false); // 이미지 로딩 상태
 const loadedImages = ref(0);
 const likeCount = ref(0); // 실제 데이터로 대체 필요
 
+const itemId = ref(route.params.id); // URL의 id 파라미터 받아오기
+const currentUserId = "user1";
+// 실제 구현 시에는 아래와 같이 사용
+// const currentUserId = getCurrentUserId(); // 예: request.session.userId 또는 localStorage에서 가져오기
+
+// 작성자 여부 확인
+const isAuthor = computed(() => {
+  return itemDetail.value?.lessorId === currentUserId;
+});
+
+// 수정 페이지로 이동
+const goToEdit = () => {
+  router.push({
+    name: "Update",
+    params: { id: itemId.value },
+  });
+};
 // 슬라이드 트랙 스타일 계산
 const slideTrackStyle = computed(() => ({
   transform: `translateX(-${currentSlide.value * 100}%)`,
@@ -243,7 +265,7 @@ const startChat = () => {
 onMounted(async () => {
   try {
     console.log("Fetching item details...");
-    const response = await fetch(`http://localhost:8080/api/item/rent/1`);
+    const response = await fetch(`http://localhost:8080/api/item/rent/${itemId.value}`);
     const data = await response.json();
     itemDetail.value = data;
 
@@ -531,5 +553,21 @@ section h2 {
 .similar-items,
 .nearby-items {
   margin-bottom: 40px;
+}
+
+.edit-button {
+  padding: 8px 20px;
+  background-color: #4caf50; /* 수정하기 버튼은 다른 색상 사용 */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-button:hover {
+  background-color: #45a049;
 }
 </style>

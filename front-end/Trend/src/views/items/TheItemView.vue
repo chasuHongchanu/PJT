@@ -44,6 +44,7 @@
           <ItemDetail
             v-for="item in filteredItems"
             :key="item.itemId"
+            :itemId="item.itemId"
             :itemImage="item.itemImage"
             :itemName="item.itemName"
             :itemPrice="item.itemPrice"

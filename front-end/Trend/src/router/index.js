@@ -4,6 +4,7 @@ import TheItemView from '@/views/items/TheItemView.vue';
 import TheMapView from '@/views/items/TheMapView.vue';
 import TheItemDetailView from '@/views/items/TheItemDetailView.vue';
 import TheItemRegistView from '@/views/items/TheItemRegistView.vue';
+import TheItemEditView from '@/views/items/TheItemEditView.vue';
 
 
 const router = createRouter({
@@ -53,7 +54,7 @@ const router = createRouter({
           component: TheMapView
         },
         {
-          path: "detail",
+          path: "detail/:id",
           name: "Detail",
           component: TheItemDetailView
         },
@@ -62,6 +63,11 @@ const router = createRouter({
           name: "Regist",
           component: TheItemRegistView
         },
+        {
+          path: "update/:id",
+          name: "Update",
+          component: TheItemEditView
+        }
       ]
     },
     {
