@@ -1,5 +1,6 @@
 package com.example.trend.trade.controller;
 
+import com.example.trend.config.SkipJwt;
 import com.example.trend.trade.dto.*;
 import com.example.trend.trade.service.TradeService;
 import jakarta.validation.Valid;
@@ -29,8 +30,15 @@ public class TradeController {
      * @param: itemId, lessorId, lesseeId
      * @return: itemId, itemAvailableRentalStartDate, itemAvailableRentalEndDate, itemName, itemPrice, itemAddress
      */
+    @SkipJwt
     @GetMapping("/reservation")
     public ResponseEntity<?> tradeReservation(@ModelAttribute TradeReservationRequestDto tradeReservationRequestDto) {
+        //////////////////// 로그인 연동 전 /////////////////////
+        tradeReservationRequestDto.setItemId(4);
+        tradeReservationRequestDto.setLessorId("user1");
+        tradeReservationRequestDto.setLesseeId("user2");
+        //////////////////// 로그인 연동 전 /////////////////////
+
         TradeReservationResponseDto tradeReservationResponseDto = tradeService.getReservationInfo(tradeReservationRequestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -44,8 +52,15 @@ public class TradeController {
      * @param:
      * @return: 거래 생성 완료 message | 거래 생성 실패 message
      */
+    @SkipJwt
     @PostMapping("/reservation")
-    public ResponseEntity<?> tradeReservationRegist(@Valid @ModelAttribute("tradeReservationRegistRequestDto") TradeReservationRegistRequestDto tradeReservationRegistRequestDto) {
+    public ResponseEntity<?> tradeReservationRegist(@Valid @RequestBody TradeReservationRegistRequestDto tradeReservationRegistRequestDto) {
+        //////////////////// 로그인 연동 전 /////////////////////
+        tradeReservationRegistRequestDto.setItemId(4);
+        tradeReservationRegistRequestDto.setLessorId("user1");
+        tradeReservationRegistRequestDto.setLesseeId("user2");
+        //////////////////// 로그인 연동 전 /////////////////////
+
         int result = tradeService.registReservation(tradeReservationRegistRequestDto);
 
         Map<String, Object> response = new HashMap<>();
