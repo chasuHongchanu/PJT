@@ -259,7 +259,7 @@ const selectedLocation = ref(null);
 // 초기 데이터 로드 함수 수정
 const loadItemData = async () => {
   try {
-    // 여기!!!!!!!!!!!!!!
+    // 여기!!!!!!!!!!!!!!!!!!!!!1
     const response = await fetch(`http://localhost:8080/api/item/rent/update/${itemId}`);
     if (!response.ok) throw new Error("Failed to fetch item data");
 
