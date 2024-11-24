@@ -1,4 +1,3 @@
-<!-- src/components/user/ProfileCard.vue -->
 <template>
   <div class="profile-card">
     <div class="profile-info">
@@ -13,11 +12,13 @@
         <h2 class="username">{{ profileData.name }}</h2>
         <p class="user-email">{{ profileData.email }}</p>
         <p class="user-location">{{ profileData.location }}</p>
+        <p class="user-rating">평점: {{ profileData.rating.toFixed(1) }}</p>
+        <p class="user-join-date">가입일: {{ profileData.createdAt }}</p>
       </div>
     </div>
     <div class="introduction-section">
       <h3>소개</h3>
-      <p class="introduction-text">{{ profileData.introduction }}</p>
+      <p class="introduction-text">{{ profileData.introduction || '소개글이 없습니다.' }}</p>
       <button @click="goToEdit" class="edit-button">수정</button>
     </div>
   </div>
@@ -76,7 +77,9 @@ export default {
 }
 
 .user-email,
-.user-location {
+.user-location,
+.user-rating,
+.user-join-date {
   color: #666;
   font-size: 14px;
   margin: 2px 0;

@@ -1,65 +1,32 @@
-// src/api/userApi.js
-
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:8080/api/user';
-
-// axios 인스턴스 생성
-const apiClient = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// 요청 인터셉터 - JWT 토큰 추가
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+import axiosInstance from './axiosInstance';
+import { useAuthStore } from '@/stores/auth';
 
 export const userApi = {
-  // 사용자 정보 조회
-  getUserInfo: async () => {
+  async getUserInfo() {
+    const authStore = useAuthStore();
+    
     try {
-      const response = await apiClient.get('/user-info');
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch user info: ' + error.message);
-    }
-  },
-
-  // 사용자 정보 수정
-  updateUserInfo: async (formData) => {
-    try {
-      const response = await apiClient.post('/user-info', formData, {
+      const response = await axiosInstance.get('/user/userinfo', {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+          Authorization: authStore.accessToken
+        }
       });
       return response.data;
     } catch (error) {
-      throw new Error('Failed to update user info: ' + error.message);
+      if (error.response?.status === 401) {
+        try {
+          await authStore.refreshToken();
+          const retryResponse = await axiosInstance.get('/user/userinfo', {
+            headers: {
+              Authorization: authStore.accessToken
+            }
+          });
+          return retryResponse.data;
+        } catch (refreshError) {
+          throw refreshError;
+        }
+      }
+      throw error;
     }
-  },
-
-  // 기타 사용자 관련 API 메소드들...
-  resetPassword: async (passwordData) => {
-    try {
-      const response = await apiClient.post('/reset-password', passwordData);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to reset password: ' + error.message);
-    }
-  },
-  
-  // 필요한 다른 API 메소드들 추가...
+  }
 };

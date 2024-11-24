@@ -67,19 +67,35 @@ export const useAuthStore = defineStore('auth', {
         const savedAuth = localStorage.getItem('auth')
         if (savedAuth) {
           const parsedAuth = JSON.parse(savedAuth)
-          // Firebase에서 이미지 다시 로드
-          const profileImage = await this.loadFirebaseImage(parsedAuth.profileImgUrl);
           
-          // 전역 상태 복원 (이미지 포함)
-          this.setAuthData(
-            parsedAuth.accessToken,
-            {
-              userId: parsedAuth.userId,
-              nickName: parsedAuth.userNickname,
-              profileImageUrl: parsedAuth.profileImgUrl
-            },
-            profileImage
-          );
+          // 먼저 저장된 상태 복원
+          this.accessToken = parsedAuth.accessToken
+          this.userId = parsedAuth.userId
+          this.userNickname = parsedAuth.userNickname
+          this.profileImgUrl = parsedAuth.profileImgUrl
+          this.isAuthenticated = true
+
+          try {
+            // 토큰 유효성 검증을 위한 간단한 API 호출
+            await axios.get('http://localhost:8080/api/user/userinfo', {
+              headers: {
+                Authorization: this.accessToken
+              },
+              withCredentials: true
+            });
+            
+            // API 호출이 성공하면 토큰이 유효한 것
+            const profileImage = await this.loadFirebaseImage(parsedAuth.profileImgUrl);
+            this.profileImage = profileImage;
+          } catch (error) {
+            if (error.response?.status === 401) {
+              // 토큰이 만료된 경우 갱신 시도
+              console.log('토큰 만료. 갱신 시도...');
+              await this.refreshToken();
+            } else {
+              throw error;
+            }
+          }
         }
       } catch (error) {
         console.error('인증 초기화 실패:', error);
@@ -89,17 +105,21 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+
     async refreshToken() {
       try {
         const response = await authApi.refreshToken()
-        const newAccessToken = response.headers['authorization']
+        const newAccessToken = response.headers['authorization'] || 
+                             response.headers['Authorization']
 
         if (newAccessToken) {
           this.setAccessToken(newAccessToken)
+          this.isAuthenticated = true
           return newAccessToken
         }
         throw new Error('No access token received')
       } catch (error) {
+        console.error('토큰 갱신 실패:', error)
         this.clearAuth()
         throw error
       }
