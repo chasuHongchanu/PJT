@@ -111,8 +111,14 @@ public class UserServiceImpl implements UserService {
             throw new CustomException(ErrorCode.FAIL_TO_SAVE_REFRESH_TOKEN);
         }
 
+        // UserResponseDto 생성
+        UserLoginResponseDto userLoginResponseDto = UserLoginResponseDto.builder()
+                .userId(user.getUserId())
+                .nickName(user.getUserNickname())
+                .profileImgUrl(user.getUserProfileImg())
+                .build();
         // 생성한 토큰 반환
-        return new TokenDto(accessToken, refreshToken);
+        return new TokenDto(accessToken, refreshToken, userLoginResponseDto);
     }
 
     // 비밀번호 해싱 함수
@@ -187,28 +193,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(UserUpdateRequestDto userUpdateRequestDto){
-        // 비밀번호 해싱
-        String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
-        userUpdateRequestDto.setUserPassword(hashedPassword);
-
-        //image file의 이름을 경로를 추가한 이름으로 변경
+    public UserUpdateResponseDto updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         String userId = userUpdateRequestDto.getUserId();
-        log.info("userId: {}", userId);
-        String imgUrl =
-                "users/"
-                + userId +"/"
-                + userUpdateRequestDto.getUserProfileImg().getOriginalFilename();
-        log.info("imgUrl: {}", imgUrl);
 
-        // storage에 이미지 저장
-        fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
+        // 비밀번호가 제공된 경우에만 해싱
+        if (userUpdateRequestDto.getUserPassword() != null && !userUpdateRequestDto.getUserPassword().isEmpty()) {
+            String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
+            userUpdateRequestDto.setUserPassword(hashedPassword);
+        }
 
-        // DB에 유저 정보와 이미지 이름을 저장
+        // 이미지가 제공된 경우에만 처리
+        if (userUpdateRequestDto.getUserProfileImg() != null && !userUpdateRequestDto.getUserProfileImg().isEmpty()) {
+            String imgUrl = fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
+            userUpdateRequestDto.setUserProfileImgUrl(imgUrl);
+        }
+
         try {
-            userMapper.updateUser(userUpdateRequestDto, imgUrl);
+            userMapper.updateUser(userUpdateRequestDto);
+            return UserUpdateResponseDto.of(userUpdateRequestDto);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Failed to update user: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_USER);
         }
     }

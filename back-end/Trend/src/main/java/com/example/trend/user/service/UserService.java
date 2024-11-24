@@ -13,7 +13,7 @@ public interface UserService {
 
     UserInfoResponseDto findUserInfo(String userId);
 
-    void updateUser(UserUpdateRequestDto userUpdateRequestDto) throws Exception;
+    UserUpdateResponseDto updateUser(UserUpdateRequestDto userUpdateRequestDto) throws Exception;
 
     void logout(String requestUserId);
 

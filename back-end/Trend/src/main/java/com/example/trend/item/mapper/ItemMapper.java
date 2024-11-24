@@ -19,7 +19,8 @@ public interface ItemMapper {
                               item_longitude,
                               item_content,
                               available_rental_start_date,
-                              available_rental_end_date)
+                              available_rental_end_date,
+                              item_status)
                       VALUES (#{userId},
                               #{itemName},
                               #{itemMainCategory},
@@ -31,7 +32,8 @@ public interface ItemMapper {
                               #{longitude},
                               #{itemContent},
                               #{availableRentalStartDate},
-                              #{availableRentalEndDate})
+                              #{availableRentalEndDate},
+                              "대여 가능")
             """)
     @Options(useGeneratedKeys = true, keyProperty = "itemId")
     int insertItem(ItemRequestDto itemRegistDto);
@@ -65,7 +67,7 @@ public interface ItemMapper {
                    available_rental_start_date,
                    available_rental_end_date,
                    view_count,
-                   (SELECT COUNT(*) FROM wishlist WHERE item_id = {itemId}) AS likesCount
+                   (SELECT COUNT(*) FROM wishlist WHERE item_id = #{itemId}) AS likesCount
 
             FROM item i
             JOIN user u
@@ -95,7 +97,7 @@ public interface ItemMapper {
     int isWishListItem(int itemId, String userId);
 
     @Select("""
-            SELECT i.item_id, i.item_name, u.user_activity_score, i.latitude, i.longitude, i.thumbnail
+            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude AS latitude, i.item_longitude AS longitude, i.thumbnail
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
@@ -105,7 +107,7 @@ public interface ItemMapper {
               AND i.item_id != #{itemId}
               AND i.item_deleted_at IS NULL
             ORDER BY u.user_activity_score DESC
-            LIMIT 5;
+            LIMIT 3;
             """)
     @Results({
             @Result(property = "lessorActivityScore", column = "user_activity_score"),
@@ -114,19 +116,19 @@ public interface ItemMapper {
     List<ItemSimpleInfo> selectSimilarItems(int itemId);
 
     @Select("""
-            SELECT i.item_id, i.item_name, u.user_activity_score, i.latitude, i.longitude, i.thumbnail
+            SELECT i.item_id, i.item_name, u.user_activity_score, i.item_latitude AS latitude, i.item_longitude AS longitude, i.thumbnail
             FROM item i
             JOIN user u
             ON i.user_id = u.user_id
             WHERE i.item_id != #{itemId}
                   AND i.item_deleted_at IS NULL
                   AND ST_Distance_Sphere(
-                        POINT((SELECT longitude FROM item WHERE item_id = #{itemId}),
-                              (SELECT latitude FROM item WHERE item_id = #{itemId})),
-                        POINT(i.longitude, i.latitude)
+                        POINT((SELECT item_longitude FROM item WHERE item_id = #{itemId}),
+                              (SELECT item_latitude FROM item WHERE item_id = #{itemId})),
+                        POINT(i.item_longitude, i.item_latitude)
                       ) <= 300000
             ORDER BY u.user_activity_score DESC
-            LIMIT 5;
+            LIMIT 3;
             """)
     @Results({
             @Result(property = "lessorActivityScore", column = "user_activity_score"),
@@ -143,7 +145,13 @@ public interface ItemMapper {
 
     @Select("""
             <script>
-                SELECT item.item_id, item.thumbnail AS itemImage, item_name, item_price, address
+                SELECT item.item_id,
+                       item.thumbnail AS itemImage,
+                       item_name,
+                       item_price,
+                       address,
+                       item_latitude AS latitude,
+                       item_longitude AS longitude
                 FROM item
                 WHERE 1=1
                 AND item.item_deleted_at IS NULL
@@ -346,8 +354,8 @@ public interface ItemMapper {
                 sub_subcategory = #{itemSubsubCategory},
                 item_price = #{itemPrice},
                 address = #{address},
-                latitude = #{latitude},
-                longitude = #{longitude},
+                item_latitude = #{latitude},
+                item_longitude = #{longitude},
                 item_content = #{itemContent},
                 available_rental_start_date = #{availableRentalStartDate},
                 available_rental_end_date = #{availableRentalEndDate},
@@ -382,4 +390,22 @@ public interface ItemMapper {
             AND item_id = #{itemId}
             """)
     int deleteWishList(String userId, String itemId);
+
+    @Select("""
+            SELECT user_id,
+                   item_name,
+                   main_category AS itemMainCategory,
+                   sub_category AS itemSubCategory,
+                   sub_subcategory AS itemSubsubCategory,
+                   item_price,
+                   address,
+                   item_latitude AS latitude,
+                   item_longitude AS longitude,
+                   item_content,
+                   available_rental_start_date,
+                   available_rental_end_date
+            FROM item
+            WHERE item_id = #{itemId}
+            """)
+    ItemRequestDto selectUpdateViewInfo(int itemId);
 }

@@ -2,14 +2,10 @@ package com.example.trend.config;
 
 import com.example.trend.user.jwt.JwtInterceptor;
 import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
 @AllArgsConstructor
@@ -19,10 +15,20 @@ public class WebConfig implements WebMvcConfigurer {
     private final JwtInterceptor jwtInterceptor;
 
     @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:5174", "http://localhost:5173")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With")
+                .exposedHeaders("Authorization")
+                .allowCredentials(true)
+                .maxAge(3600);
+    }
+
+    @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/**") // 모든 경로에 대해 인터셉터 적용
-                // 제외할 경로 여기에 추가
+                .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/swagger-ui/**",
                         "/swagger-ui.html",
@@ -38,28 +44,10 @@ public class WebConfig implements WebMvcConfigurer {
                 );
     }
 
-    // Swagger UI가 필요로 하는 정적 파일(CSS, JS 등)을 제대로 제공하기 위해 리소스 핸들러를 설정
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Swagger UI 리소스 핸들러 설정
         registry.addResourceHandler("/swagger-ui/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/")
                 .resourceChain(false);
-    }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // 모든 경로에 대해 CORS 설정
-                        .allowedOrigins("http://localhost:5173") // 허용할 Origin
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
-                        .allowedHeaders("*") // 허용할 헤더
-                        .allowCredentials(true)
-                        .exposedHeaders("Authorization"); // Authorization 헤더 노출 // 인증 정보 포함 허용 (쿠키 등)
-
-            }
-        };
     }
 }
