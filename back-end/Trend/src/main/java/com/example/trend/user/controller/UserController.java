@@ -124,10 +124,12 @@ public class UserController {
 
     @PutMapping("/userinfo")
     @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
-    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto, @RequestAttribute("userId") String requestUserId) throws Exception {
+    public ResponseEntity<UserUpdateResponseDto> updateUserInfo(
+            @Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto,
+            @RequestAttribute("userId") String requestUserId) throws Exception {
         userUpdateRequestDto.setUserId(requestUserId);
-        userService.updateUser(userUpdateRequestDto);
-        return ResponseEntity.ok("Update Successful");
+        UserUpdateResponseDto responseDto = userService.updateUser(userUpdateRequestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/logout")

@@ -135,6 +135,26 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    // 프로필 업데이트를 위한 새로운 메서드
+    async updateProfile({ userNickname, userProfileImgUrl }) {
+      try {
+        if (userProfileImgUrl) {
+          this.profileImgUrl = userProfileImgUrl;
+          this.profileImage = await this.loadFirebaseImage(userProfileImgUrl);
+        }
+        
+        if (userNickname) {
+          this.userNickname = userNickname;
+        }
+    
+        // 로컬 스토리지 업데이트
+        this.saveToLocalStorage();
+      } catch (error) {
+        console.error('프로필 상태 업데이트 실패:', error);
+        throw error;
+      }
+    },
+
     // 전역 상태 설정
     setAuthData(accessToken, userData, profileImage) {
       this.accessToken = accessToken

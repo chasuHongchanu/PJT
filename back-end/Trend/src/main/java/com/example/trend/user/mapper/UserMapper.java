@@ -23,18 +23,37 @@ public interface UserMapper {
     @Select("SELECT * FROM `user` WHERE user_id = #{userId} AND user_password = #{userPassword} AND user_deleted_at IS NULL")
     User selectUserByIdAndPassword(UserLoginRequestDto userLoginRequestDto);
 
-    @Update("UPDATE user\n" +
-            "SET user_password = #{dto.userPassword}, " +
+    @Update("<script>" +
+            "UPDATE user " +
+            "<set>" +
+            "<if test='dto.userPassword != null and dto.userPassword != \"\"'>" +
+            "user_password = #{dto.userPassword}, " +
+            "</if>" +
+            "<if test='dto.userNickname != null and dto.userNickname != \"\"'>" +
             "user_nickname = #{dto.userNickname}, " +
+            "</if>" +
+            "<if test='dto.userAddress != null and dto.userAddress != \"\"'>" +
             "user_address = #{dto.userAddress}, " +
+            "</if>" +
+            "<if test='dto.userEmail != null and dto.userEmail != \"\"'>" +
             "user_email = #{dto.userEmail}, " +
+            "</if>" +
+            "<if test='dto.userPhoneNumber != null and dto.userPhoneNumber != \"\"'>" +
             "user_phone_number = #{dto.userPhoneNumber}, " +
-            "user_profile_img = #{imgUrl}, " +
+            "</if>" +
+            "<if test='dto.userProfileImgUrl != null'>" +
+            "user_profile_img = #{dto.userProfileImgUrl}, " +
+            "</if>" +
+            "<if test='dto.userIntroduction != null'>" +
             "user_introduction = #{dto.userIntroduction}, " +
-            "user_rating = #{dto.userRating}, " +
-            "country = #{dto.country}\n" +
-            "WHERE user_id = #{dto.userId}")
-    void updateUser(@Param("dto") UserUpdateRequestDto userUpdateRequestDto, @Param("imgUrl") String imgUrl);
+            "</if>" +
+            "<if test='dto.country != null and dto.country != \"\"'>" +
+            "country = #{dto.country}, " +
+            "</if>" +
+            "</set>" +
+            "WHERE user_id = #{dto.userId}" +
+            "</script>")
+    void updateUser(@Param("dto") UserUpdateRequestDto userUpdateRequestDto);
 
     @Update("UPDATE user SET user_deleted_at = NOW()  WHERE user_id = #{requestUserId}")
     int deleteUser(String requestUserId);

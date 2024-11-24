@@ -193,22 +193,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(UserUpdateRequestDto userUpdateRequestDto){
-        // 비밀번호 해싱
-        String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
-        userUpdateRequestDto.setUserPassword(hashedPassword);
-
+    public UserUpdateResponseDto updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         String userId = userUpdateRequestDto.getUserId();
 
-        // storage에 이미지 저장 후 경로 반환
-        String imgUrl = fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
-        log.info("imgUrl: {}", imgUrl);
+        // 비밀번호가 제공된 경우에만 해싱
+        if (userUpdateRequestDto.getUserPassword() != null && !userUpdateRequestDto.getUserPassword().isEmpty()) {
+            String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
+            userUpdateRequestDto.setUserPassword(hashedPassword);
+        }
 
-        // DB에 유저 정보와 이미지 이름을 저장
+        // 이미지가 제공된 경우에만 처리
+        if (userUpdateRequestDto.getUserProfileImg() != null && !userUpdateRequestDto.getUserProfileImg().isEmpty()) {
+            String imgUrl = fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
+            userUpdateRequestDto.setUserProfileImgUrl(imgUrl);
+        }
+
         try {
-            userMapper.updateUser(userUpdateRequestDto, imgUrl);
+            userMapper.updateUser(userUpdateRequestDto);
+            return UserUpdateResponseDto.of(userUpdateRequestDto);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Failed to update user: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_USER);
         }
     }
