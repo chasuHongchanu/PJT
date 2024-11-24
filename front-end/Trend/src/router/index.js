@@ -1,5 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import TheItemView from '@/views/items/TheItemView.vue';
+import TheMapView from '@/views/items/TheMapView.vue';
+import TheItemDetailView from '@/views/items/TheItemDetailView.vue';
+import TheItemRegistView from '@/views/items/TheItemRegistView.vue';
+import TheItemEditView from '@/views/items/TheItemEditView.vue';
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +40,37 @@ const router = createRouter({
       ]
     },
     {
+      path: '/items',
+      name: 'Items',
+      children: [
+        {
+          path: "view",
+          name: "View",
+          component: TheItemView
+        },
+        {
+          path: "map",
+          name: "Map",
+          component: TheMapView
+        },
+        {
+          path: "detail/:id",
+          name: "Detail",
+          component: TheItemDetailView
+        },
+        {
+          path: "regist",
+          name: "Regist",
+          component: TheItemRegistView
+        },
+        {
+          path: "update/:id",
+          name: "Update",
+          component: TheItemEditView
+        }
+      ]
+    },
+    {
       path: '/auth',
       name: 'Auth',
       children: [
@@ -45,7 +82,9 @@ const router = createRouter({
         }
       ]
     }
-  ]
+  ],
+
+
 })
 
 router.beforeEach(async (to, from, next) => {
@@ -62,7 +101,7 @@ router.beforeEach(async (to, from, next) => {
       return
     }
   }
-  
+
   // 게스트 전용 페이지(로그인, 회원가입 등)에 접근하는 경우
   if (to.matched.some(record => record.meta.requiresGuest)) {
     // 이미 인증된 경우
