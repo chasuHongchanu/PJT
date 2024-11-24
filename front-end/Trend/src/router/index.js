@@ -6,6 +6,7 @@ import TheItemDetailView from '@/views/items/TheItemDetailView.vue';
 import TheItemRegistView from '@/views/items/TheItemRegistView.vue';
 import TheItemEditView from '@/views/items/TheItemEditView.vue';
 import TheLessorProfile from '@/views/items/TheLessorProfile.vue';
+import TheReservationView from '@/views/trade/TheReservationView.vue';
 
 
 const router = createRouter({
@@ -85,6 +86,17 @@ const router = createRouter({
           name: 'Login',
           component: () => import('@/views/auth/LoginView.vue'),
           meta: { requiresGuest: true }
+        }
+      ]
+    },
+    {
+      path: '/trade',
+      name: 'Trade',
+      children: [
+        {
+          path: 'reservation',
+          name: 'Reseravation',
+          component: TheReservationView
         }
       ]
     }
