@@ -1,14 +1,10 @@
 <template>
   <div class="side-menu">
     <!-- Auth Section -->
-    <div v-if="isAuthenticated" class="menu-item profile-item" @click="goToProfile">
-      <img 
-        :src="userProfile?.profileImage || '/default-profile.jpg'" 
-        class="profile-image" 
-        :alt="userProfile?.name"
-      />
+    <div v-if="isAuthenticated" class="menu-item profile-item profile" @click="goToProfile">
+      <img :src="profileImageUrl" class="profile-image" />
       <div class="profile-info">
-        <span class="profile-name">{{ userProfile?.name || '사용자' }}</span>
+        <span class="nickname">{{ userNickname }}</span>
         <span class="profile-role">마이페이지</span>
       </div>
       <svg class="arrow-icon" width="24" height="24" viewBox="0 0 24 24">
@@ -52,16 +48,18 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
+
 
 export default {
   name: 'SideMenu',
   setup(props, { emit }) {
     const router = useRouter()
     const authStore = useAuthStore()
-    const { isAuthenticated, userProfile } = storeToRefs(authStore)
+    const { isAuthenticated, userNickname, profileImageUrl } = storeToRefs(authStore)
 
     const goToLogin = () => {
       router.push('/auth/login')
@@ -100,7 +98,8 @@ export default {
 
     return {
       isAuthenticated,
-      userProfile,
+      userNickname,
+      profileImageUrl,
       goToLogin,
       goToProfile,
       goToRental,

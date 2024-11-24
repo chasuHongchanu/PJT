@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { authApi } from '@/api/authApi'
 import axios from 'axios'
+import { storage } from '@/../firebase';
+import { ref as firebaseRef, getDownloadURL } from 'firebase/storage';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -28,7 +30,11 @@ export const useAuthStore = defineStore('auth', {
         const userData = response.data
 
         if (accessToken) {
-          this.setAuthData(accessToken, userData)
+          // Firebase에서 프로필 이미지 미리 가져오기
+          const profileImageUrl = await this.loadFirebaseImage(userData.profileImgUrl);
+
+          this.setAuthData(accessToken, userData, profileImageUrl)
+          this.saveToLocalStorage(); // 로컬 스토리지 저장
           console.log('토큰 및 사용자 데이터 저장 완료:', this.accessToken, this.userId)
           return response
         } else {
@@ -39,6 +45,17 @@ export const useAuthStore = defineStore('auth', {
         console.error('authStore.login 에러:', error)
         this.clearAuth()
         throw error
+      }
+    },
+
+    async loadFirebaseImage(imagePath) {
+      if (!imagePath) return '/default-profile.svg'; // 기본 이미지 경로
+      try {
+        const storageRef = firebaseRef(storage, imagePath);
+        return await getDownloadURL(storageRef);
+      } catch (error) {
+        console.error('Firebase에서 프로필 이미지를 가져오는 데 실패했습니다:', error);
+        return '/default-profile.svg';
       }
     },
 
@@ -69,11 +86,11 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // 전역 상태 설정
-    setAuthData(accessToken, userData) {
+    setAuthData(accessToken, userData, profileImageUrl) {
       this.accessToken = accessToken
       this.userId = userData.userId
       this.userNickname = userData.nickName
-      this.profileImageUrl = userData.profileImgUrl
+      this.profileImageUrl = profileImageUrl
       this.isAuthenticated = true
     },
 
