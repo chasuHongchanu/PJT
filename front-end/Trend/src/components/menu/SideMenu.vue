@@ -2,7 +2,7 @@
   <div class="side-menu">
     <!-- Auth Section -->
     <div v-if="isAuthenticated" class="menu-item profile-item profile" @click="goToProfile">
-      <img :src="profileImageUrl" class="profile-image" />
+      <img :src="profileImage" class="profile-image" />
       <div class="profile-info">
         <span class="nickname">{{ userNickname }}</span>
         <span class="profile-role">마이페이지</span>
@@ -59,7 +59,7 @@ export default {
   setup(props, { emit }) {
     const router = useRouter()
     const authStore = useAuthStore()
-    const { isAuthenticated, userNickname, profileImageUrl } = storeToRefs(authStore)
+    const { isAuthenticated, userNickname, profileImage } = storeToRefs(authStore)
 
     const goToLogin = () => {
       router.push('/auth/login')
@@ -99,7 +99,7 @@ export default {
     return {
       isAuthenticated,
       userNickname,
-      profileImageUrl,
+      profileImage,
       goToLogin,
       goToProfile,
       goToRental,

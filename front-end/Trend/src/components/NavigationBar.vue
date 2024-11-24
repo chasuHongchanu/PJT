@@ -24,7 +24,7 @@
       <div v-if="isAuthenticated" class="profile-section desktop-only" @click="toggleProfilePopup">
         <img
           v-if="isAuthenticated"
-          :src="profileImageUrl"
+          :src="profileImage"
           class="profile-image"
           alt="Profile"
         />
@@ -74,15 +74,42 @@ export default {
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
-    const { isAuthenticated, profileImageUrl } = storeToRefs(authStore)
+    const { isAuthenticated, profileImage } = storeToRefs(authStore)
 
     const isMenuOpen = ref(false)
     const isProfilePopupOpen = ref(false)
 
+    // 화면 크기 변경 감지 및 처리
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && isMenuOpen.value) {
+        isMenuOpen.value = false
+      }
+    }
+
+    // 프로필 팝업 토글
     const toggleProfilePopup = (e) => {
       e.stopPropagation()
       isProfilePopupOpen.value = !isProfilePopupOpen.value
     }
+
+    // 외부 클릭 시 팝업 닫기
+    const handleClickOutside = (e) => {
+      if (isProfilePopupOpen.value) {
+        closeProfilePopup()
+      }
+    }
+
+    // 컴포넌트 마운트/언마운트 시 이벤트 리스너 관리
+    onMounted(() => {
+      window.addEventListener('resize', handleResize)
+      document.addEventListener('click', handleClickOutside)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize)
+      document.removeEventListener('click', handleClickOutside)
+    })
+
 
     const closeProfilePopup = () => {
       isProfilePopupOpen.value = false
@@ -104,7 +131,7 @@ export default {
 
     return {
       isAuthenticated,
-      profileImageUrl,
+      profileImage,
       isMenuOpen,
       toggleMenu,
       closeMenu,
