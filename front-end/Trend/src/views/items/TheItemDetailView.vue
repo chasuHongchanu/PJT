@@ -97,9 +97,7 @@
               </div>
             </div>
             <!-- 작성자와 현재 사용자가 같으면 수정하기, 다르면 채팅하기 버튼 표시 -->
-            <button v-if="isAuthor" class="edit-button" @click="goToEdit">
-              수정하기
-            </button>
+            <button v-if="isAuthor" class="edit-button" @click="goToEdit">수정하기</button>
             <button v-else class="chat-button" @click="startChat">채팅하기</button>
           </div>
 
@@ -114,7 +112,7 @@
             <div class="item-meta">
               <p class="category">
                 {{ itemDetail.mainCategory }} > {{ itemDetail.subCategory }}
-                {{ itemDetail.subSubCategory ? `> ${itemDetail.subSubCategory}` : "" }}
+                {{ itemDetail.subSubCategory ? `> ${itemDetail.subSubCategory}` : '' }}
               </p>
               <p class="location">{{ itemDetail.address }}</p>
             </div>
@@ -166,123 +164,126 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import ItemRecommend from "@/components/items/ItemRecommend.vue";
-import ReputationIcons from "@/components/items/icons/ReputationIcons.vue";
-import { storage } from "@/firebase";
-import { ref as storageRef, getDownloadURL } from "firebase/storage";
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import ItemRecommend from '@/components/items/ItemRecommend.vue'
+import ReputationIcons from '@/components/items/icons/ReputationIcons.vue'
+import { storage } from '@/firebase'
+import { ref as storageRef, getDownloadURL } from 'firebase/storage'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
-const route = useRoute();
-const router = useRouter();
-const itemDetail = ref(null);
-const currentSlide = ref(0);
-const isLiked = ref(false);
-const firebaseImageUrls = ref([]); // Firebase Storage URL 배열
-const isLoadingImages = ref(false); // 이미지 로딩 상태
-const loadedImages = ref(0);
-const likeCount = ref(0); // 실제 데이터로 대체 필요
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+const { isAuthenticated, userId } = storeToRefs(authStore)
 
-const itemId = ref(route.params.id); // URL의 id 파라미터 받아오기
-const currentUserId = "user1";
-// 실제 구현 시에는 아래와 같이 사용
-// const currentUserId = getCurrentUserId(); // 예: request.session.userId 또는 localStorage에서 가져오기
+const itemDetail = ref(null)
+const currentSlide = ref(0)
+const isLiked = ref(false)
+const firebaseImageUrls = ref([]) // Firebase Storage URL 배열
+const isLoadingImages = ref(false) // 이미지 로딩 상태
+const loadedImages = ref(0)
+const likeCount = ref(0) // 실제 데이터로 대체 필요
+
+const itemId = ref(route.params.id) // URL의 id 파라미터 받아오기
+const currentUserId = userId
 
 // 작성자 여부 확인
 const isAuthor = computed(() => {
-  return itemDetail.value?.lessorId === currentUserId;
-});
+  return itemDetail.value?.lessorId === currentUserId.value
+})
 
 // 수정 페이지로 이동
 const goToEdit = () => {
   router.push({
-    name: "Update",
+    name: 'Update',
     params: { id: itemId.value },
-  });
-};
+  })
+}
 // 슬라이드 트랙 스타일 계산
 const slideTrackStyle = computed(() => ({
   transform: `translateX(-${currentSlide.value * 100}%)`,
-  transition: "transform 0.3s ease-in-out",
-}));
+  transition: 'transform 0.3s ease-in-out',
+}))
 
 // 이미지 로드 완료 핸들러
 const handleImageLoad = () => {
-  loadedImages.value++;
-};
+  loadedImages.value++
+}
 
 // 슬라이드 네비게이션
 const nextSlide = () => {
   if (currentSlide.value < firebaseImageUrls.value.length - 1) {
-    currentSlide.value++;
+    currentSlide.value++
   }
-};
+}
 
 const prevSlide = () => {
   if (currentSlide.value > 0) {
-    currentSlide.value--;
+    currentSlide.value--
   }
-};
+}
 
 const formatPrice = (price) => {
-  return price.toLocaleString();
-};
+  return price.toLocaleString()
+}
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString();
-};
+  return new Date(date).toLocaleDateString()
+}
 
 const goToSlide = (index) => {
-  currentSlide.value = index;
-};
+  currentSlide.value = index
+}
 
 const toggleLike = () => {
-  isLiked.value = !isLiked.value;
-};
+  isLiked.value = !isLiked.value
+}
 
 // Firebase에서 이미지 URL을 가져오는 함수
 const fetchFirebaseImageUrls = async (imagePaths) => {
   try {
     const urls = await Promise.all(
       imagePaths.map(async (path) => {
-        const imageReference = storageRef(storage, path);
-        return await getDownloadURL(imageReference);
-      })
-    );
-    return urls;
+        const imageReference = storageRef(storage, path)
+        return await getDownloadURL(imageReference)
+      }),
+    )
+    return urls
   } catch (error) {
-    console.error("Error fetching Firebase URLs:", error);
-    return [];
+    console.error('Error fetching Firebase URLs:', error)
+    return []
   }
-};
+}
 
 const startChat = () => {
   // 채팅 시작 로직 구현
-  console.log("Start chat with:", itemDetail.value?.lessorId);
-};
+  console.log('Start chat with:', itemDetail.value?.lessorId)
+}
 
 onMounted(async () => {
   try {
-    console.log("Fetching item details...");
-    const response = await fetch(`http://localhost:8080/api/item/rent/${itemId.value}`);
-    const data = await response.json();
-    itemDetail.value = data;
+    console.log('Fetching item details...')
+    const response = await fetch(`http://localhost:8080/api/item/rent/${itemId.value}`)
+    const data = await response.json()
+    itemDetail.value = data
 
-    console.log("Fetched item detail: ", data);
+    console.log('Fetched item detail: ', data)
 
     // itemImageNames에서 Firebase Storage URL 변환
     if (itemDetail.value.itemImageNames?.length) {
-      isLoadingImages.value = true; // 이미지 로딩 상태 활성화
-      const imagePaths = itemDetail.value.itemImageNames; // Firebase Storage 경로 배열
-      firebaseImageUrls.value = await fetchFirebaseImageUrls(imagePaths);
-      isLoadingImages.value = false; // 로딩 완료
+      isLoadingImages.value = true // 이미지 로딩 상태 활성화
+      const imagePaths = itemDetail.value.itemImageNames // Firebase Storage 경로 배열
+      firebaseImageUrls.value = await fetchFirebaseImageUrls(imagePaths)
+      isLoadingImages.value = false // 로딩 완료
     }
   } catch (error) {
-    console.error("Error fetching item details:", error);
-    isLoadingImages.value = false; // 로딩 실패 시 로딩 상태 해제
+    console.error('Error fetching item details:', error)
+    isLoadingImages.value = false // 로딩 실패 시 로딩 상태 해제
   }
-});
+})
 </script>
 
 <style scoped>

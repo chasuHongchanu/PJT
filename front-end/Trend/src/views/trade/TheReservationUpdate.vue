@@ -11,25 +11,17 @@
       <template v-else-if="itemInfo">
         <!-- 대여 가능 기간 -->
         <div class="rental-period">
-          {{ formatDate(itemInfo.availableRentalStartDate) }} -
-          {{ formatDate(itemInfo.availableRentalEndDate) }}
+          {{ formatDateRange(itemInfo.availableRentalStartDate, itemInfo.availableRentalEndDate) }}
         </div>
 
         <!-- 컴포넌트 사용 -->
         <ItemInfoComponent :item="itemInfo" />
-        <ReservationInfoComponent
-          :info="itemInfo"
-          @update:reservation="updateReservation"
-        />
+        <ReservationInfoComponent :info="itemInfo" @update:reservation="updateReservation" />
 
         <!-- 예약 버튼 -->
         <div class="button-container">
-          <button
-            class="reserve-button"
-            @click="submitReservation"
-            :disabled="!isFormValid"
-          >
-            예약 신청
+          <button class="reserve-button" @click="submitReservation" :disabled="!isFormValid">
+            예약 변경
           </button>
         </div>
       </template>
@@ -38,89 +30,111 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import ItemInfoComponent from "@/components/trade/ItemInfoComponent.vue";
-import ReservationInfoComponent from "@/components/trade/ReservationInfoComponent.vue";
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import ItemInfoComponent from '@/components/trade/ItemInfoComponent.vue'
+import ReservationInfoComponent from '@/components/trade/ReservationInfoComponent.vue'
+import { tradeApi } from '@/api/tradeApi'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
-const route = useRoute();
-const router = useRouter();
+const route = useRoute()
+const router = useRouter()
 
-const isLoading = ref(true);
-const itemInfo = ref(null);
+const isLoading = ref(true)
+const itemInfo = ref(null)
 const reservationData = ref({
-  rentalFee: "",
-  deposit: "",
-  startDate: "",
-  endDate: "",
-});
+  rentalFee: '',
+  deposit: '',
+  startDate: '',
+  endDate: '',
+})
+
+const formData = ref({
+  lessorId: 'user1',
+  lesseeId: 'user2',
+  itemId: 4,
+})
+
+// tradeId computed 속성 추가
+const tradeId = computed(() => {
+  return route.params.id || formData.value.itemId?.toString()
+})
 
 // 데이터 로드
 onMounted(async () => {
   try {
-    const response = await fetch(`http://localhost:8080/api/trade/reservation`);
-    if (!response.ok) throw new Error("Failed to fetch data");
-
-    const data = await response.json();
-    itemInfo.value = data;
+    const response = await tradeApi.getReservation(formData.value)
+    console.log(response)
+    const data = response.data
+    itemInfo.value = data
   } catch (error) {
-    console.error("Error loading data:", error);
+    console.error('Error loading data:', error)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 
 // 예약 정보 업데이트
 const updateReservation = (data) => {
-  reservationData.value = data;
-};
+  reservationData.value = data
+}
 
 // 유효성 검사
 const isFormValid = computed(() => {
-  const { rentalFee, deposit, startDate, endDate } = reservationData.value;
-  return rentalFee && deposit && startDate && endDate;
-});
+  const { rentalFee, deposit, startDate, endDate } = reservationData.value
+  return rentalFee && deposit && startDate && endDate
+})
 
 // 날짜 포맷
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  return new Date(dateString).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-};
+const formatDateRange = (start, end) => {
+  if (!start || !end) return ''
+  const formatDate = (date) => {
+    const dateObj = new Date(date)
+    const year = dateObj.getFullYear()
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const day = String(dateObj.getDate()).padStart(2, '0')
+    return `${year}. ${month}. ${day}`
+  }
+  return `${formatDate(start)} - ${formatDate(end)}`
+}
 
 // 예약 제출
 const submitReservation = async () => {
-  if (!isFormValid.value) return;
+  if (!isFormValid.value) return
 
   try {
     const requestBody = {
-      tradePrice: reservationData.value.rentalFee, // DTO 필드 이름에 맞게 매핑
+      lessorId: formData.value.lessorId,
+      lesseeId: formData.value.lesseeId,
+      itemId: formData.value.itemId,
+      tradePrice: reservationData.value.rentalFee,
       tradeDeposit: reservationData.value.deposit,
       tradeRentalStartDate: reservationData.value.startDate,
       tradeRentalEndDate: reservationData.value.endDate,
-    };
-
-    console.log(requestBody);
-    const response = await fetch("http://localhost:8080/api/trade/reservation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody), // requestBody를 한번 더 감싸지 않음
-    });
-
-    if (response.ok) {
-      alert("예약이 신청되었습니다.");
-      router.push("/reservations");
     }
+
+    const response = await tradeApi.createReservation(requestBody)
+    const newTradeId = response.data
+    alert('예약 신청되었습니다.')
+
+    router.push({ name: 'Detail', params: { id: newTradeId } })
   } catch (error) {
-    console.error("Error submitting reservation:", error);
-    alert("예약 신청 중 오류가 발생했습니다.");
+    console.error('Error submitting reservation:', error)
+    alert('예약 신청 중 오류가 발생했습니다.')
   }
-};
+}
+
+// 예약 변경 페이지로 이동
+const goToEditPage = () => {
+  if (!tradeId.value) return
+  router.push({ name: 'ReservationUpdate', params: { id: tradeId.value } })
+}
+
+// 예약 상세 페이지로 이동
+const goToDetailPage = () => {
+  if (!tradeId.value) return
+  router.push({ name: 'DetailReservation', params: { id: tradeId.value } })
+}
 </script>
 
 <style scoped>
@@ -280,6 +294,34 @@ const submitReservation = async () => {
   cursor: not-allowed;
 }
 
+.btn-cancel,
+.btn-confirm {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.btn-confirm {
+  background-color: #ffffff;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-cancel:hover,
+.btn-confirm:hover {
+  opacity: 0.9;
+}
+
 @media (max-width: 480px) {
   .item-details {
     flex-direction: column;
@@ -316,6 +358,28 @@ const submitReservation = async () => {
 .button-container {
   display: flex;
   justify-content: center;
+}
+
+.management-buttons {
+  margin-bottom: 16px;
+  padding: 16px;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  gap: 24px; /* 버튼 사이 간격 증가 */
+}
+
+.btn-cancel,
+.btn-confirm {
+  flex: 0 1 200px; /* flex-grow: 0, flex-shrink: 1, flex-basis: 200px */
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
 }
 
 @keyframes spin {

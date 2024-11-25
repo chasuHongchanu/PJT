@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { authApi } from '@/api/authApi'
 import axios from 'axios'
-import { storage } from '@/../firebase';
+import { storage } from '@/firebase';
 import { ref as firebaseRef, getDownloadURL } from 'firebase/storage';
 import DefaultProfileImage from '@/assets/default-profile.svg';
 
