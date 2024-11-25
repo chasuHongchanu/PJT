@@ -15,7 +15,13 @@
             </span>
           </div>
           <!-- 결제하기 버튼 -->
-          <button v-if="true" class="pay-button" @click="pay">결제하기</button>
+          <button
+            v-if="showPayButton && paymentInfo.paymentStatus === '입금 전' && isLessee()"
+            class="pay-button"
+            @click="pay"
+          >
+            결제하기
+          </button>
         </div>
       </div>
       <div class="info-row">
@@ -39,9 +45,13 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { storeToRefs } from "pinia";
 
-const router = useRouter()
+const authStore = useAuthStore();
+const router = useRouter();
+const { userId } = storeToRefs(authStore);
 
 const props = defineProps({
   paymentInfo: {
@@ -52,24 +62,34 @@ const props = defineProps({
     type: String,
     required: true,
   },
-})
+  showPayButton: {
+    type: Boolean,
+    default: true,
+  },
+});
+
+const lesseeId = props.paymentInfo.lesseeId;
+
+const isLessee = () => {
+  return userId.value === lesseeId;
+};
 
 const formatPrice = (price) => {
-  return price?.toLocaleString() ?? '0'
-}
+  return price?.toLocaleString() ?? "0";
+};
 
 const getStatusClass = (status) => {
   const statusMap = {
-    입금완료: 'status-complete',
-    미입금: 'status-pending',
-    취소: 'status-cancelled',
-  }
-  return statusMap[status] || 'status-pending'
-}
+    입금완료: "status-complete",
+    미입금: "status-pending",
+    취소: "status-cancelled",
+  };
+  return statusMap[status] || "status-pending";
+};
 
 const pay = () => {
-  router.push({ name: 'Pay', params: { id: props.tradeId } })
-}
+  router.push({ name: "Pay", params: { id: props.tradeId } });
+};
 </script>
 
 <style scoped>

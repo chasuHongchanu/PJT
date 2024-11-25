@@ -37,4 +37,31 @@ export const tradeApi = {
       },
     })
   },
+
+  completePay(tradeId) {
+    return axiosInstance.put(`/trade/pay/${tradeId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  },
+
+  insertItemConditionImages(formData) {
+    return axiosInstance.put('/trade/detail', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  },
+
+  getItemInfoForReview(tradeId) {
+    return axiosInstance.get(`/trade/detail/${tradeId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  }
 }
