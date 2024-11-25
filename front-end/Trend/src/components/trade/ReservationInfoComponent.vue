@@ -58,49 +58,49 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from "vue";
 
 const props = defineProps({
   info: {
     type: Object,
     required: true,
   },
-})
+});
 
-const emit = defineEmits(['update:reservation'])
+const emit = defineEmits(["update:reservation"]);
 
 // 날짜 포맷 변환 함수
 function formatDateForInput(dateString) {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toISOString().split('T')[0]
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0];
 }
 
 // 초기값 설정을 ref 선언 시 바로 수행
-const rentalFee = ref(props.info.tradePrice)
-const deposit = ref(props.info.tradeDeposit)
-const startDate = ref(formatDateForInput(props.info.tradeRentalStartDate))
-const endDate = ref(formatDateForInput(props.info.tradeRentalEndDate))
+const rentalFee = ref(props.info.tradePrice);
+const deposit = ref(props.info.tradeDeposit);
+const startDate = ref(formatDateForInput(props.info.tradeRentalStartDate));
+const endDate = ref(formatDateForInput(props.info.tradeRentalEndDate));
 
 // 값이 변경될 때마다 부모 컴포넌트에 알림
 watch([rentalFee, deposit, startDate, endDate], () => {
-  emit('update:reservation', {
+  emit("update:reservation", {
     rentalFee: rentalFee.value,
     deposit: deposit.value,
     startDate: startDate.value,
     endDate: endDate.value,
-  })
-})
+  });
+});
 
 // 컴포넌트 마운트 시 초기 데이터 전달
 onMounted(() => {
-  emit('update:reservation', {
+  emit("update:reservation", {
     rentalFee: rentalFee.value,
     deposit: deposit.value,
     startDate: startDate.value,
     endDate: endDate.value,
-  })
-})
+  });
+});
 </script>
 
 <style scoped>

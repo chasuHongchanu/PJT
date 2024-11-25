@@ -6,14 +6,20 @@
       <div v-else class="content-wrapper">
         <!-- 날짜 표시 -->
         <div class="date-range">
-          {{ formatDateRange(itemInfo?.tradeRentalStartDate, itemInfo?.tradeRentalEndDate) }}
+          {{
+            formatDateRange(itemInfo?.tradeRentalStartDate, itemInfo?.tradeRentalEndDate)
+          }}
         </div>
 
         <!-- 상품 정보 -->
         <ItemInfoComponent v-if="itemInfo" :item="itemInfo" />
 
         <!-- 결제 정보 -->
-        <PaymentInfo v-if="Object.keys(paymentInfo).length" :payment-info="paymentInfo" />
+        <PaymentInfo
+          v-if="Object.keys(paymentInfo).length"
+          :show-pay-button="false"
+          :payment-info="paymentInfo"
+        />
 
         <!-- 결제하기 섹션 -->
         <section class="payment-section">
@@ -28,7 +34,6 @@
             <div class="info-row">
               <span class="label">내 계좌</span>
               <div class="account-display">
-                <span class="bank-label">(국민)</span>
                 <span class="account-number">000000-00-000000</span>
               </div>
             </div>
@@ -36,17 +41,16 @@
             <div class="info-row">
               <span class="label">이체금액</span>
               <div class="amount-input">
-                <input
-                  type="text"
-                  v-model="transferAmount"
-                  placeholder="이체 금액을 입력해주세요"
-                />
-                <span class="won-symbol">₩</span>
+                <input type="text" v-model="transferAmount" placeholder />
               </div>
             </div>
           </div>
 
-          <button class="payment-button" :disabled="!transferAmount" @click="handlePayment">
+          <button
+            class="payment-button"
+            :disabled="!transferAmount"
+            @click="handlePayment"
+          >
             결제하기
           </button>
         </section>
@@ -56,37 +60,37 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { tradeApi } from '@/api/tradeApi'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import ItemInfoComponent from '@/components/trade/ItemInfoComponent.vue'
-import PaymentInfo from '@/components/trade/PaymentInfo.vue'
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { tradeApi } from "@/api/tradeApi";
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import ItemInfoComponent from "@/components/trade/ItemInfoComponent.vue";
+import PaymentInfo from "@/components/trade/PaymentInfo.vue";
 
-const route = useRoute()
-const router = useRouter()
-const isLoading = ref(true)
-const itemInfo = ref(null)
-const transferAmount = ref('')
-const paymentInfo = ref({})
+const route = useRoute();
+const router = useRouter();
+const isLoading = ref(true);
+const itemInfo = ref(null);
+const transferAmount = ref("");
+const paymentInfo = ref({});
+const tradeId = route.params.id;
 
 const formatDateRange = (start, end) => {
-  if (!start || !end) return ''
+  if (!start || !end) return "";
   const formatDate = (date) => {
-    const dateObj = new Date(date)
-    const year = dateObj.getFullYear()
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-    const day = String(dateObj.getDate()).padStart(2, '0')
-    return `${year}. ${month}. ${day}`
-  }
-  return `${formatDate(start)} - ${formatDate(end)}`
-}
+    const dateObj = new Date(date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    return `${year}. ${month}. ${day}`;
+  };
+  return `${formatDate(start)} - ${formatDate(end)}`;
+};
 
 onMounted(async () => {
   try {
-    const tradeId = route.params.id
-    const response = await tradeApi.getTradeDetail(tradeId)
-    itemInfo.value = response.data
+    const response = await tradeApi.getTradeDetail(tradeId);
+    itemInfo.value = response.data;
     paymentInfo.value = {
       lessorNickname: response.data.lessorNickname,
       lesseeNickname: response.data.lesseeNickname,
@@ -94,23 +98,28 @@ onMounted(async () => {
       tradePrice: response.data.tradePrice,
       tradeDeposit: response.data.tradeDeposit,
       paymentStatus: response.data.paymentStatus,
-    }
+    };
+
+    // transferAmount 초기값 설정
+    transferAmount.value =
+      (response.data.tradePrice || 0) + (response.data.tradeDeposit || 0);
   } catch (error) {
-    console.error('데이터 로딩 실패:', error)
+    console.error("데이터 로딩 실패:", error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-})
+});
 
 const handlePayment = async () => {
   try {
-    alert('결제가 완료되었습니다.')
-    router.push({ name: 'Detail', params: { id: route.params.id } })
+    tradeApi.completePay(tradeId);
+    alert("결제가 완료되었습니다.");
+    router.push({ name: "Detail", params: { id: route.params.id } });
   } catch (error) {
-    console.error('결제 처리 실패:', error)
-    alert('결제 처리 중 오류가 발생했습니다.')
+    console.error("결제 처리 실패:", error);
+    alert("결제 처리 중 오류가 발생했습니다.");
   }
-}
+};
 </script>
 
 <style scoped>
@@ -125,10 +134,11 @@ const handlePayment = async () => {
 
 .date-range {
   text-align: center;
-  font-size: 24px; /* 크기 증가 */
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 32px 0;
+  letter-spacing: -0.5px;
 }
 
 .payment-section {

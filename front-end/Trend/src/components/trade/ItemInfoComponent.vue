@@ -16,9 +16,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { storage } from '@/firebase'
-import { ref as firebaseRef, getDownloadURL } from 'firebase/storage'
+import { ref, onMounted } from "vue";
+import { storage } from "@/firebase";
+import { ref as firebaseRef, getDownloadURL } from "firebase/storage";
 
 const props = defineProps({
   item: {
@@ -29,28 +29,28 @@ const props = defineProps({
     type: String,
     default: null,
   },
-})
+});
 
-const imageSrc = ref('')
+const imageSrc = ref("");
 
 const fetchImageSrc = async (path) => {
   try {
-    const imageRef = firebaseRef(storage, `/${path}`)
-    const url = await getDownloadURL(imageRef)
-    imageSrc.value = url
+    const imageRef = firebaseRef(storage, `/${path}`);
+    const url = await getDownloadURL(imageRef);
+    imageSrc.value = url;
   } catch (error) {
-    console.error('이미지 로드 실패:', error)
-    const imageRef = firebaseRef(storage, '/items/3/Precourse_수료증.png')
-    const url = await getDownloadURL(imageRef)
-    imageSrc.value = url
+    console.error("이미지 로드 실패:", error);
+    const imageRef = firebaseRef(storage, "/items/3/Precourse_수료증.png");
+    const url = await getDownloadURL(imageRef);
+    imageSrc.value = url;
   }
-}
+};
 
 onMounted(() => {
   if (props.item && props.item.thumbnail) {
-    fetchImageSrc(props.item.thumbnail)
+    fetchImageSrc(props.item.thumbnail);
   }
-})
+});
 </script>
 
 <style scoped>

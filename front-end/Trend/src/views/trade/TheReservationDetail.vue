@@ -8,7 +8,7 @@
           {{
             formatDateRange(
               reservationData.tradeRentalStartDate,
-              reservationData.tradeRentalEndDate,
+              reservationData.tradeRentalEndDate
             )
           }}
         </div>
@@ -41,23 +41,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { tradeApi } from '@/api/tradeApi'
-import ItemInfoComponent from '@/components/trade/ItemInfoComponent.vue'
-import PaymentInfo from '@/components/trade/PaymentInfo.vue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import { ref, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { tradeApi } from "@/api/tradeApi";
+import ItemInfoComponent from "@/components/trade/ItemInfoComponent.vue";
+import PaymentInfo from "@/components/trade/PaymentInfo.vue";
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
 
-const route = useRoute()
-const router = useRouter()
-const reservationData = ref(null)
-const paymentInfo = ref({})
-const isLoading = ref(true)
-const tradeId = computed(() => route.params.id)
+const route = useRoute();
+const router = useRouter();
+const reservationData = ref(null);
+const paymentInfo = ref({});
+const isLoading = ref(true);
+const tradeId = computed(() => route.params.id);
 
 // 상품 정보를 재구성하는 computed 속성
 const itemInfo = computed(() => {
-  if (!reservationData.value) return null
+  if (!reservationData.value) return null;
 
   return {
     itemId: reservationData.value.itemId,
@@ -65,28 +65,29 @@ const itemInfo = computed(() => {
     itemPrice: reservationData.value.itemPrice,
     address: reservationData.value.address,
     thumbnail: reservationData.value.thumbnail,
-  }
-})
+    lessorId: reservationData.value.lessorId,
+    lesseeId: reservationData.value.lesseeId,
+  };
+});
 
 const formatDateRange = (start, end) => {
-  if (!start || !end) return ''
+  if (!start || !end) return "";
   const formatDate = (date) => {
-    const dateObj = new Date(date)
-    const year = dateObj.getFullYear()
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-    const day = String(dateObj.getDate()).padStart(2, '0')
-    return `${year}. ${month}. ${day}`
-  }
-  return `${formatDate(start)} - ${formatDate(end)}`
-}
+    const dateObj = new Date(date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    return `${year}. ${month}. ${day}`;
+  };
+  return `${formatDate(start)} - ${formatDate(end)}`;
+};
 
 const fetchReservationDetail = async () => {
   try {
-    isLoading.value = true
-    const tradeId = route.params.id
-    const response = await tradeApi.getTradeDetail(tradeId)
-    reservationData.value = response.data
-    console.log(reservationData.value)
+    isLoading.value = true;
+    const tradeId = route.params.id;
+    const response = await tradeApi.getTradeDetail(tradeId);
+    reservationData.value = response.data;
     paymentInfo.value = {
       lessorNickname: response.data.lessorNickname,
       lesseeNickname: response.data.lesseeNickname,
@@ -95,27 +96,29 @@ const fetchReservationDetail = async () => {
       tradeDeposit: response.data.tradeDeposit,
       tradeState: response.data.tradeState,
       paymentStatus: response.data.paymentStatus,
-    }
+      lessorId: response.data.lessorId,
+      lesseeId: response.data.lesseeId,
+    };
   } catch (error) {
-    console.error('예약 정보 로딩 실패:', error)
+    console.error("예약 정보 로딩 실패:", error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // 예약 변경 페이지로 이동
 const goToEditPage = () => {
-  router.push({ name: 'ReservationUpdate', params: { id: tradeId.value } })
-}
+  router.push({ name: "ReservationUpdate", params: { id: tradeId.value } });
+};
 
 // 예약 상세 페이지로 이동
 const goToDetailPage = () => {
-  router.push({ name: 'DetailReservation', params: { id: tradeId.value } })
-}
+  router.push({ name: "DetailReservation", params: { id: tradeId.value } });
+};
 
 onMounted(() => {
-  fetchReservationDetail()
-})
+  fetchReservationDetail();
+});
 </script>
 
 <style scoped>

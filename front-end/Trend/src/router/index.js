@@ -10,6 +10,9 @@ import TheReservationRegist from '@/views/trade/TheReservationRegist.vue'
 import TheReservationDetail from '@/views/trade/TheReservationDetail.vue'
 import TheReservationUpdate from '@/views/trade/TheReservationUpdate.vue'
 import ThePayView from '@/views/trade/ThePayView.vue'
+import TheTradeStart from '@/views/trade/TheTradeStart.vue'
+import TheTradeStartDetail from '@/views/trade/TheTradeStartDetail.vue'
+import TheReview from '@/views/trade/TheReview.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -120,6 +123,21 @@ const router = createRouter({
           path: 'pay/:id',
           name: 'Pay',
           component: ThePayView,
+        },
+        {
+          path: 'start/:id',
+          name: 'Start',
+          component: TheTradeStart,
+        },
+        {
+          path: 'startDetail/:id',
+          name: 'StartDetail',
+          component: TheTradeStartDetail,
+        },
+        {
+          path: 'review/:id',
+          name: 'Review',
+          component: TheReview,
         },
       ],
     },

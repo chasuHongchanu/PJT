@@ -11,16 +11,28 @@
       <template v-else-if="itemInfo">
         <!-- 대여 가능 기간 -->
         <div class="rental-period">
-          {{ formatDateRange(itemInfo.availableRentalStartDate, itemInfo.availableRentalEndDate) }}
+          {{
+            formatDateRange(
+              itemInfo.availableRentalStartDate,
+              itemInfo.availableRentalEndDate
+            )
+          }}
         </div>
 
         <!-- 컴포넌트 사용 -->
         <ItemInfoComponent :item="itemInfo" />
-        <ReservationInfoComponent :info="itemInfo" @update:reservation="updateReservation" />
+        <ReservationInfoComponent
+          :info="itemInfo"
+          @update:reservation="updateReservation"
+        />
 
         <!-- 예약 버튼 -->
         <div class="button-container">
-          <button class="reserve-button" @click="submitReservation" :disabled="!isFormValid">
+          <button
+            class="reserve-button"
+            @click="submitReservation"
+            :disabled="!isFormValid"
+          >
             예약 변경
           </button>
         </div>
@@ -30,111 +42,96 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import ItemInfoComponent from '@/components/trade/ItemInfoComponent.vue'
-import ReservationInfoComponent from '@/components/trade/ReservationInfoComponent.vue'
-import { tradeApi } from '@/api/tradeApi'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import ItemInfoComponent from "@/components/trade/ItemInfoComponent.vue";
+import ReservationInfoComponent from "@/components/trade/ReservationInfoComponent.vue";
+import { tradeApi } from "@/api/tradeApi";
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
 
-const route = useRoute()
-const router = useRouter()
-
-const isLoading = ref(true)
-const itemInfo = ref(null)
+const route = useRoute();
+const router = useRouter();
+const tradeId = route.params.id;
+const isLoading = ref(true);
+const itemInfo = ref(null);
 const reservationData = ref({
-  rentalFee: '',
-  deposit: '',
-  startDate: '',
-  endDate: '',
-})
+  rentalFee: "",
+  deposit: "",
+  startDate: "",
+  endDate: "",
+});
 
+///////////////////////////////////// 채팅 연동 //////////////////////////////////////////
 const formData = ref({
-  lessorId: 'user1',
-  lesseeId: 'user2',
+  lessorId: "user1",
+  lesseeId: "user2",
   itemId: 4,
-})
-
-// tradeId computed 속성 추가
-const tradeId = computed(() => {
-  return route.params.id || formData.value.itemId?.toString()
-})
+});
+///////////////////////////////////// 채팅 연동 //////////////////////////////////////////
 
 // 데이터 로드
 onMounted(async () => {
   try {
-    const response = await tradeApi.getReservation(formData.value)
-    console.log(response)
-    const data = response.data
-    itemInfo.value = data
+    console.log(tradeId);
+    const response = await tradeApi.getTradeDetail(tradeId);
+    const data = response.data;
+    itemInfo.value = data;
   } catch (error) {
-    console.error('Error loading data:', error)
+    console.error("Error loading data:", error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-})
+});
 
 // 예약 정보 업데이트
 const updateReservation = (data) => {
-  reservationData.value = data
-}
+  reservationData.value = data;
+};
 
 // 유효성 검사
 const isFormValid = computed(() => {
-  const { rentalFee, deposit, startDate, endDate } = reservationData.value
-  return rentalFee && deposit && startDate && endDate
-})
+  const { rentalFee, deposit, startDate, endDate } = reservationData.value;
+  return rentalFee && deposit && startDate && endDate;
+});
 
 // 날짜 포맷
 const formatDateRange = (start, end) => {
-  if (!start || !end) return ''
+  if (!start || !end) return "";
   const formatDate = (date) => {
-    const dateObj = new Date(date)
-    const year = dateObj.getFullYear()
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-    const day = String(dateObj.getDate()).padStart(2, '0')
-    return `${year}. ${month}. ${day}`
-  }
-  return `${formatDate(start)} - ${formatDate(end)}`
-}
+    const dateObj = new Date(date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    return `${year}. ${month}. ${day}`;
+  };
+  return `${formatDate(start)} - ${formatDate(end)}`;
+};
 
 // 예약 제출
 const submitReservation = async () => {
-  if (!isFormValid.value) return
+  if (!isFormValid.value) return;
 
   try {
     const requestBody = {
       lessorId: formData.value.lessorId,
       lesseeId: formData.value.lesseeId,
       itemId: formData.value.itemId,
+      tradeId: tradeId,
       tradePrice: reservationData.value.rentalFee,
       tradeDeposit: reservationData.value.deposit,
       tradeRentalStartDate: reservationData.value.startDate,
       tradeRentalEndDate: reservationData.value.endDate,
-    }
+    };
 
-    const response = await tradeApi.createReservation(requestBody)
-    const newTradeId = response.data
-    alert('예약 신청되었습니다.')
+    const response = await tradeApi.updateReservation(requestBody);
+    alert("예약 변경되었습니다.");
 
-    router.push({ name: 'Detail', params: { id: newTradeId } })
+    router.push({ name: "Detail", params: { id: tradeId } });
   } catch (error) {
-    console.error('Error submitting reservation:', error)
-    alert('예약 신청 중 오류가 발생했습니다.')
+    console.error("Error submitting reservation:", error);
+    alert("예약 변경 중 오류가 발생했습니다.");
   }
-}
-
-// 예약 변경 페이지로 이동
-const goToEditPage = () => {
-  if (!tradeId.value) return
-  router.push({ name: 'ReservationUpdate', params: { id: tradeId.value } })
-}
-
-// 예약 상세 페이지로 이동
-const goToDetailPage = () => {
-  if (!tradeId.value) return
-  router.push({ name: 'DetailReservation', params: { id: tradeId.value } })
-}
+};
 </script>
 
 <style scoped>
