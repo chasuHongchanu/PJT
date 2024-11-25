@@ -212,10 +212,15 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { storage } from "@/firebase";
 import { ref as storageRef, getDownloadURL } from "firebase/storage";
 import categoriesData from "@/data/categories.json";
+import { itemApi } from '@/api/itemApi'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter();
 const route = useRoute();
 const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY;
+
+// 상태 관리 스토어 초기화
+const authStore = useAuthStore()
 
 // 상태 관리
 const isLoading = ref(true);
@@ -256,74 +261,79 @@ const showMapModal = ref(false);
 const mapCenter = ref({ lat: 37.5665, lng: 126.978 });
 const selectedLocation = ref(null);
 
-// 초기 데이터 로드 함수 수정
+// 초기 데이터 로드 함수
 const loadItemData = async () => {
   try {
-    const response = await fetch(`http://localhost:8080/api/item/rent/update/4`);
-    if (!response.ok) throw new Error("Failed to fetch item data");
+    const response = await itemApi.getItemForEdit(itemId);
+    const data = response.data;
 
-    const data = await response.json();
+    // 응답 데이터 검증
+    if (!data) {
+      throw new Error('No data received from server');
+    }
 
     // 기본 데이터 설정
-    // formData.value.itemId = itemId.value; // itemId 추가 설정
-    formData.value.itemId = 4; // itemId 추가 설정
-    formData.value.availableRentalStartDate =
-      formData.value.availableRentalStartDate + " 00:00:00";
-    formData.value.availableRentalEndDate =
-      formData.value.availableRentalEndDate + " 00:00:00";
-    Object.keys(formData.value).forEach((key) => {
-      if (data[key] !== undefined) formData.value[key] = data[key];
-    });
+    formData.value = {
+      ...data,
+      itemId: parseInt(itemId),
+      availableRentalStartDate: formatDate(data.availableRentalStartDate),
+      availableRentalEndDate: formatDate(data.availableRentalEndDate),
+    };
 
-    // 카테고리 초기화
-    const mainCat = categories.value.find((cat) => cat.name === data.itemMainCategory);
-    if (mainCat) {
-      selectedMainCategory.value = mainCat;
-      subCategories.value = mainCat.subCategories || [];
+    // 카테고리 설정
+    if (data.itemMainCategory) {
+      const mainCat = categories.value.find(
+        (cat) => cat.name === data.itemMainCategory
+      );
+      if (mainCat) {
+        selectedMainCategory.value = mainCat;
+        subCategories.value = mainCat.subCategories || [];
 
-      await nextTick(); // 반응성 반영 후 동작 보장
+        await nextTick();
 
-      const subCat = subCategories.value.find((cat) => cat.name === data.itemSubCategory);
-      if (subCat) {
-        selectedSubCategory.value = subCat;
-        items.value = subCat.items || [];
+        if (data.itemSubCategory) {
+          const subCat = subCategories.value.find(
+            (cat) => cat.name === data.itemSubCategory
+          );
+          if (subCat) {
+            selectedSubCategory.value = subCat;
+            items.value = subCat.items || [];
 
-        await nextTick(); // items 반영 후 업데이트 보장
+            await nextTick();
 
-        const item = items.value.find((i) => i === data.itemSubsubCategory);
-        if (item) {
-          selectedItem.value = item;
+            if (data.itemSubsubCategory) {
+              const item = items.value.find((i) => i === data.itemSubsubCategory);
+              if (item) {
+                selectedItem.value = item;
+              }
+            }
+          }
         }
       }
     }
 
-    // 기존 이미지 불러오기
-    if (data.itemImageNames?.length) {
-      const loadedImages = await Promise.all(
+    // 이미지 처리
+    if (Array.isArray(data.itemImageNames) && data.itemImageNames.length > 0) {
+      previewImages.value = await Promise.all(
         data.itemImageNames.map(async (path) => {
-          const url = await getDownloadURL(storageRef(storage, path));
-          return url;
+          try {
+            return await getDownloadURL(storageRef(storage, path));
+          } catch (error) {
+            console.error('Error loading image:', error);
+            return null;
+          }
         })
-      );
-      previewImages.value = loadedImages;
+      ).then(urls => urls.filter(url => url !== null));
     }
 
-    // 위치 정보 설정
-    if (data.latitude && data.longitude) {
-      selectedLocation.value = {
-        lat: parseFloat(data.latitude),
-        lng: parseFloat(data.longitude),
-      };
-      mapCenter.value = { ...selectedLocation.value };
-    }
-
-    console.log("Main category:", selectedMainCategory.value);
-    console.log("Sub categories:", subCategories.value);
-    console.log("Sub category to select:", data.itemSubCategory);
-    console.log("Selected sub category:", selectedSubCategory.value);
   } catch (error) {
-    console.error("Error loading item:", error);
-    alert("물품 정보를 불러오는데 실패했습니다.");
+    console.error('Error loading item:', error);
+    if (error.response?.status === 401) {
+      alert('로그인이 필요합니다.');
+      router.push('/auth/login');
+    } else {
+      alert('물품 정보를 불러오는데 실패했습니다.');
+    }
   } finally {
     isLoading.value = false;
   }
@@ -465,7 +475,7 @@ const confirmLocation = async () => {
   }
 };
 
-// 폼 제출
+// 폼 제출 핸들러
 const handleSubmit = async () => {
   if (isSubmitting.value) return;
 
@@ -475,31 +485,37 @@ const handleSubmit = async () => {
     const formDataToSend = new FormData();
 
     // 기본 데이터 추가
-    // formData.value.itemId = itemId.value; // itemId 추가 설정
-    formData.value.itemId = 4; // itemId 추가 설정
-    Object.keys(formData.value).forEach((key) => {
-      formDataToSend.append(key, formData.value[key]);
+    const requestData = {
+      ...formData.value,
+      userId: authStore.userId,
+      itemStatus: formData.value.itemStatus || "AVAILABLE",
+      itemImageNames: [], // 기존 이미지 이름 배열
+    };
+
+    // FormData에 JSON 데이터 추가
+    Object.keys(requestData).forEach(key => {
+      if (key !== 'itemImages') {
+        formDataToSend.append(key, requestData[key]);
+      }
     });
 
-    // 이미지 파일 추가
-    imageFiles.value.forEach((file) => {
-      formDataToSend.append("itemImages", file);
+    // 새로운 이미지 파일 추가
+    imageFiles.value.forEach(file => {
+      formDataToSend.append('itemImages', file);
     });
 
-    const response = await fetch(`http://localhost:8080/api/item/rent`, {
-      method: "PUT",
-      body: formDataToSend,
-    });
-
-    if (response.ok) {
-      alert("물품이 성공적으로 수정되었습니다.");
-      router.push(`/items/view`);
-    } else {
-      throw new Error("Failed to update item");
-    }
+    await itemApi.updateItem(formDataToSend);
+    
+    alert('물품이 성공적으로 수정되었습니다.');
+    router.push(`/items/view`);
+    
   } catch (error) {
-    console.error("Error updating item:", error);
-    alert("물품 수정 중 오류가 발생했습니다. 다시 시도해주세요.");
+    console.error('Error updating item:', error);
+    if (error.response?.status === 401) {
+      router.push('/auth/login');
+    } else {
+      alert('물품 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
   } finally {
     isSubmitting.value = false;
   }

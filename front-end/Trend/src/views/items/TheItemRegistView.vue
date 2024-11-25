@@ -203,6 +203,9 @@ import { GoogleMap, Marker } from "vue3-google-map";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import categoriesData from "@/data/categories.json";
 import { useRouter } from "vue-router";
+import { useAuthStore } from '@/stores/auth'
+import { itemApi } from '@/api/itemApi'
+
 
 // Google Maps API 키
 const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY;
@@ -222,7 +225,6 @@ const formData = reactive({
   availableRentalEndDate: "",
 });
 
-const router = useRouter();
 // 이미지 업로드 관련
 const fileInput = ref(null);
 const imageFiles = ref([]);
@@ -332,40 +334,70 @@ const confirmLocation = async () => {
   }
 };
 
+// 상태 관리 스토어 초기화
+const authStore = useAuthStore()
+const router = useRouter()
+
 // 폼 제출 핸들러
 const handleSubmit = async () => {
-  if (isSubmitting.value) return; // 중복 제출 방지
+  if (isSubmitting.value) return;
 
   try {
-    isSubmitting.value = true; // 로딩 시작
-    formData.itemSubsubCategory = selectedItem.value;
-
+    isSubmitting.value = true;
+    
+    // FormData 객체 생성
     const formDataToSend = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (key !== "itemImages") {
-        formDataToSend.append(key, formData[key]);
+    
+    // 기본 폼 데이터 추가
+    const requestData = {
+      ...formData,
+      userId: authStore.userId, // auth store에서 userId 가져오기
+      itemStatus: "AVAILABLE", // 기본 상태 설정
+      itemId: 0, // 신규 등록이므로 0으로 설정
+      itemImageNames: [], // 이미지 이름 배열 (백엔드에서 처리)
+    };
+
+    // FormData에 JSON 데이터 추가
+    Object.keys(requestData).forEach(key => {
+      if (key !== 'itemImages') {
+        formDataToSend.append(key, requestData[key]);
       }
     });
 
-    imageFiles.value.forEach((file) => {
-      formDataToSend.append("itemImages", file);
+    // 이미지 파일들 추가
+    imageFiles.value.forEach((file, index) => {
+      formDataToSend.append('itemImages', file);
     });
 
-    const response = await fetch("http://localhost:8080/api/item/rent", {
-      method: "POST",
-      body: formDataToSend,
-    });
+    // API 호출
+    const response = await itemApi.registerItem(formDataToSend);
 
-    if (response.ok) {
+    if (response.status === 200 || response.status === 201) {
       // 성공 처리
-      console.log("Item registered successfully");
-      // 등록 완료 후 처리 (예: 페이지 이동)
-      router.push(`/items/view`);
+      console.log('물품이 성공적으로 등록되었습니다.');
+      router.push('/items/view');
     }
   } catch (error) {
-    console.error("Error registering item:", error);
+    console.error('물품 등록 중 오류 발생:', error);
+    // 에러 처리 로직 추가 필요
+    if (error.response) {
+      // 서버 응답이 있는 경우
+      switch (error.response.status) {
+        case 401:
+          console.error('인증되지 않은 사용자입니다.');
+          router.push('/auth/login');
+          break;
+        case 400:
+          console.error('잘못된 요청입니다:', error.response.data);
+          break;
+        default:
+          console.error('서버 오류가 발생했습니다.');
+      }
+    } else {
+      console.error('네트워크 오류가 발생했습니다.');
+    }
   } finally {
-    isSubmitting.value = false; // 로딩 종료
+    isSubmitting.value = false;
   }
 };
 </script>

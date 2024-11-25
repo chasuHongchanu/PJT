@@ -10,6 +10,7 @@ import com.example.trend.user.jwt.JwtUtil;
 import com.example.trend.user.mapper.RefreshTokenMapper;
 import com.example.trend.user.mapper.UserMapper;
 import com.example.trend.util.FileUtil;
+import com.example.trend.util.FirebaseUserService;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,16 +31,18 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenMapper refreshTokenMapper;
     private final FileUtil fileUtil;
     private final MailService mailService;
+    private final FirebaseUserService firebaseUserService;
 
     @Value("${jwt.refreshToken-validity}")
     private long MAX_REFRESH_TOKEN_AGE_MS;
 
-    public UserServiceImpl(MailService mailService, FileUtil fileUtil, RefreshTokenMapper refreshTokenMapper, JwtUtil jwtUtil, UserMapper userMapper) {
+    public UserServiceImpl(MailService mailService, FileUtil fileUtil, RefreshTokenMapper refreshTokenMapper, JwtUtil jwtUtil, UserMapper userMapper, FirebaseUserService firebaseUserService) {
         this.mailService = mailService;
         this.fileUtil = fileUtil;
         this.refreshTokenMapper = refreshTokenMapper;
         this.jwtUtil = jwtUtil;
         this.userMapper = userMapper;
+        this.firebaseUserService=firebaseUserService;
     }
 
     @Override
@@ -59,6 +62,14 @@ public class UserServiceImpl implements UserService {
         int cnt = userMapper.insertNewUser(userSignupRequestDto);
         if (cnt != 1) {
             throw new CustomException(ErrorCode.FAIL_TO_SAVE_USER);
+        }
+
+        // Firebase 사용자 생성
+        try {
+            firebaseUserService.createFirebaseUser(userSignupRequestDto.getUserId());
+        } catch (Exception e) {
+            log.error("Firebase user creation failed", e);
+            // 실패해도 회원가입은 진행되도록 예외를 삼킵니다
         }
     }
 
@@ -111,8 +122,14 @@ public class UserServiceImpl implements UserService {
             throw new CustomException(ErrorCode.FAIL_TO_SAVE_REFRESH_TOKEN);
         }
 
+        // UserResponseDto 생성
+        UserLoginResponseDto userLoginResponseDto = UserLoginResponseDto.builder()
+                .userId(user.getUserId())
+                .nickName(user.getUserNickname())
+                .profileImgUrl(user.getUserProfileImg())
+                .build();
         // 생성한 토큰 반환
-        return new TokenDto(accessToken, refreshToken);
+        return new TokenDto(accessToken, refreshToken, userLoginResponseDto);
     }
 
     // 비밀번호 해싱 함수
@@ -187,28 +204,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(UserUpdateRequestDto userUpdateRequestDto){
-        // 비밀번호 해싱
-        String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
-        userUpdateRequestDto.setUserPassword(hashedPassword);
-
-        //image file의 이름을 경로를 추가한 이름으로 변경
+    public UserUpdateResponseDto updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         String userId = userUpdateRequestDto.getUserId();
-        log.info("userId: {}", userId);
-        String imgUrl =
-                "users/"
-                + userId +"/"
-                + userUpdateRequestDto.getUserProfileImg().getOriginalFilename();
-        log.info("imgUrl: {}", imgUrl);
 
-        // storage에 이미지 저장
-        fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
+        // 비밀번호가 제공된 경우에만 해싱
+        if (userUpdateRequestDto.getUserPassword() != null && !userUpdateRequestDto.getUserPassword().isEmpty()) {
+            String hashedPassword = hashPassword(userUpdateRequestDto.getUserPassword());
+            userUpdateRequestDto.setUserPassword(hashedPassword);
+        }
 
-        // DB에 유저 정보와 이미지 이름을 저장
+        // 이미지가 제공된 경우에만 처리
+        if (userUpdateRequestDto.getUserProfileImg() != null && !userUpdateRequestDto.getUserProfileImg().isEmpty()) {
+            String imgUrl = fileUtil.saveFileIntoStorage("users", userId, userUpdateRequestDto.getUserProfileImg());
+            userUpdateRequestDto.setUserProfileImgUrl(imgUrl);
+        }
+
         try {
-            userMapper.updateUser(userUpdateRequestDto, imgUrl);
+            userMapper.updateUser(userUpdateRequestDto);
+            return UserUpdateResponseDto.of(userUpdateRequestDto);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Failed to update user: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FAIL_TO_UPDATE_USER);
         }
     }
@@ -270,4 +285,9 @@ public class UserServiceImpl implements UserService {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
+    @Override
+    public String getUserProfileImage(String userId) {
+        String imageUrl = userMapper.selectUserProfileImage(userId);
+        return imageUrl;
+    }
 }

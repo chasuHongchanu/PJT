@@ -89,7 +89,7 @@ public class UserController {
         // 성공 응답 반환
         return ResponseEntity.ok()
                 .headers(headers)
-                .body("Login successful");
+                .body(tokenDto.getUserLoginResponseDto());
     }
 
     @SkipJwt
@@ -124,10 +124,12 @@ public class UserController {
 
     @PutMapping("/userinfo")
     @Operation(summary = "유저 정보 수정", description = "입력된 값으로 유저 정보를 수정")
-    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto, @RequestAttribute("userId") String requestUserId) throws Exception {
+    public ResponseEntity<UserUpdateResponseDto> updateUserInfo(
+            @Valid @ModelAttribute UserUpdateRequestDto userUpdateRequestDto,
+            @RequestAttribute("userId") String requestUserId) throws Exception {
         userUpdateRequestDto.setUserId(requestUserId);
-        userService.updateUser(userUpdateRequestDto);
-        return ResponseEntity.ok("Update Successful");
+        UserUpdateResponseDto responseDto = userService.updateUser(userUpdateRequestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/logout")
@@ -164,5 +166,13 @@ public class UserController {
     public ResponseEntity<?> resetPassword(@RequestBody UserResetPwRequestDto userResetPwRequestDto){
         userService.resetPassword(userResetPwRequestDto);
         return ResponseEntity.ok("Reset Password Successful, 임시 비밀번호 전송 완료");
+    }
+
+    @SkipJwt
+    @GetMapping("/{userId}/profile-image")
+    @Operation(summary = "유저 프로필 사진 조회")
+    public ResponseEntity<?> getUserProfileImage(@PathVariable String userId){
+        String userProfileImgUrl = userService.getUserProfileImage(userId);
+        return ResponseEntity.ok(userProfileImgUrl);
     }
 }

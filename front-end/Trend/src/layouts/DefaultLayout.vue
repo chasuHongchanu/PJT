@@ -1,9 +1,12 @@
-<!-- src/layouts/DefaultLayout.vue -->
 <template>
   <div class="default-layout">
     <NavigationBar />
     <main class="main-content">
-      <slot></slot>
+      <div class="content-container">
+        <div class="content-wrapper">
+          <slot></slot>
+        </div>
+      </div>
     </main>
   </div>
 </template>
@@ -26,13 +29,25 @@ export default {
 }
 
 .main-content {
-  padding-top: 60px; /* NavigationBar 높이만큼 여백 */
+  /* NavigationBar 높이만큼 여백 */
+  padding-top: 60px;
   min-height: calc(100vh - 60px);
 }
 
-@media (max-width: 767px) {
-  .main-content {
-    width: 100%;
-  }
+.content-container {
+  /* 빨간색 화살표 기준: 모바일에서는 좌우 5% 정도의 여백만 */
+  width: clamp(85%, calc(85% + 100 * (100vw - 320px) / (1200 - 320)), 95%);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 12px 0; /* 좌우 패딩 제거 */
+  transition: all 0.3s ease;
+}
+
+.content-wrapper {
+  background-color: white;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* 파란색 화살표 기준: 모바일에서는 좌우 12px 정도의 여백 */
+  padding: clamp(4px, calc(4px + 1.5vw), 20px) clamp(0px, calc(0px + 2vw), 24px);
 }
 </style>

@@ -64,11 +64,22 @@ public class ItemController {
                 .body(response);
     }
 
+    /**
+     * update를 하기 위해 기존에 저장된 데이터를 화면에 나타나게 합니다.
+     */
+    @GetMapping("/rent/update/{itemId}")
+    public ResponseEntity<?> updateView(@PathVariable("itemId") int itemId)
+    {
+        ItemRequestDto itemUpdateViewDto = itemService.getUpdateViewInfo(itemId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(itemUpdateViewDto);
+    }
+
     @PutMapping("/rent")
-    public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto,
-                                    @RequestAttribute("userId") String userId)
-        {
-            itemUpdateDto.setUserId(userId);
+    public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto, @RequestAttribute("userId") String userId) {
+
+             itemUpdateDto.setUserId(userId);
             // 가격이 비어있는 경우
             if(itemUpdateDto.getItemPrice() == 0) {
                 throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);
@@ -96,8 +107,8 @@ public class ItemController {
     }
 
     @SkipJwt
-    @GetMapping("/rent")
-    public ResponseEntity<?> detail(@RequestParam("itemId") int itemId, HttpServletRequest request) {
+    @GetMapping("/rent/{itemId}")
+    public ResponseEntity<?> detail(@PathVariable("itemId") int itemId, HttpServletRequest request) {
         String userId = null;
         if(request.getAttribute("userId") != null) {
             userId = request.getAttribute("userId").toString();
@@ -110,8 +121,8 @@ public class ItemController {
     }
 
     @SkipJwt
-    @GetMapping("/rent/similar")
-    public ResponseEntity<?> detailSimilarItems(@RequestParam("itemId") int itemId) {
+    @GetMapping("/rent/similar/{itemId}")
+    public ResponseEntity<?> detailSimilarItems(@PathVariable("itemId") int itemId) {
         List<ItemSimpleInfo> similarItems = itemService.getSimilarItems(itemId);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -119,8 +130,8 @@ public class ItemController {
     }
 
     @SkipJwt
-    @GetMapping("/rent/peripheral")
-    public ResponseEntity<?> detailPeripheralItems(@RequestParam("itemId") int itemId) {
+    @GetMapping("/rent/peripheral/{itemId}")
+    public ResponseEntity<?> detailPeripheralItems(@PathVariable("itemId") int itemId) {
         List<ItemSimpleInfo> peripheralItems = itemService.getPeripheralItems(itemId);
 
         return ResponseEntity.status(HttpStatus.OK)

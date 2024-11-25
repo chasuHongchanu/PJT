@@ -31,4 +31,6 @@ public interface ItemService {
     int like(String userId, String itemId);
 
     int likeCancel(String userId, String itemId);
+
+    ItemRequestDto getUpdateViewInfo(int itemId);
 }

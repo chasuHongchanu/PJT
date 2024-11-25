@@ -28,7 +28,6 @@ public class ItemServiceImpl implements ItemService{
 
     @Override
     public Pagination<ItemRetrieveResponseDto> searchPagedItems(ItemSearchCriteria itemSearchCriteria, int page, int size) {
-        System.out.println(page + " " + size);
         int offset = (page - 1) * size;
         List<ItemRetrieveResponseDto> items = itemMapper.searchItems(itemSearchCriteria, offset, size);
         int totalItems = itemMapper.countItems(itemSearchCriteria);
@@ -46,10 +45,13 @@ public class ItemServiceImpl implements ItemService{
         int itemId = itemRegistDto.getItemId();
         String userId = itemRegistDto.getUserId();
 
+        List<String> itemImageNames = null;
         // 파일 이름을 추출하여 itemImageNames 리스트에 추가
-        List<String> itemImageNames = itemRegistDto.getItemImages().stream()
-                .map(file -> "items/" + itemId + "/" + file.getOriginalFilename())
-                .toList();
+        if(itemRegistDto.getItemImages() != null) {
+            itemImageNames = itemRegistDto.getItemImages().stream()
+                    .map(file -> "items/" + itemId + "/" + file.getOriginalFilename())
+                    .toList();
+        }
 
         // 시작일이 종료일보다 늦은 경우
         String availableRentalStartDate = itemRegistDto.getAvailableRentalStartDate();
@@ -66,12 +68,15 @@ public class ItemServiceImpl implements ItemService{
         // 아무런 예외도 발생하지 않은 경우 이미지 저장
         // 이미지가 정상적으로 1개 이상 들어온 경우 storage에 이미지 저장
         List<MultipartFile> files = itemRegistDto.getItemImages();
-        if(!(files.size() == 1 && files.get(0).isEmpty())) {
+        if(files != null && !(files.size() == 1 && files.get(0).isEmpty())) {
+            System.out.println(files.size());
+
             fileUtil.saveFilesIntoStorage("items", itemId, files);
             // 썸네일 저장 (첫 번째로 들어온 사진을 썸네일로 지정)
             itemMapper.insertThumbnail(itemImageNames.get(0), itemId);
             // db에 물품 이미지 이름 정보 insert
             for(String itemImageName: itemImageNames) {
+                System.out.println(itemImageName);
                 itemMapper.insertItemImageName(itemId, itemImageName);
             }
         }
@@ -101,10 +106,13 @@ public class ItemServiceImpl implements ItemService{
             throw new CustomException(ErrorCode.INVALID_RENTAL_PERIOD);
         }
 
+        List<String> itemImageNames = null;
         // 파일 이름을 추출하여 itemImageNames 리스트에 추가
-        List<String> itemImageNames = itemUpdateDto.getItemImages().stream()
-                .map(file -> "items/" + itemId + "/" + file.getOriginalFilename())
-                .toList();
+        if(itemUpdateDto.getItemImages() != null) {
+            itemImageNames = itemUpdateDto.getItemImages().stream()
+                    .map(file -> "items/" + itemId + "/" + file.getOriginalFilename())
+                    .toList();
+        }
 
         // updateDto로 넘어온 사진과, 현재 저장된 사진들 중 다른 것이 있다면 이전에 저장된 사진은 삭제해야 함
         // DB에서 삭제 (다 날리고 다시 새로 삽입)
@@ -248,5 +256,15 @@ public class ItemServiceImpl implements ItemService{
     @Override
     public int likeCancel(String userId, String itemId) {
         return itemMapper.deleteWishList(userId, itemId);
+    }
+
+    @Override
+    public ItemRequestDto getUpdateViewInfo(int itemId) {
+        ItemRequestDto itemUpdateViewDto = itemMapper.selectUpdateViewInfo(itemId);
+        List<String> itemNameImages = itemMapper.selectItemNameImagesByItemId(itemId, itemUpdateViewDto.getUserId());
+        itemUpdateViewDto.setItemImageNames(itemNameImages);
+        itemUpdateViewDto.setAvailableRentalStartDate(itemUpdateViewDto.getAvailableRentalStartDate().split(" ")[0]);
+        itemUpdateViewDto.setAvailableRentalEndDate(itemUpdateViewDto.getAvailableRentalEndDate().split(" ")[0]);
+        return itemUpdateViewDto;
     }
 }

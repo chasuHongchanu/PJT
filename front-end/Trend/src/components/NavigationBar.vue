@@ -8,29 +8,21 @@
 
     <!-- Desktop Navigation Links -->
     <div class="navbar-center desktop-only">
-      <router-link to="/rental" class="nav-link">여행 물품 대여</router-link>
+      <router-link to="/items/view" class="nav-link">여행 물품 대여</router-link>
       <router-link to="/course" class="nav-link">여행 코스</router-link>
       <router-link to="/community" class="nav-link">커뮤니티</router-link>
     </div>
 
     <!-- Right Section -->
     <div class="navbar-right">
-      <!-- Chat Button (Always Visible) -->
-      <button class="icon-button" @click="openChat">
+      <!-- Chat Button (Only Visible when Authenticated) -->
+      <button v-if="isAuthenticated" class="icon-button" @click="toggleChat">
         <img src="@/assets/nav/chat-icon.svg" alt="Chat" class="icon" />
       </button>
 
       <!-- Profile Section (Desktop Only) -->
-      <div
-        v-if="isAuthenticated"
-        class="profile-section desktop-only"
-        @click="toggleProfilePopup"
-      >
-        <img
-          :src="userProfile?.profileImage || '/default-profile.jpg'"
-          alt="Profile"
-          class="profile-image"
-        />
+      <div v-if="isAuthenticated" class="profile-section desktop-only" @click="toggleProfilePopup">
+        <img v-if="isAuthenticated" :src="profileImage" class="profile-image" alt="Profile" />
         <NavProfilePop :is-visible="isProfilePopupOpen" @close="closeProfilePopup" />
       </div>
       <button v-else class="profile-button desktop-only" @click="goToLogin">
@@ -38,28 +30,18 @@
       </button>
 
       <!-- Mobile Menu Button -->
-      <button class="icon-button" @click="toggleMenu">
+      <button class="icon-button mobile-only" @click="toggleMenu">
         <img src="@/assets/nav/menu-icon.svg" alt="Menu" class="icon" />
       </button>
     </div>
   </nav>
-
-  <!-- Mobile Side Menu -->
-  <!-- <div v-show="isMenuOpen" class="mobile-menu-backdrop">
-    <Transition name="slide">
-      <div v-show="isMenuOpen" class="mobile-menu-content">
-        <SideMenu @close="closeMenu" />
-      </div>
-    </Transition>
-  </div> -->
-
 
   <!-- Mobile Menu Container -->
   <Transition name="fade">
     <div v-if="isMenuOpen" class="mobile-menu-container">
       <!-- Backdrop -->
       <div class="mobile-menu-backdrop" @click="closeMenu"></div>
-      
+
       <!-- Menu Content with Animation -->
       <Transition name="slide">
         <div v-if="isMenuOpen" class="mobile-menu-content">
@@ -68,111 +50,154 @@
       </Transition>
     </div>
   </Transition>
+
+  <!-- Chat Container -->
+  <Transition name="chat-transition">
+    <div v-if="isChatOpen" class="chat-overlay">
+      <!-- Desktop Backdrop -->
+      <div v-if="!isMobile" class="chat-backdrop" @click="toggleChat"></div>
+
+      <div :class="['chat-container', { mobile: isMobile, desktop: !isMobile }]">
+        <!-- Mobile Close Button -->
+        <button v-if="isMobile" class="mobile-close-button" @click="toggleChat">
+          <span class="close-icon">×</span>
+        </button>
+
+        <Transition name="fade" mode="out-in">
+          <ChatRoom 
+            v-if="selectedRoomId" 
+            :key="'room-' + selectedRoomId"
+            :room-id="selectedRoomId"
+            :item-id="selectedItemId"
+            @back="closeRoom"
+          />
+          <ChatList 
+            v-else 
+            :key="'list'" 
+            @select-room="selectRoom"
+          />
+        </Transition>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
-import { storeToRefs } from "pinia";
-import SideMenu from "./menu/SideMenu.vue";
-import NavProfilePop from "./NavProfilePop.vue";
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
+import SideMenu from './menu/SideMenu.vue'
+import NavProfilePop from './NavProfilePop.vue'
+import ChatList from '@/components/chat/ChatList.vue'
+import ChatRoom from '@/components/chat/ChatRoom.vue'
 
 export default {
-  name: "NavigationBar",
+  name: 'NavigationBar',
   components: {
     SideMenu,
     NavProfilePop,
+    ChatList,
+    ChatRoom,
   },
   setup() {
-    const router = useRouter();
-    const authStore = useAuthStore();
-    const { isAuthenticated, userProfile } = storeToRefs(authStore);
-    const isMenuOpen = ref(false);
-    const isProfilePopupOpen = ref(false);
+    const router = useRouter()
+    const authStore = useAuthStore()
+    const { isAuthenticated, profileImage } = storeToRefs(authStore)
 
-    const toggleProfilePopup = (e) => {
-      e.stopPropagation();
-      isProfilePopupOpen.value = !isProfilePopupOpen.value;
-    };
+    const isMenuOpen = ref(false)
+    const isProfilePopupOpen = ref(false)
 
-    const closeProfilePopup = () => {
-      isProfilePopupOpen.value = false;
-    };
+    // 채팅 관련 상태
+    const isChatOpen = ref(false)
+    const selectedRoomId = ref(null)
+    const selectedItemId = ref(null)
+    const isMobile = ref(window.innerWidth < 768)
 
-    const toggleMenu = () => {
-      isMenuOpen.value = !isMenuOpen.value;
-    };
-
-    const closeMenu = () => {
-      isMenuOpen.value = false;
-    };
-
-    // 외부 클릭 이벤트 핸들러
-    const handleClickOutside = (event) => {
-      const profileSection = document.querySelector(".profile-section");
-      const popupContent = document.querySelector(".popup-content");
-
-      if (
-        isProfilePopupOpen.value &&
-        profileSection &&
-        !profileSection.contains(event.target) &&
-        popupContent &&
-        !popupContent.contains(event.target)
-      ) {
-        isProfilePopupOpen.value = false;
+    // 채팅 기능
+    const toggleChat = () => {
+      isChatOpen.value = !isChatOpen.value
+      if (!isChatOpen.value) {
+        selectedRoomId.value = null
+        selectedItemId.value = null
       }
-    };
+    }
 
-    // 컴포넌트 마운트/언마운트 시 이벤트 리스너 관리
-    onMounted(() => {
-      document.addEventListener("click", handleClickOutside);
-    });
+    const selectRoom = (roomId, itemId) => {
+      selectedRoomId.value = roomId
+      selectedItemId.value = itemId
+    }
 
-    onUnmounted(() => {
-      document.removeEventListener("click", handleClickOutside);
-    });
+    const closeRoom = () => {
+      selectedRoomId.value = null
+      selectedItemId.value = null
+    }
 
-    // 화면 크기 변경 감지 - 애니메이션을 위해 타이머 추가
+    // 반응형 처리
     const handleResize = () => {
+      isMobile.value = window.innerWidth < 768
       if (window.innerWidth >= 768 && isMenuOpen.value) {
         isMenuOpen.value = false
       }
     }
 
-    // 이벤트 리스너는 이전과 동일
+    const toggleProfilePopup = (e) => {
+      e.stopPropagation()
+      isProfilePopupOpen.value = !isProfilePopupOpen.value
+    }
+
+    const handleClickOutside = (e) => {
+      if (isProfilePopupOpen.value) {
+        closeProfilePopup()
+      }
+    }
+
     onMounted(() => {
       window.addEventListener('resize', handleResize)
+      document.addEventListener('click', handleClickOutside)
     })
 
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize)
+      document.removeEventListener('click', handleClickOutside)
     })
 
-    const goToHome = () => router.push("/");
-    const goToLogin = () => router.push("/auth/login");
-    const goToProfile = () => router.push("/user/profile/info");
-    const openChat = () => {
-      // 채팅 팝업 로직 구현
-      console.log("Open chat");
-    };
+    const closeProfilePopup = () => {
+      isProfilePopupOpen.value = false
+    }
+
+    const toggleMenu = () => {
+      isMenuOpen.value = !isMenuOpen.value
+    }
+
+    const closeMenu = () => {
+      isMenuOpen.value = false
+    }
+
+    const goToHome = () => router.push('/')
+    const goToLogin = () => router.push('/auth/login')
 
     return {
       isAuthenticated,
-      userProfile,
+      profileImage,
       isMenuOpen,
       toggleMenu,
       closeMenu,
       goToHome,
       goToLogin,
-      goToProfile,
-      openChat,
       isProfilePopupOpen,
       toggleProfilePopup,
       closeProfilePopup,
-    };
+      isChatOpen,
+      selectedRoomId,
+      selectedItemId,
+      isMobile,
+      toggleChat,
+      selectRoom,
+      closeRoom,
+    }
   },
-};
+}
 </script>
 
 <style scoped>
@@ -207,7 +232,6 @@ export default {
   color: #ff5a5a;
 }
 
-/* 중앙 정렬된 네비게이션 링크 */
 .navbar-center {
   position: absolute;
   left: 50%;
@@ -244,8 +268,9 @@ export default {
 }
 
 .icon {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
+  stroke-width: 25;
 }
 
 .profile-section {
@@ -259,27 +284,19 @@ export default {
   object-fit: cover;
 }
 
-/* 모바일 메뉴 컨테이너 */
+/* 모바일 메뉴 스타일 */
 .mobile-menu-container {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 999;
 }
 
-/* 배경 스타일 */
 .mobile-menu-backdrop {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.5);
 }
 
-/* 메뉴 콘텐츠 스타일 */
 .mobile-menu-content {
   position: absolute;
   top: 60px;
@@ -287,13 +304,77 @@ export default {
   bottom: 0;
   width: 280px;
   background: white;
-  box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 배경 페이드 애니메이션 */
+/* 채팅 컨테이너 스타일 */
+.chat-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.chat-backdrop {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.chat-container {
+  position: fixed;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.chat-container.mobile {
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.chat-container.desktop {
+  bottom: 80px;
+  right: 20px;
+  width: 380px;
+  height: 600px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.close-icon {
+  font-size: 24px;
+  line-height: 1;
+  color: #666;
+}
+
+/* 트랜지션 애니메이션 */
 .fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.fade-leave-active,
+.chat-transition-enter-active,
+.chat-transition-leave-active {
+  transition: all 0.3s ease;
 }
 
 .fade-enter-from,
@@ -301,8 +382,12 @@ export default {
   opacity: 0;
 }
 
+.chat-transition-enter-from,
+.chat-transition-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
 
-/* 메뉴 슬라이드 애니메이션 */
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.3s ease;
@@ -318,7 +403,7 @@ export default {
   transform: translateX(0);
 }
 
-/* Responsive Styles */
+/* 반응형 스타일 */
 @media (min-width: 768px) {
   .mobile-only {
     display: none;
@@ -326,11 +411,6 @@ export default {
 
   .desktop-only {
     display: flex;
-  }
-
-  /* 데스크톱에서 메뉴 버튼 숨기기 */
-  .icon-button:last-child {
-    display: none;
   }
 }
 
@@ -341,6 +421,11 @@ export default {
 
   .desktop-only {
     display: none;
+  }
+
+  .chat-transition-enter-from,
+  .chat-transition-leave-to {
+    transform: translateY(100%);
   }
 }
 </style>
