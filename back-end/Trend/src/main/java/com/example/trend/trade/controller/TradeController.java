@@ -179,8 +179,8 @@ public class TradeController {
      * @param: tradeId
      * @return:
      */
-    @PutMapping("/pay")
-    public ResponseEntity<?> tradePay(@RequestParam int tradeId) {
+    @PutMapping("/pay/{tradeId}")
+    public ResponseEntity<?> tradePay(@PathVariable int tradeId) {
         int result = tradeService.updatePaymentStatus(tradeId);
 
         Map<String, Object> response = new HashMap<>();
@@ -203,8 +203,8 @@ public class TradeController {
      * @param: tradeId
      * @return:
      */
-    @GetMapping("/review")
-    public ResponseEntity<?> tradeReview(@RequestParam int tradeId) {
+    @GetMapping("/review/{tradeId}")
+    public ResponseEntity<?> tradeReview(@PathVariable int tradeId) {
         TradeReviewResponseDto tradeReviewResponseDto = tradeService.getTradeInfoForReview(tradeId);
         if(tradeReviewResponseDto == null) {
             Map<String, Object> response = new HashMap<>();
