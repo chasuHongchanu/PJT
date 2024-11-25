@@ -30,15 +30,8 @@ public class TradeController {
      * @param: itemId, lessorId, lesseeId
      * @return: itemId, itemAvailableRentalStartDate, itemAvailableRentalEndDate, itemName, itemPrice, itemAddress
      */
-    @SkipJwt
     @GetMapping("/reservation")
     public ResponseEntity<?> tradeReservation(@ModelAttribute TradeReservationRequestDto tradeReservationRequestDto) {
-        //////////////////// 로그인 연동 전 /////////////////////
-        tradeReservationRequestDto.setItemId(4);
-        tradeReservationRequestDto.setLessorId("user1");
-        tradeReservationRequestDto.setLesseeId("user2");
-        //////////////////// 로그인 연동 전 /////////////////////
-
         TradeReservationResponseDto tradeReservationResponseDto = tradeService.getReservationInfo(tradeReservationRequestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -50,30 +43,14 @@ public class TradeController {
      * 대여료,보증금, 대여 기간을 입력받아 새로운 거래를 생성합니다.
      *
      * @param:
-     * @return: 거래 생성 완료 message | 거래 생성 실패 message
+     * @return: 거래 ID
      */
-    @SkipJwt
     @PostMapping("/reservation")
     public ResponseEntity<?> tradeReservationRegist(@Valid @RequestBody TradeReservationRegistRequestDto tradeReservationRegistRequestDto) {
-        //////////////////// 로그인 연동 전 /////////////////////
-        tradeReservationRegistRequestDto.setItemId(4);
-        tradeReservationRegistRequestDto.setLessorId("user1");
-        tradeReservationRegistRequestDto.setLesseeId("user2");
-        //////////////////// 로그인 연동 전 /////////////////////
 
-        int result = tradeService.registReservation(tradeReservationRegistRequestDto);
-
-        Map<String, Object> response = new HashMap<>();
-        if(result == 1) {
-            response.put("message", "성공적으로 등록되었습니다.");
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(response);
-        }
-        else {
-            response.put("message", "등록에 문제가 발생했습니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(response);
-        }
+        int tradeId = tradeService.registReservation(tradeReservationRegistRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(tradeId);
     }
 
     /**
@@ -84,7 +61,7 @@ public class TradeController {
      * @return: 거래 수정 완료 message | 거래 수정 실패 message
      */
     @PutMapping("/reservation")
-    public ResponseEntity<?> tradeReservationUpdate(@Valid @ModelAttribute("tradeReservationUpdateRequestDto") TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto) {
+    public ResponseEntity<?> tradeReservationUpdate(@Valid @RequestBody TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto) {
         int result = tradeService.updateReservation(tradeReservationUpdateRequestDto);
 
         Map<String, Object> response = new HashMap<>();
@@ -132,8 +109,8 @@ public class TradeController {
      * @param: tradeId
      * @return: 거래에 대한 모든 정보
      */
-    @GetMapping("/detail")
-    public ResponseEntity<?> tradeDetail(@RequestParam int tradeId) {
+    @GetMapping("/detail/{tradeId}")
+    public ResponseEntity<?> tradeDetail(@PathVariable int tradeId) {
         TradeDetailResponseDto tradeDetailResponseDto = tradeService.getTradeDetailInfo(tradeId);
 
         if(tradeDetailResponseDto == null) {

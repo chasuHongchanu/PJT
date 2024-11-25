@@ -27,6 +27,7 @@ public interface TradeMapper {
             INTO item_trade (item_id, lessor_id, lessee_id, trade_price, trade_deposit, payment_account_number, rental_start_date, rental_end_date)
             VALUES (#{itemId}, #{lessorId}, #{lesseeId}, #{tradePrice}, #{tradeDeposit}, #{paymentAccountNumber}, #{tradeRentalStartDate}, #{tradeRentalEndDate})
             """)
+    @Options(useGeneratedKeys = true, keyProperty = "tradeId")
     int insertReservation(TradeReservationRegistRequestDto tradeReservationRegistRequestDto);
 
     @Update("""
