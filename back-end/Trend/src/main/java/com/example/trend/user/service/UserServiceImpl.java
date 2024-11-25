@@ -10,6 +10,7 @@ import com.example.trend.user.jwt.JwtUtil;
 import com.example.trend.user.mapper.RefreshTokenMapper;
 import com.example.trend.user.mapper.UserMapper;
 import com.example.trend.util.FileUtil;
+import com.example.trend.util.FirebaseUserService;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,16 +31,18 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenMapper refreshTokenMapper;
     private final FileUtil fileUtil;
     private final MailService mailService;
+    private final FirebaseUserService firebaseUserService;
 
     @Value("${jwt.refreshToken-validity}")
     private long MAX_REFRESH_TOKEN_AGE_MS;
 
-    public UserServiceImpl(MailService mailService, FileUtil fileUtil, RefreshTokenMapper refreshTokenMapper, JwtUtil jwtUtil, UserMapper userMapper) {
+    public UserServiceImpl(MailService mailService, FileUtil fileUtil, RefreshTokenMapper refreshTokenMapper, JwtUtil jwtUtil, UserMapper userMapper, FirebaseUserService firebaseUserService) {
         this.mailService = mailService;
         this.fileUtil = fileUtil;
         this.refreshTokenMapper = refreshTokenMapper;
         this.jwtUtil = jwtUtil;
         this.userMapper = userMapper;
+        this.firebaseUserService=firebaseUserService;
     }
 
     @Override
@@ -59,6 +62,14 @@ public class UserServiceImpl implements UserService {
         int cnt = userMapper.insertNewUser(userSignupRequestDto);
         if (cnt != 1) {
             throw new CustomException(ErrorCode.FAIL_TO_SAVE_USER);
+        }
+
+        // Firebase 사용자 생성
+        try {
+            firebaseUserService.createFirebaseUser(userSignupRequestDto.getUserId());
+        } catch (Exception e) {
+            log.error("Firebase user creation failed", e);
+            // 실패해도 회원가입은 진행되도록 예외를 삼킵니다
         }
     }
 
