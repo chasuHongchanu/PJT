@@ -63,4 +63,7 @@ public interface UserMapper {
 
     @Update("UPDATE user SET user_password = #{newPassword} WHERE user_id = #{userId} AND user_email = #{userEmail}")
     int updateUserPassword(UserResetPwRequestDto userResetPwRequestDto);
+
+    @Select("SELECT `user_profile_img` FROM user WHERE user_id = #{userId}")
+    String selectUserProfileImage(String userId);
 }

@@ -20,4 +20,6 @@ public interface UserService {
     void deleteUser(String requestUserId);
 
     void resetPassword(UserResetPwRequestDto userResetPwRequestDto);
+
+    String getUserProfileImage(String userId);
 }

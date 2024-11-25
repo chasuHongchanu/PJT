@@ -285,4 +285,9 @@ public class UserServiceImpl implements UserService {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
+    @Override
+    public String getUserProfileImage(String userId) {
+        String imageUrl = userMapper.selectUserProfileImage(userId);
+        return imageUrl;
+    }
 }
