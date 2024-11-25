@@ -11,10 +11,14 @@
         v-for="room in chatRooms"
         :key="room.roomId"
         class="chat-room"
-        @click="enterChatRoom(room.roomId)"
+        @click="enterChatRoom(room.roomId, room.itemId)"
       >
         <div class="profile-section">
-          <img :src="room.userProfileImg" :alt="room.userNickname" class="profile-image" />
+          <img
+            :src="room.userProfileImg || DefaultProfileImg"
+            :alt="room.userNickname"
+            class="profile-image"
+          />
         </div>
         <div class="chat-info">
           <div class="user-name">{{ room.userNickname }}</div>
@@ -35,6 +39,9 @@ import { getDatabase, ref as dbRef, onValue, off } from 'firebase/database'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import DefaultProfileImg from '@/assets/default-profile.svg'
+import { userApi } from '@/api/userApi'
+import { firebaseUtils } from '@/utils/firebaseUtils'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -42,6 +49,32 @@ const chatRooms = ref([])
 const database = getDatabase()
 const isLoading = ref(true) // isLoading ref 선언을 여기로 이동
 let chatRoomsListeners = new Map()
+
+// 이미지 캐시 추가
+const imageCache = ref(new Map())
+
+// 프로필 이미지 조회 함수 추가
+const getUserProfileImage = async (userId) => {
+  try {
+    // 캐시 확인
+    if (imageCache.value.has(`profile_${userId}`)) {
+      return imageCache.value.get(`profile_${userId}`)
+    }
+
+    // 사용자의 프로필 이미지 경로 조회
+    const imagePath = await userApi.getUserProfileImg(userId)
+
+    // Firebase Storage에서 이미지 URL 가져오기
+    const imageUrl = await firebaseUtils.getProfileImageUrl(imagePath)
+
+    // 캐시 저장
+    imageCache.value.set(`profile_${userId}`, imageUrl)
+    return imageUrl
+  } catch (error) {
+    console.error('프로필 이미지 조회 실패:', error)
+    return DefaultProfileImg
+  }
+}
 
 // Firebase Authentication 설정
 const setupFirebaseAuth = async () => {
@@ -61,13 +94,12 @@ const setupFirebaseAuth = async () => {
   }
 }
 
-// 채팅방 목록 초기 로드 및 실시간 업데이트 설정
+// initializeChatRooms 함수 수정
 const initializeChatRooms = async () => {
   try {
     isLoading.value = true
     console.log('채팅방 목록 요청 시작')
 
-    // Firebase 인증 먼저 수행
     await setupFirebaseAuth()
 
     const response = await axios.get('/chat/rooms', {
@@ -75,10 +107,28 @@ const initializeChatRooms = async () => {
         Authorization: authStore.accessToken,
       },
     })
-    console.log('받은 채팅방 데이터:', response.data)
+    
+    // 중복 제거를 위해 Set 사용 (roomId 기준)
+    const uniqueRooms = Array.from(
+      new Map(response.data.data.map(room => [room.roomId, room])).values()
+    )
 
-    // 초기 데이터 설정
-    chatRooms.value = response.data.data
+    // 각 채팅방의 프로필 이미지 로드
+    const roomsWithImages = await Promise.all(
+      uniqueRooms.map(async (room) => {
+        const userProfileImg = await getUserProfileImage(room.userId)
+        return {
+          ...room,
+          userProfileImg
+        }
+      })
+    )
+
+    // 날짜 기준 최신순 정렬
+    chatRooms.value = roomsWithImages.sort((a, b) => 
+      new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0)
+    )
+
     console.log('설정된 채팅방 목록:', chatRooms.value)
 
     // 각 채팅방에 대한 실시간 리스너 설정
@@ -93,7 +143,7 @@ const initializeChatRooms = async () => {
   }
 }
 
-// 개별 채팅방 리스너 설정
+// setupRoomListener 함수 수정
 const setupRoomListener = (room) => {
   if (chatRoomsListeners.has(room.roomId)) {
     console.log(`기존 리스너 제거: ${room.roomId}`)
@@ -111,52 +161,53 @@ const setupRoomListener = (room) => {
       if (!roomData) return
 
       try {
-        // 현재 사용자가 해당 채팅방의 멤버인지 확인
         const members = roomData.members || {}
-        console.log(`채팅방 ${room.roomId} 멤버:`, members)
-        console.log('현재 사용자:', authStore.userId)
-
         if (!members[authStore.userId]) {
           console.log(`사용자 ${authStore.userId}는 채팅방 ${room.roomId}의 멤버가 아님`)
+          // 멤버가 아닌 경우 채팅방 목록에서 제거
+          chatRooms.value = chatRooms.value.filter(r => r.roomId !== room.roomId)
+          off(roomRef)
+          chatRoomsListeners.delete(room.roomId)
           return
         }
 
-        // 최근 메시지 찾기
         let lastMessage = null
         let lastMessageTime = null
 
         if (roomData.messages) {
           const messages = Object.values(roomData.messages)
-          console.log(`채팅방 ${room.roomId}의 메시지:`, messages)
+          if (messages.length > 0) {
+            const latestMessage = messages.reduce((latest, current) => {
+              return new Date(current.chatCreatedAt) > new Date(latest.chatCreatedAt)
+                ? current
+                : latest
+            })
 
-          const latestMessage = messages.reduce((latest, current) => {
-            return new Date(current.chatCreatedAt) > new Date(latest.chatCreatedAt)
-              ? current
-              : latest
-          })
-
-          lastMessage = latestMessage.messageContent
-          lastMessageTime = latestMessage.chatCreatedAt
-          console.log(`최신 메시지:`, { lastMessage, lastMessageTime })
+            lastMessage = latestMessage.messageContent
+            lastMessageTime = latestMessage.chatCreatedAt
+          }
         }
 
-        // 채팅방 정보 업데이트
-        const updatedRoom = {
-          ...room,
-          lastMessage: lastMessage || room.lastMessage,
-          lastMessageTime: lastMessageTime || room.lastMessageTime,
-        }
+        // 기존 채팅방 찾기
+        const existingRoomIndex = chatRooms.value.findIndex(r => r.roomId === room.roomId)
+        
+        if (existingRoomIndex !== -1) {
+          // 기존 채팅방 정보 업데이트
+          chatRooms.value[existingRoomIndex] = {
+            ...chatRooms.value[existingRoomIndex],
+            lastMessage: lastMessage || room.lastMessage,
+            lastMessageTime: lastMessageTime || room.lastMessageTime
+          }
 
-        // 채팅방 목록 업데이트
-        chatRooms.value = chatRooms.value.map((r) => (r.roomId === room.roomId ? updatedRoom : r))
-        console.log('업데이트된 채팅방 목록:', chatRooms.value)
+          // 최신 메시지 기준으로 재정렬
+          chatRooms.value.sort((a, b) => 
+            new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0)
+          )
+        }
       } catch (error) {
         console.error(`채팅방 ${room.roomId} 데이터 처리 중 오류:`, error)
       }
-    },
-    (error) => {
-      console.error(`채팅방 ${room.roomId} 리스너 에러:`, error)
-    },
+    }
   )
 
   chatRoomsListeners.set(room.roomId, roomRef)
@@ -171,9 +222,11 @@ const formatTimestamp = (timestamp) => {
     .padStart(2, '0')}. ${date.getDate().toString().padStart(2, '0')}.`
 }
 
-// 채팅방 입장
-const enterChatRoom = (roomId) => {
-  router.push(`/chat/room/${roomId}`)
+// 채팅방 입장 (router.push 대신 이벤트 발생)
+const emit = defineEmits(['select-room'])
+
+const enterChatRoom = (roomId, itemId) => {
+  emit('select-room', roomId, itemId)
 }
 
 // 디버깅을 위한 watch
@@ -197,13 +250,14 @@ onMounted(async () => {
   }
 })
 
-// 컴포넌트 언마운트 시 리스너 정리
+// Cleanup 함수 수정
 onUnmounted(() => {
   console.log('컴포넌트 언마운트 - 리스너 정리')
   chatRoomsListeners.forEach((ref) => {
     off(ref)
   })
   chatRoomsListeners.clear()
+  imageCache.value.clear() // 이미지 캐시 정리
 })
 </script>
 

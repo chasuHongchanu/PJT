@@ -64,8 +64,18 @@
         </button>
 
         <Transition name="fade" mode="out-in">
-          <ChatRoom v-if="activeChatRoom" :key="'room-' + activeChatRoom" @back="closeChatRoom" />
-          <ChatList v-else :key="'list'" @select-room="openChatRoom" />
+          <ChatRoom 
+            v-if="selectedRoomId" 
+            :key="'room-' + selectedRoomId"
+            :room-id="selectedRoomId"
+            :item-id="selectedItemId"
+            @back="closeRoom"
+          />
+          <ChatList 
+            v-else 
+            :key="'list'" 
+            @select-room="selectRoom"
+          />
         </Transition>
       </div>
     </div>
@@ -100,23 +110,27 @@ export default {
 
     // 채팅 관련 상태
     const isChatOpen = ref(false)
-    const activeChatRoom = ref(null)
+    const selectedRoomId = ref(null)
+    const selectedItemId = ref(null)
     const isMobile = ref(window.innerWidth < 768)
 
     // 채팅 기능
     const toggleChat = () => {
       isChatOpen.value = !isChatOpen.value
       if (!isChatOpen.value) {
-        activeChatRoom.value = null
+        selectedRoomId.value = null
+        selectedItemId.value = null
       }
     }
 
-    const openChatRoom = (roomId) => {
-      activeChatRoom.value = roomId
+    const selectRoom = (roomId, itemId) => {
+      selectedRoomId.value = roomId
+      selectedItemId.value = itemId
     }
 
-    const closeChatRoom = () => {
-      activeChatRoom.value = null
+    const closeRoom = () => {
+      selectedRoomId.value = null
+      selectedItemId.value = null
     }
 
     // 반응형 처리
@@ -175,11 +189,12 @@ export default {
       toggleProfilePopup,
       closeProfilePopup,
       isChatOpen,
-      activeChatRoom,
+      selectedRoomId,
+      selectedItemId,
       isMobile,
       toggleChat,
-      openChatRoom,
-      closeChatRoom,
+      selectRoom,
+      closeRoom,
     }
   },
 }
@@ -253,8 +268,9 @@ export default {
 }
 
 .icon {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
+  stroke-width: 25;
 }
 
 .profile-section {
