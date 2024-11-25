@@ -58,7 +58,7 @@ export default {
         }
 
         const userData = await userApi.getUserInfo()
-        const imageUrl = await firebaseUtils.getImageUrl(userData.userProfileImg)
+        const imageUrl = await firebaseUtils.getProfileImageUrl(userData.userProfileImg)
 
         profileData.value = {
           name: userData.userNickname,
