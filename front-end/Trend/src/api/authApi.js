@@ -1,4 +1,5 @@
 import axiosInstance from './axiosInstance'
+import axios from 'axios'
 
 export const authApi = {
   login: async (userId, userPassword) => {
@@ -18,6 +19,7 @@ export const authApi = {
       }
     })
   },
+
   
   logout: async () => {
     const response = await axiosInstance.post('/user/logout')
