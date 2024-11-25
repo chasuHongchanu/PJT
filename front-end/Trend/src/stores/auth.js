@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { authApi } from '@/api/authApi'
 import axios from 'axios'
+import axiosInstance from '@/api/axiosInstance';
 import { storage } from '@/../firebase';
 import { ref as firebaseRef, getDownloadURL } from 'firebase/storage';
 import DefaultProfileImage from '@/assets/default-profile.svg';
@@ -123,7 +124,7 @@ export const useAuthStore = defineStore('auth', {
         throw error
       }
     },
-
+    
     // 로그아웃 처리
     async logout() {
       try {
