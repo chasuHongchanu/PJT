@@ -17,18 +17,11 @@
 
         <!-- 컴포넌트 사용 -->
         <ItemInfoComponent :item="itemInfo" />
-        <ReservationInfoComponent
-          :info="itemInfo"
-          @update:reservation="updateReservation"
-        />
+        <ReservationInfoComponent :info="itemInfo" @update:reservation="updateReservation" />
 
         <!-- 예약 버튼 -->
         <div class="button-container">
-          <button
-            class="reserve-button"
-            @click="submitReservation"
-            :disabled="!isFormValid"
-          >
+          <button class="reserve-button" @click="submitReservation" :disabled="!isFormValid">
             예약 신청
           </button>
         </div>
@@ -38,89 +31,91 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import ItemInfoComponent from "@/components/trade/ItemInfoComponent.vue";
-import ReservationInfoComponent from "@/components/trade/ReservationInfoComponent.vue";
-import { tradeApi } from "@/api/tradeApi";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import ItemInfoComponent from '@/components/trade/ItemInfoComponent.vue'
+import ReservationInfoComponent from '@/components/trade/ReservationInfoComponent.vue'
+import { tradeApi } from '@/api/tradeApi'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
-const route = useRoute();
-const router = useRouter();
+const route = useRoute()
+const router = useRouter()
 
-const isLoading = ref(true);
-const itemInfo = ref(null);
+const isLoading = ref(true)
+const itemInfo = ref(null)
 const reservationData = ref({
-  rentalFee: "",
-  deposit: "",
-  startDate: "",
-  endDate: "",
-});
+  rentalFee: '',
+  deposit: '',
+  startDate: '',
+  endDate: '',
+})
 
 const formData = ref({
-  lessorId: "user1",
-  lesseeId: "user2",
+  lessorId: 'user1',
+  lesseeId: 'user2',
   itemId: 4,
-});
+})
 
 // 데이터 로드
 onMounted(async () => {
   try {
-    const response = await tradeApi.getReservation(formData.value);
-    console.log(response);
-    const data = response.data;
-    itemInfo.value = data;
+    const response = await tradeApi.getReservation(formData.value)
+    console.log(response)
+    const data = response.data
+    itemInfo.value = data
   } catch (error) {
-    console.error("Error loading data:", error);
+    console.error('Error loading data:', error)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 
 // 예약 정보 업데이트
 const updateReservation = (data) => {
-  reservationData.value = data;
-};
+  reservationData.value = data
+}
 
 // 유효성 검사
 const isFormValid = computed(() => {
-  const { rentalFee, deposit, startDate, endDate } = reservationData.value;
-  return rentalFee && deposit && startDate && endDate;
-});
+  const { rentalFee, deposit, startDate, endDate } = reservationData.value
+  return rentalFee && deposit && startDate && endDate
+})
 
 // 날짜 포맷
 const formatDate = (dateString) => {
-  if (!dateString) return "";
-  return new Date(dateString).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-};
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+}
 
 // 예약 제출
 const submitReservation = async () => {
-  if (!isFormValid.value) return;
+  if (!isFormValid.value) return
 
   try {
     const requestBody = {
       itemId: formData.value.itemId,
+      lessorId: formData.value.lessorId,
+      lesseeId: formData.value.lesseeId,
       tradePrice: reservationData.value.rentalFee,
       tradeDeposit: reservationData.value.deposit,
       tradeRentalStartDate: reservationData.value.startDate,
       tradeRentalEndDate: reservationData.value.endDate,
-    };
+    }
 
-    const response = await tradeApi.createReservation(requestBody);
-    const tradeId = response.data;
-    alert("예약 신청되었습니다.");
+    const response = await tradeApi.createReservation(requestBody)
+    const tradeId = response.data
+    alert('예약 신청되었습니다.')
 
-    router.push({ name: "Detail", params: { id: tradeId } });
+    router.push({ name: 'Detail', params: { id: tradeId } })
   } catch (error) {
-    console.error("Error submitting reservation:", error);
-    alert("예약 신청 중 오류가 발생했습니다.");
+    console.error('Error submitting reservation:', error)
+    alert('예약 신청 중 오류가 발생했습니다.')
   }
-};
+}
 </script>
 
 <style scoped>
@@ -242,9 +237,12 @@ const submitReservation = async () => {
 }
 
 .date-range {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 32px 0;
+  letter-spacing: -0.5px;
 }
 
 .date-range input {

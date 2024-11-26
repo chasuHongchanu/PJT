@@ -45,73 +45,77 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
-import { tradeApi } from "@/api/tradeApi";
-import { getStorage, ref as storageRef, getDownloadURL } from "firebase/storage";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
+import { tradeApi } from '@/api/tradeApi'
+import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
-const route = useRoute();
-const router = useRouter();
-const itemData = ref({});
-const rating = ref(0);
-const reviewContent = ref("");
-const isLoading = ref(true);
-const tradeId = route.params.id;
+const route = useRoute()
+const router = useRouter()
+const itemData = ref({})
+const rating = ref(0)
+const reviewContent = ref('')
+const isLoading = ref(true)
+const tradeId = route.params.id
 
 const getItemData = async () => {
   try {
-    isLoading.value = true;
-    const response = await tradeApi.getItemInfoForReview(tradeId);
-    const storage = getStorage();
-    const imageRef = storageRef(storage, response.data.thumbnail);
-    const imageUrl = await getDownloadURL(imageRef);
+    isLoading.value = true
+    const response = await tradeApi.getItemInfoForReview(tradeId)
+    const storage = getStorage()
+    const imageRef = storageRef(storage, response.data.thumbnail)
+    const imageUrl = await getDownloadURL(imageRef)
 
     itemData.value = {
       ...response.data,
       thumbnail: imageUrl,
-    };
+    }
   } catch (error) {
-    console.error("상품 정보 로딩 실패:", error);
+    console.error('상품 정보 로딩 실패:', error)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
+}
 const setRating = (value) => {
-  rating.value = value;
-};
+  rating.value = value
+}
 
 const formatPrice = (price) => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
 
 const submitReview = async () => {
   if (rating.value === 0) {
-    alert("별점을 선택해주세요.");
-    return;
+    alert('별점을 선택해주세요.')
+    return
   }
 
   if (!reviewContent.value.trim()) {
-    alert("후기 내용을 입력해주세요.");
-    return;
+    alert('후기 내용을 입력해주세요.')
+    return
   }
 
   try {
-    await axios.post("/api/reviews", {
+    const requestBody = {
+      tradeId: tradeId,
       rating: rating.value,
       reviewContent: reviewContent.value,
-    });
-    router.push("/reviews");
+    }
+    console.log(requestBody)
+    await tradeApi.insertReview(requestBody)
+    alert('후기가 등록되었습니다.')
+    router.push('/reviews')
   } catch (error) {
-    console.error("후기 등록 실패:", error);
-    alert("후기 등록에 실패했습니다.");
+    console.error('후기 등록 실패:', error)
+    alert('후기 등록에 실패했습니다.')
   }
-};
+}
 
 onMounted(() => {
-  getItemData();
-});
+  getItemData()
+})
 </script>
 
 <style scoped>
@@ -208,7 +212,7 @@ onMounted(() => {
 }
 
 .submit-button {
-  width: 100%;
+  width: 30%;
   padding: 16px;
   background-color: #ff3b30;
   color: white;
@@ -218,6 +222,8 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
+  display: block;
+  margin: 0 auto;
 }
 
 .submit-button:hover {

@@ -63,5 +63,50 @@ export const tradeApi = {
         Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
       },
     })
-  }
+  },
+
+  updateTradeStatusToReturn(tradeId) {
+    return axiosInstance.get(`/trade/return/${tradeId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  },
+
+  insertReview(requestBody) {
+    return axiosInstance.post('/trade/review', requestBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  },
+
+  getRegistedItems() {
+    return axiosInstance.get(`/trade/registItems`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  },
+
+  getLendItems() {
+    return axiosInstance.get(`/trade/lendItems`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  },
+
+  getLeaseItems() {
+    return axiosInstance.get(`/trade/leaseItems`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,
+      },
+    })
+  },
 }

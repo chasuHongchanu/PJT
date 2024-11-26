@@ -1,12 +1,12 @@
 <template>
   <div class="similar-items-grid">
-    <div v-for="item in items" :key="item.itemId" class="item-card">
-      <img
-        v-if="item.imageUrl"
-        :src="item.imageUrl"
-        :alt="item.itemName"
-        class="item-image"
-      />
+    <div
+      v-for="item in items"
+      :key="item.itemId"
+      class="item-card"
+      @click="navigateToDetail(item.itemId)"
+    >
+      <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.itemName" class="item-image" />
       <div class="item-info">
         <h3 class="item-name">{{ item.itemName }}</h3>
       </div>
@@ -15,23 +15,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps } from "vue";
-import { storage } from "@/firebase";
-import { ref as storageRef, getDownloadURL } from "firebase/storage";
+import { ref, onMounted, defineProps } from 'vue'
+import { storage } from '@/firebase'
+import { ref as storageRef, getDownloadURL } from 'firebase/storage'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 // Props 정의
 const props = defineProps({
   category: {
     type: String,
-    default: "",
+    default: '',
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
-});
+  itemId: {
+    // itemId prop 추가
+    type: [String, Number],
+    required: true,
+  },
+})
 
-const items = ref([]);
+const items = ref([])
 
 // Firebase Storage에서 이미지 URL 가져오기
 const fetchFirebaseImageUrls = async (items) => {
@@ -39,42 +46,49 @@ const fetchFirebaseImageUrls = async (items) => {
     // 모든 이미지 경로에 대해 Firebase Storage URL 생성
     const enrichedItems = await Promise.all(
       items.map(async (item) => {
-        if (!item.itemImage) return item; // 이미지 경로가 없으면 그대로 반환
-        const imageRef = storageRef(storage, item.itemImage);
-        const imageUrl = await getDownloadURL(imageRef);
-        return { ...item, imageUrl };
-      })
-    );
-    return enrichedItems;
+        if (!item.itemImage) return item // 이미지 경로가 없으면 그대로 반환
+        const imageRef = storageRef(storage, item.itemImage)
+        const imageUrl = await getDownloadURL(imageRef)
+        return { ...item, imageUrl }
+      }),
+    )
+    return enrichedItems
   } catch (error) {
-    console.error("Error fetching Firebase URLs:", error);
-    return items;
+    console.error('Error fetching Firebase URLs:', error)
+    return items
   }
-};
+}
+
+// 상세 페이지 이동 함수
+const navigateToDetail = (itemId) => {
+  router.push({
+    name: 'ItemDetail',
+    params: { id: itemId },
+  })
+}
 
 onMounted(async () => {
   try {
     // API 호출: category나 address를 기반으로 URL 결정
-    let queryParam = "";
-    let url = "";
-
+    let queryParam = ''
+    let url = ''
     if (props.category) {
-      queryParam = `category=${props.category}`;
-      url = `http://localhost:8080/api/item/rent/similar/1`;
+      queryParam = `category=${props.category}`
+      url = `http://localhost:8080/api/item/rent/similar/${props.itemId}`
     } else if (props.address) {
-      queryParam = `address=${props.address}`;
-      url = `http://localhost:8080/api/item/rent/peripheral/1`;
+      queryParam = `address=${props.address}`
+      url = `http://localhost:8080/api/item/rent/peripheral/${props.itemId}`
     }
 
-    const response = await fetch(url);
-    const data = await response.json();
+    const response = await fetch(url)
+    const data = await response.json()
 
     // Firebase Storage URL 가져오기
-    items.value = await fetchFirebaseImageUrls(data);
+    items.value = await fetchFirebaseImageUrls(data)
   } catch (error) {
-    console.error("Error fetching similar items:", error);
+    console.error('Error fetching similar items:', error)
   }
-});
+})
 </script>
 
 <style scoped>

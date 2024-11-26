@@ -6,9 +6,7 @@
       <div v-else class="content-wrapper">
         <!-- 날짜 표시 -->
         <div class="date-range">
-          {{
-            formatDateRange(itemInfo?.tradeRentalStartDate, itemInfo?.tradeRentalEndDate)
-          }}
+          {{ formatDateRange(itemInfo?.tradeRentalStartDate, itemInfo?.tradeRentalEndDate) }}
         </div>
 
         <!-- 상품 정보 -->
@@ -46,11 +44,7 @@
             </div>
           </div>
 
-          <button
-            class="payment-button"
-            :disabled="!transferAmount"
-            @click="handlePayment"
-          >
+          <button class="payment-button" :disabled="!transferAmount" @click="handlePayment">
             결제하기
           </button>
         </section>
@@ -60,37 +54,37 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { tradeApi } from "@/api/tradeApi";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import ItemInfoComponent from "@/components/trade/ItemInfoComponent.vue";
-import PaymentInfo from "@/components/trade/PaymentInfo.vue";
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { tradeApi } from '@/api/tradeApi'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import ItemInfoComponent from '@/components/trade/ItemInfoComponent.vue'
+import PaymentInfo from '@/components/trade/PaymentInfo.vue'
 
-const route = useRoute();
-const router = useRouter();
-const isLoading = ref(true);
-const itemInfo = ref(null);
-const transferAmount = ref("");
-const paymentInfo = ref({});
-const tradeId = route.params.id;
+const route = useRoute()
+const router = useRouter()
+const isLoading = ref(true)
+const itemInfo = ref(null)
+const transferAmount = ref('')
+const paymentInfo = ref({})
+const tradeId = route.params.id
 
 const formatDateRange = (start, end) => {
-  if (!start || !end) return "";
+  if (!start || !end) return ''
   const formatDate = (date) => {
-    const dateObj = new Date(date);
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const day = String(dateObj.getDate()).padStart(2, "0");
-    return `${year}. ${month}. ${day}`;
-  };
-  return `${formatDate(start)} - ${formatDate(end)}`;
-};
+    const dateObj = new Date(date)
+    const year = dateObj.getFullYear()
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const day = String(dateObj.getDate()).padStart(2, '0')
+    return `${year}. ${month}. ${day}`
+  }
+  return `${formatDate(start)} - ${formatDate(end)}`
+}
 
 onMounted(async () => {
   try {
-    const response = await tradeApi.getTradeDetail(tradeId);
-    itemInfo.value = response.data;
+    const response = await tradeApi.getTradeDetail(tradeId)
+    itemInfo.value = response.data
     paymentInfo.value = {
       lessorNickname: response.data.lessorNickname,
       lesseeNickname: response.data.lesseeNickname,
@@ -98,28 +92,27 @@ onMounted(async () => {
       tradePrice: response.data.tradePrice,
       tradeDeposit: response.data.tradeDeposit,
       paymentStatus: response.data.paymentStatus,
-    };
+    }
 
     // transferAmount 초기값 설정
-    transferAmount.value =
-      (response.data.tradePrice || 0) + (response.data.tradeDeposit || 0);
+    transferAmount.value = (response.data.tradePrice || 0) + (response.data.tradeDeposit || 0)
   } catch (error) {
-    console.error("데이터 로딩 실패:", error);
+    console.error('데이터 로딩 실패:', error)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 
 const handlePayment = async () => {
   try {
-    tradeApi.completePay(tradeId);
-    alert("결제가 완료되었습니다.");
-    router.push({ name: "Detail", params: { id: route.params.id } });
+    tradeApi.completePay(tradeId)
+    alert('결제가 완료되었습니다.')
+    router.push({ name: 'ItemList' })
   } catch (error) {
-    console.error("결제 처리 실패:", error);
-    alert("결제 처리 중 오류가 발생했습니다.");
+    console.error('결제 처리 실패:', error)
+    alert('결제 처리 중 오류가 발생했습니다.')
   }
-};
+}
 </script>
 
 <style scoped>
@@ -207,17 +200,19 @@ const handlePayment = async () => {
 }
 
 .payment-button {
-  width: 100%;
+  width: 30%;
   padding: 16px;
-  margin-top: 24px;
+
   background-color: #ff424d;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
+  display: block;
+  margin: 24px auto;
 }
 
 .payment-button:hover {

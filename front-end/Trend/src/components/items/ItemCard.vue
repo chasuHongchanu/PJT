@@ -10,29 +10,32 @@
   </div>
 </template>
 <script setup>
-import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
+const router = useRouter()
 const props = defineProps({
   item: {
     type: Object,
     required: true,
     default: () => ({
-      itemId: "",
-      itemImage: "",
-      itemName: "알 수 없음",
+      itemId: '',
+      itemImage: '',
+      itemName: '알 수 없음',
       itemPrice: 0,
     }),
   },
-});
+})
 
 const formatPrice = (price) => {
-  return price.toLocaleString();
-};
+  return price.toLocaleString()
+}
 
 const goToItemDetail = () => {
-  router.push(`/items/${props.item.itemId}`);
-};
+  router.push({
+    name: 'ItemDetail',
+    params: { id: props.item.itemId },
+  })
+}
 </script>
 
 <style scoped>

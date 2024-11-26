@@ -13,6 +13,7 @@ import ThePayView from '@/views/trade/ThePayView.vue'
 import TheTradeStart from '@/views/trade/TheTradeStart.vue'
 import TheTradeStartDetail from '@/views/trade/TheTradeStartDetail.vue'
 import TheReview from '@/views/trade/TheReview.vue'
+import TheTradeList from '@/views/trade/TheTradeList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -138,6 +139,11 @@ const router = createRouter({
           path: 'review/:id',
           name: 'Review',
           component: TheReview,
+        },
+        {
+          path: 'itemList',
+          name: 'ItemList',
+          component: TheTradeList,
         },
       ],
     },

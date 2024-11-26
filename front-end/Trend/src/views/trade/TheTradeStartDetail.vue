@@ -5,9 +5,7 @@
 
       <div v-else>
         <div class="date-range">
-          {{
-            formatDateRange(itemData?.tradeRentalStartDate, itemData?.tradeRentalEndDate)
-          }}
+          {{ formatDateRange(itemData?.tradeRentalStartDate, itemData?.tradeRentalEndDate) }}
         </div>
 
         <section class="content-section">
@@ -23,11 +21,7 @@
         <section class="content-section">
           <h2 class="section-title">대여 시점 사진</h2>
           <div class="image-grid">
-            <div
-              v-for="(image, index) in itemConditionImages"
-              :key="index"
-              class="image-item"
-            >
+            <div v-for="(image, index) in itemConditionImages" :key="index" class="image-item">
               <img :src="image" alt="대여 시점 사진" />
             </div>
           </div>
@@ -40,24 +34,17 @@
         />
 
         <button
-          v-if="itemData?.status !== 'RENTAL_START'"
-          class="action-button"
-          @click="handleRentalStart"
+          v-if="activeStartTrade"
+          class="action-button disabled-review-button"
+          disabled
+          title="반납 완료 후 등록 가능합니다"
         >
-          대여 시작
+          후기 등록
         </button>
-        <button
-          v-else-if="itemData?.status === 'IN_PROGRESS'"
-          class="action-button"
-          @click="handleReturn"
-        >
+        <button v-else-if="activeReturn" class="action-button" @click="handleReturn">
           반납 완료
         </button>
-        <button
-          v-else-if="itemData?.status === 'RETURN_REQUEST'"
-          class="action-button"
-          @click="handleConfirmReturn"
-        >
+        <button v-else-if="activeRegistReview" class="action-button" @click="handleConfirmReturn">
           후기 등록
         </button>
       </div>
@@ -66,39 +53,53 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getStorage, ref as storageRef, getDownloadURL } from "firebase/storage";
-import { tradeApi } from "@/api/tradeApi";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import ItemInfoComponent from "@/components/trade/ItemInfoComponent.vue";
-import PaymentInfo from "@/components/trade/PaymentInfo.vue";
-import { useAuthStore } from "@/stores/auth";
-import { storeToRefs } from "pinia";
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage'
+import { tradeApi } from '@/api/tradeApi'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import ItemInfoComponent from '@/components/trade/ItemInfoComponent.vue'
+import PaymentInfo from '@/components/trade/PaymentInfo.vue'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
-const authStore = useAuthStore();
-const { userId } = storeToRefs(authStore);
+const authStore = useAuthStore()
+const { userId } = storeToRefs(authStore)
 
-const route = useRoute();
-const router = useRouter();
-const tradeId = route.params.id;
-const itemData = ref(null);
-const itemConditionImages = ref([]);
-const isLoading = ref(true);
+const route = useRoute()
+const router = useRouter()
+const tradeId = route.params.id
+const itemData = ref(null)
+const itemConditionImages = ref([])
+const isLoading = ref(true)
+const lessorId = computed(() => itemData.value?.lessorId || null)
+const lesseeId = computed(() => itemData.value?.lesseeId || null)
+
+const activeStartTrade = computed(() => {
+  return lesseeId.value === userId.value && itemData.value?.tradeState === '대여 중'
+})
+
+const activeReturn = computed(() => {
+  return lessorId.value === userId.value && itemData.value?.tradeState === '대여 중'
+})
+
+const activeRegistReview = computed(() => {
+  return lesseeId.value === userId.value && itemData.value?.tradeState === '반납 완료'
+})
 
 const itemInfo = computed(() => {
-  if (!itemData.value) return null;
+  if (!itemData.value) return null
   return {
     itemId: itemData.value.itemId,
     itemName: itemData.value.itemName,
     itemPrice: itemData.value.itemPrice,
     address: itemData.value.address,
     thumbnail: itemData.value.thumbnail,
-  };
-});
+  }
+})
 
 const paymentInfo = computed(() => {
-  if (!itemData.value) return {};
+  if (!itemData.value) return {}
   return {
     lessorNickname: itemData.value.lessorNickname,
     lesseeNickname: itemData.value.lesseeNickname,
@@ -106,59 +107,55 @@ const paymentInfo = computed(() => {
     tradePrice: itemData.value.tradePrice,
     tradeDeposit: itemData.value.tradeDeposit,
     paymentStatus: itemData.value.paymentStatus,
-  };
-});
+  }
+})
 
 const formatDateRange = (start, end) => {
-  if (!start || !end) return "";
+  if (!start || !end) return ''
   const formatDate = (date) => {
-    const dateObj = new Date(date);
+    const dateObj = new Date(date)
     return `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(
       2,
-      "0"
-    )}.${String(dateObj.getDate()).padStart(2, "0")}`;
-  };
-  return `${formatDate(start)} - ${formatDate(end)}`;
-};
+      '0',
+    )}.${String(dateObj.getDate()).padStart(2, '0')}`
+  }
+  return `${formatDate(start)} - ${formatDate(end)}`
+}
 
 const loadImages = async (imageUrls) => {
-  const storage = getStorage();
+  const storage = getStorage()
   const loadedImages = await Promise.all(
     imageUrls.map(async (url) => {
-      const imageRef = storageRef(storage, url);
-      return await getDownloadURL(imageRef);
-    })
-  );
-  itemConditionImages.value = loadedImages;
-};
-
-const handleRentalStart = async () => {
-  // Implementation will be done by you
-};
+      const imageRef = storageRef(storage, url)
+      return await getDownloadURL(imageRef)
+    }),
+  )
+  itemConditionImages.value = loadedImages
+}
 
 const handleReturn = async () => {
-  // Implementation will be done by you
-};
+  await tradeApi.updateTradeStatusToReturn(tradeId)
+}
 
 const handleConfirmReturn = async () => {
-  // Implementation will be done by you
-};
+  router.push({ name: 'Review', params: { id: tradeId } })
+}
 
 onMounted(async () => {
   try {
-    isLoading.value = true;
-    const response = await tradeApi.getTradeDetail(tradeId);
-    itemData.value = response.data;
+    isLoading.value = true
+    const response = await tradeApi.getTradeDetail(tradeId)
+    itemData.value = response.data
     if (itemData.value.itemConditionImages?.length) {
-      await loadImages(itemData.value.itemConditionImages);
+      await loadImages(itemData.value.itemConditionImages)
     }
-    console.log(itemData.value);
+    console.log(itemData.value)
   } catch (error) {
-    console.error("데이터 로딩 실패:", error);
+    console.error('데이터 로딩 실패:', error)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-});
+})
 </script>
 
 <style scoped>
@@ -247,5 +244,26 @@ onMounted(async () => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+}
+
+.disabled-review-button {
+  background-color: #e0e0e0 !important; /* 옅은 회색 */
+  cursor: not-allowed !important;
+  position: relative;
+}
+
+.disabled-review-button:hover::after {
+  content: '반납 완료 후 등록 가능합니다';
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  z-index: 1000;
 }
 </style>

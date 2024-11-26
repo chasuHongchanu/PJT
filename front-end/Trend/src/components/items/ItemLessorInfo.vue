@@ -7,7 +7,7 @@
         <div class="reputation">
           <ReputationIcons :score="reputation" />
           <span class="reputation-score">
-            {{ reputation ? reputation.toFixed(1) : "0.0" }}
+            {{ reputation ? reputation.toFixed(1) : '0.0' }}
           </span>
         </div>
       </div>
@@ -20,7 +20,7 @@
       </div>
       <div class="stat-divider"></div>
       <div class="stat-item">
-        <span class="stat-label">거래</span>
+        <span class="stat-label">물품</span>
         <span class="stat-value">{{ tradeCount }}</span>
       </div>
     </div>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import ReputationIcons from "@/components/items/icons/ReputationIcons.vue";
+import ReputationIcons from '@/components/items/icons/ReputationIcons.vue'
 
 const props = defineProps({
   lessorId: String,
@@ -37,7 +37,7 @@ const props = defineProps({
   reputation: Number,
   reviewCount: Number,
   tradeCount: Number,
-});
+})
 </script>
 
 <style scoped>

@@ -85,7 +85,7 @@
         <div class="item-info-section">
           <!-- 판매자 정보 -->
           <div class="lessor-info">
-            <div class="lessor-left">
+            <div class="lessor-left cursor-pointer hover:bg-gray-50" @click="goToLessorProfile">
               <img
                 :src="itemDetail.lessorProfileImage"
                 :alt="itemDetail.lessorNickname"
@@ -147,15 +147,15 @@
           </div>
         </div>
         <!-- 추천 상품 섹션 -->
-        <section class="recommendations">
+        <section v-if="itemDetail" class="recommendations">
           <div class="similar-items">
             <h2>비슷한 상품</h2>
-            <ItemRecommend :category="itemDetail.mainCategory" />
+            <ItemRecommend :category="itemDetail.mainCategory" :itemId="itemDetail.itemId" />
           </div>
 
           <div class="nearby-items">
             <h2>근처 다른 상품</h2>
-            <ItemRecommend :address="itemDetail.address" />
+            <ItemRecommend :address="itemDetail.address" :itemId="itemDetail.itemId" />
           </div>
         </section>
       </div>
@@ -164,7 +164,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import ItemRecommend from '@/components/items/ItemRecommend.vue'
@@ -242,8 +242,22 @@ const toggleLike = () => {
   isLiked.value = !isLiked.value
 }
 
-// Firebase에서 이미지 URL을 가져오는 함수
+const startChat = () => {
+  // 채팅 시작 로직 구현
+  console.log('Start chat with:', itemDetail.value?.lessorId)
+}
+
+const goToLessorProfile = () => {
+  router.push({
+    name: 'LessorProfile',
+    params: { id: itemDetail.value.lessorId },
+  })
+}
+
+// Firebase에서 이미지 URL을 가져오는 함수도 약간 수정
 const fetchFirebaseImageUrls = async (imagePaths) => {
+  if (!imagePaths || imagePaths.length === 0) return []
+
   try {
     const urls = await Promise.all(
       imagePaths.map(async (path) => {
@@ -258,15 +272,17 @@ const fetchFirebaseImageUrls = async (imagePaths) => {
   }
 }
 
-const startChat = () => {
-  // 채팅 시작 로직 구현
-  console.log('Start chat with:', itemDetail.value?.lessorId)
-}
-
-onMounted(async () => {
+// fetchItemDetails 함수 수정
+const fetchItemDetails = async (id) => {
   try {
+    // 데이터와 이미지 상태 초기화
+    itemDetail.value = null
+    firebaseImageUrls.value = []
+    currentSlide.value = 0 // 슬라이드도 초기 위치로
+    isLoadingImages.value = true
+
     console.log('Fetching item details...')
-    const response = await fetch(`http://localhost:8080/api/item/rent/${itemId.value}`)
+    const response = await fetch(`http://localhost:8080/api/item/rent/${id}`)
     const data = await response.json()
     itemDetail.value = data
 
@@ -274,16 +290,28 @@ onMounted(async () => {
 
     // itemImageNames에서 Firebase Storage URL 변환
     if (itemDetail.value.itemImageNames?.length) {
-      isLoadingImages.value = true // 이미지 로딩 상태 활성화
-      const imagePaths = itemDetail.value.itemImageNames // Firebase Storage 경로 배열
+      const imagePaths = itemDetail.value.itemImageNames
       firebaseImageUrls.value = await fetchFirebaseImageUrls(imagePaths)
-      isLoadingImages.value = false // 로딩 완료
     }
   } catch (error) {
     console.error('Error fetching item details:', error)
-    isLoadingImages.value = false // 로딩 실패 시 로딩 상태 해제
+  } finally {
+    isLoadingImages.value = false // 성공하든 실패하든 로딩 상태 해제
   }
+}
+
+// onMounted 수정
+onMounted(async () => {
+  await fetchItemDetails(itemId.value)
 })
+
+// watch는 그대로 유지
+watch(
+  () => route.params.id,
+  async (newId) => {
+    await fetchItemDetails(newId)
+  },
+)
 </script>
 
 <style scoped>
