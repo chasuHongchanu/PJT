@@ -1,6 +1,5 @@
 import axiosInstance from './axiosInstance'
 import axios from 'axios'
-import axios from 'axios'
 
 export const authApi = {
   login: async (userId, userPassword) => {

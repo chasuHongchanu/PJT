@@ -35,6 +35,7 @@
 import { defineProps, ref, onMounted } from 'vue'
 import { storage } from '@/firebase'
 import { ref as storageRef, getDownloadURL } from 'firebase/storage'
+import DefaultImage from '@/assets/default-image.svg'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -84,10 +85,7 @@ onMounted(async () => {
     const url = await getDownloadURL(imageReference)
     imageUrl.value = url
   } catch (error) {
-    // console.error("Error loading image:", error);
-    const imageReference = storageRef(storage, '/items/3/Precourse_수료증.png')
-    const url = await getDownloadURL(imageReference)
-    imageUrl.value = url
+    imageUrl.value = DefaultImage
   }
 })
 </script>
