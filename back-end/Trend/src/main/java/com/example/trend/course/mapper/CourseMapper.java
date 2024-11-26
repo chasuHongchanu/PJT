@@ -37,8 +37,7 @@ public interface CourseMapper {
                 COUNT(DISTINCT cl.user_id) AS likeCount,
                 COUNT(DISTINCT cc.course_comment_id) AS commentCount,
                 c.course_title AS courseTitle,
-                c.course_content AS courseContent,
-                c.thumbnail
+                c.course_content AS courseContent
             FROM course c
                 left join course_comment cc on c.course_id = cc.course_id
                 left join course_like cl on c.course_id = cl.course_id

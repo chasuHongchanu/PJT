@@ -108,6 +108,7 @@ export default {
         // Content-Type 헤더를 설정하지 않음 (브라우저가 자동으로 설정)
         await axiosInstance.post('/course', formData)
         router.push({ name: 'CourseList' })
+        alert('코스 등록을 완료했습니다.')
       } catch (error) {
         console.error('Failed to submit course:', error)
         alert('코스 등록에 실패했습니다. 다시 시도해주세요.')
