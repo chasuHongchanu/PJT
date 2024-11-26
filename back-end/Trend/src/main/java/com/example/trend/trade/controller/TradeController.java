@@ -1,5 +1,6 @@
 package com.example.trend.trade.controller;
 
+import com.example.trend.config.SkipJwt;
 import com.example.trend.trade.dto.*;
 import com.example.trend.trade.service.TradeService;
 import jakarta.validation.Valid;
@@ -42,23 +43,14 @@ public class TradeController {
      * 대여료,보증금, 대여 기간을 입력받아 새로운 거래를 생성합니다.
      *
      * @param:
-     * @return: 거래 생성 완료 message | 거래 생성 실패 message
+     * @return: 거래 ID
      */
     @PostMapping("/reservation")
-    public ResponseEntity<?> tradeReservationRegist(@Valid @ModelAttribute("tradeReservationRegistRequestDto") TradeReservationRegistRequestDto tradeReservationRegistRequestDto) {
-        int result = tradeService.registReservation(tradeReservationRegistRequestDto);
+    public ResponseEntity<?> tradeReservationRegist(@Valid @RequestBody TradeReservationRegistRequestDto tradeReservationRegistRequestDto) {
 
-        Map<String, Object> response = new HashMap<>();
-        if(result == 1) {
-            response.put("message", "성공적으로 등록되었습니다.");
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(response);
-        }
-        else {
-            response.put("message", "등록에 문제가 발생했습니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(response);
-        }
+        int tradeId = tradeService.registReservation(tradeReservationRegistRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(tradeId);
     }
 
     /**
@@ -69,7 +61,7 @@ public class TradeController {
      * @return: 거래 수정 완료 message | 거래 수정 실패 message
      */
     @PutMapping("/reservation")
-    public ResponseEntity<?> tradeReservationUpdate(@Valid @ModelAttribute("tradeReservationUpdateRequestDto") TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto) {
+    public ResponseEntity<?> tradeReservationUpdate(@Valid @RequestBody TradeReservationUpdateRequestDto tradeReservationUpdateRequestDto) {
         int result = tradeService.updateReservation(tradeReservationUpdateRequestDto);
 
         Map<String, Object> response = new HashMap<>();
@@ -117,8 +109,8 @@ public class TradeController {
      * @param: tradeId
      * @return: 거래에 대한 모든 정보
      */
-    @GetMapping("/detail")
-    public ResponseEntity<?> tradeDetail(@RequestParam int tradeId) {
+    @GetMapping("/detail/{tradeId}")
+    public ResponseEntity<?> tradeDetail(@PathVariable int tradeId) {
         TradeDetailResponseDto tradeDetailResponseDto = tradeService.getTradeDetailInfo(tradeId);
 
         if(tradeDetailResponseDto == null) {
@@ -187,8 +179,8 @@ public class TradeController {
      * @param: tradeId
      * @return:
      */
-    @PutMapping("/pay")
-    public ResponseEntity<?> tradePay(@RequestParam int tradeId) {
+    @PutMapping("/pay/{tradeId}")
+    public ResponseEntity<?> tradePay(@PathVariable int tradeId) {
         int result = tradeService.updatePaymentStatus(tradeId);
 
         Map<String, Object> response = new HashMap<>();
@@ -211,8 +203,8 @@ public class TradeController {
      * @param: tradeId
      * @return:
      */
-    @GetMapping("/review")
-    public ResponseEntity<?> tradeReview(@RequestParam int tradeId) {
+    @GetMapping("/review/{tradeId}")
+    public ResponseEntity<?> tradeReview(@PathVariable int tradeId) {
         TradeReviewResponseDto tradeReviewResponseDto = tradeService.getTradeInfoForReview(tradeId);
         if(tradeReviewResponseDto == null) {
             Map<String, Object> response = new HashMap<>();
@@ -235,7 +227,7 @@ public class TradeController {
      * @return:
      */
     @PostMapping("/review")
-    public ResponseEntity<?> tradeReviewRegist(@RequestAttribute("userId") String userId, @ModelAttribute TradeReviewRequestDto tradeReviewRequestDto) {
+    public ResponseEntity<?> tradeReviewRegist(@RequestAttribute("userId") String userId, @RequestBody TradeReviewRequestDto tradeReviewRequestDto) {
         tradeReviewRequestDto.setUserId(userId);
         int result = tradeService.registReview(tradeReviewRequestDto);
 
@@ -261,8 +253,8 @@ public class TradeController {
      * @param: tradeId
      * @return:
      */
-    @PutMapping("/return")
-    public ResponseEntity<?> tradeFinish(@RequestParam int tradeId) {
+    @PutMapping("/return/{tradeId}")
+    public ResponseEntity<?> tradeFinish(@PathVariable int tradeId) {
         int result = tradeService.updatetradeState(tradeId);
 
         Map<String, Object> response = new HashMap<>();

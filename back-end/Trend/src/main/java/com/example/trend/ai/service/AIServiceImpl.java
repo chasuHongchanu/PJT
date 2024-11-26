@@ -49,6 +49,7 @@ public class AIServiceImpl implements AIService{
         String query = messageInput.getQuery();
         String previousConversation = getPreviousConversation(messageInput.getRoomId());
         String currentItems = getCurrentItems();
+        String userId = messageInput.getUserId();
 
         /*
         이전 대화 내용이 존재하면 대화 내용을 포함
@@ -141,7 +142,7 @@ public class AIServiceImpl implements AIService{
                 .build();
 
         int roomId = messageInput.getRoomId();
-        aiMapper.insertQuery(roomId, query);
+        aiMapper.insertQuery(roomId, userId, query);
 
         System.out.println(prompt);
 
@@ -224,5 +225,13 @@ public class AIServiceImpl implements AIService{
         }
 
         return result.toString();
+    }
+
+    /**
+     * json 데이터를 firebase에 전송
+     * @param originalResponse
+     */
+    private void inputFirebase(String originalResponse) {
+
     }
 }
