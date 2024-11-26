@@ -227,7 +227,7 @@ public class TradeController {
      * @return:
      */
     @PostMapping("/review")
-    public ResponseEntity<?> tradeReviewRegist(@RequestAttribute("userId") String userId, @ModelAttribute TradeReviewRequestDto tradeReviewRequestDto) {
+    public ResponseEntity<?> tradeReviewRegist(@RequestAttribute("userId") String userId, @RequestBody TradeReviewRequestDto tradeReviewRequestDto) {
         tradeReviewRequestDto.setUserId(userId);
         int result = tradeService.registReview(tradeReviewRequestDto);
 
@@ -253,8 +253,8 @@ public class TradeController {
      * @param: tradeId
      * @return:
      */
-    @PutMapping("/return")
-    public ResponseEntity<?> tradeFinish(@RequestParam int tradeId) {
+    @PutMapping("/return/{tradeId}")
+    public ResponseEntity<?> tradeFinish(@PathVariable int tradeId) {
         int result = tradeService.updatetradeState(tradeId);
 
         Map<String, Object> response = new HashMap<>();

@@ -187,16 +187,17 @@ public interface TradeMapper {
                    item_status
             FROM item
             WHERE user_id = #{userId}
-            AND item_status = "대여 가능" OR item_status = "예약 중"
+            AND (item_status = "대여 가능" OR item_status = "예약 중")
             """)
     List<TradeMyItemsResponseDto> selectRegistItems(String userId);
 
     @Select("""
             SELECT i.item_id,
+                   t.trade_id,
                    item_name,
                    item_price,
-                   available_rental_start_date,
-                   available_rental_end_date,
+                   t.rental_start_date AS availableRentalStartDate,
+                   t.rental_end_date AS availableRentalEndDate,
                    thumbnail,
                    address,
                    item_status
@@ -210,10 +211,11 @@ public interface TradeMapper {
 
     @Select("""
             SELECT i.item_id,
+                   t.trade_id,
                    item_name,
                    item_price,
-                   available_rental_start_date,
-                   available_rental_end_date,
+                   t.rental_start_date AS availableRentalStartDate,
+                   t.rental_end_date AS availableRentalEndDate,
                    thumbnail,
                    address,
                    item_status
