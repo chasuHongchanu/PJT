@@ -9,7 +9,7 @@
     <!-- Desktop Navigation Links -->
     <div class="navbar-center desktop-only">
       <router-link to="/items/view" class="nav-link">여행 물품 대여</router-link>
-      <router-link to="/course" class="nav-link">여행 코스</router-link>
+      <router-link to="/course/list" class="nav-link">여행 코스</router-link>
       <router-link to="/community" class="nav-link">커뮤니티</router-link>
     </div>
 
@@ -313,6 +313,10 @@ export default {
   inset: 0;
   z-index: 1000;
   pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 20px;
 }
 
 .chat-backdrop {
@@ -323,7 +327,7 @@ export default {
 }
 
 .chat-container {
-  position: fixed;
+  position: relative;
   background: white;
   display: flex;
   flex-direction: column;
@@ -331,20 +335,27 @@ export default {
   pointer-events: auto;
 }
 
+/* 모바일 버전 스타일 */
 .chat-container.mobile {
-  top: 60px;
+  position: fixed;
+  top: 60px; /* 네비게이션 바 높이만큼 띄우기 */
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100%; /* 전체 너비 사용 */
+  height: calc(100vh - 60px); /* 네비게이션 바 제외한 전체 높이 */
+  margin: 0;
+  border-radius: 0; /* 모서리 둥글게 제거 */
+  box-shadow: none; /* 그림자 제거 */
 }
 
+/* 데스크톱 버전 스타일 */
 .chat-container.desktop {
-  bottom: 80px;
-  right: 20px;
   width: 380px;
   height: 600px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: calc(100vh - 80px);
 }
 
 .mobile-close-button {
@@ -421,6 +432,12 @@ export default {
 
   .desktop-only {
     display: none;
+  }
+
+  .chat-overlay {
+    padding: 0;
+    align-items: flex-start; /* 모바일에서는 상단 정렬 */
+    justify-content: flex-start; /* 모바일에서는 좌측 정렬 */
   }
 
   .chat-transition-enter-from,
