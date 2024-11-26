@@ -85,7 +85,10 @@
         <div class="item-info-section">
           <!-- 판매자 정보 -->
           <div class="lessor-info">
-            <div class="lessor-left">
+            <div
+              class="lessor-left cursor-pointer hover:bg-gray-50"
+              @click="goToLessorProfile"
+            >
               <img
                 :src="itemDetail.lessorProfileImage"
                 :alt="itemDetail.lessorNickname"
@@ -149,15 +152,18 @@
           </div>
         </div>
         <!-- 추천 상품 섹션 -->
-        <section class="recommendations">
+        <section v-if="itemDetail" class="recommendations">
           <div class="similar-items">
             <h2>비슷한 상품</h2>
-            <ItemRecommend :category="itemDetail.mainCategory" />
+            <ItemRecommend
+              :category="itemDetail.mainCategory"
+              :itemId="itemDetail.itemId"
+            />
           </div>
 
           <div class="nearby-items">
             <h2>근처 다른 상품</h2>
-            <ItemRecommend :address="itemDetail.address" />
+            <ItemRecommend :address="itemDetail.address" :itemId="itemDetail.itemId" />
           </div>
         </section>
       </div>
@@ -166,16 +172,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import ItemRecommend from "@/components/items/ItemRecommend.vue";
 import ReputationIcons from "@/components/items/icons/ReputationIcons.vue";
 import { storage } from "@/firebase";
 import { ref as storageRef, getDownloadURL } from "firebase/storage";
+import { useAuthStore } from "@/stores/auth";
+import { storeToRefs } from "pinia";
+import { chatApi } from "@/api/chatApi";
+import { useChatStore } from '@/stores/chat'
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
+const { isAuthenticated, userId } = storeToRefs(authStore);
+
 const itemDetail = ref(null);
 const currentSlide = ref(0);
 const isLiked = ref(false);
@@ -185,13 +198,13 @@ const loadedImages = ref(0);
 const likeCount = ref(0); // 실제 데이터로 대체 필요
 
 const itemId = ref(route.params.id); // URL의 id 파라미터 받아오기
-const currentUserId = "user1";
-// 실제 구현 시에는 아래와 같이 사용
-// const currentUserId = getCurrentUserId(); // 예: request.session.userId 또는 localStorage에서 가져오기
+const currentUserId = userId;
+
+const chatStore = useChatStore()
 
 // 작성자 여부 확인
 const isAuthor = computed(() => {
-  return itemDetail.value?.lessorId === currentUserId;
+  return itemDetail.value?.lessorId === currentUserId.value;
 });
 
 // 수정 페이지로 이동
@@ -241,8 +254,31 @@ const toggleLike = () => {
   isLiked.value = !isLiked.value;
 };
 
-// Firebase에서 이미지 URL을 가져오는 함수
+const startChat = async () => {
+  try {
+    const response = await chatApi.createChatroom({
+      itemId: itemDetail.value?.itemId,
+      lessorId: itemDetail.value?.lessorId,
+    })
+    
+    // 채팅방을 생성하고 바로 열기
+    chatStore.openChat(response.data.roomId, itemDetail.value?.itemId)
+  } catch (error) {
+    console.error('채팅방 생성 실패:', error)
+  }
+};
+
+const goToLessorProfile = () => {
+  router.push({
+    name: "LessorProfile",
+    params: { id: itemDetail.value.lessorId },
+  });
+};
+
+// Firebase에서 이미지 URL을 가져오는 함수도 약간 수정
 const fetchFirebaseImageUrls = async (imagePaths) => {
+  if (!imagePaths || imagePaths.length === 0) return [];
+
   try {
     const urls = await Promise.all(
       imagePaths.map(async (path) => {
@@ -257,15 +293,17 @@ const fetchFirebaseImageUrls = async (imagePaths) => {
   }
 };
 
-const startChat = () => {
-  // 채팅 시작 로직 구현
-  console.log("Start chat with:", itemDetail.value?.lessorId);
-};
-
-onMounted(async () => {
+// fetchItemDetails 함수 수정
+const fetchItemDetails = async (id) => {
   try {
+    // 데이터와 이미지 상태 초기화
+    itemDetail.value = null;
+    firebaseImageUrls.value = [];
+    currentSlide.value = 0; // 슬라이드도 초기 위치로
+    isLoadingImages.value = true;
+
     console.log("Fetching item details...");
-    const response = await fetch(`http://localhost:8080/api/item/rent/${itemId.value}`);
+    const response = await fetch(`http://localhost:8080/api/item/rent/${id}`);
     const data = await response.json();
     itemDetail.value = data;
 
@@ -273,16 +311,28 @@ onMounted(async () => {
 
     // itemImageNames에서 Firebase Storage URL 변환
     if (itemDetail.value.itemImageNames?.length) {
-      isLoadingImages.value = true; // 이미지 로딩 상태 활성화
-      const imagePaths = itemDetail.value.itemImageNames; // Firebase Storage 경로 배열
+      const imagePaths = itemDetail.value.itemImageNames;
       firebaseImageUrls.value = await fetchFirebaseImageUrls(imagePaths);
-      isLoadingImages.value = false; // 로딩 완료
     }
   } catch (error) {
     console.error("Error fetching item details:", error);
-    isLoadingImages.value = false; // 로딩 실패 시 로딩 상태 해제
+  } finally {
+    isLoadingImages.value = false; // 성공하든 실패하든 로딩 상태 해제
   }
+};
+
+// onMounted 수정
+onMounted(async () => {
+  await fetchItemDetails(itemId.value);
 });
+
+// watch는 그대로 유지
+watch(
+  () => route.params.id,
+  async (newId) => {
+    await fetchItemDetails(newId);
+  }
+);
 </script>
 
 <style scoped>
