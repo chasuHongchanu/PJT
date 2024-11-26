@@ -33,24 +33,27 @@
       </div>
 
       <!-- 게시물 목록 부분만 수정 -->
-      <div class="post-list" v-infinite-scroll="loadMore">
-        <div v-for="post in posts" :key="post.id" class="post-item">
-          <div class="post-content-wrapper">
+      <div class="course-list" v-infinite-scroll="loadMore">
+        <div v-for="course in courses" 
+        :key="course.id" 
+        class="course-item"
+        @click="goToDetail(course.id)">
+          <div class="course-content-wrapper">
             <!-- 유저 정보 -->
             <div class="user-info">
-              <img :src="post.userProfile" alt="Profile" class="profile-image" />
-              <span class="nickname">{{ post.nickname }}</span>
+              <img :src="course.userProfile" alt="Profile" class="profile-image" />
+              <span class="nickname">{{ course.nickname }}</span>
             </div>
 
             <!-- 게시글 컨텐츠 영역 -->
             <div class="content-layout">
               <div class="text-content">
-                <h3 class="post-title">{{ post.title }}</h3>
-                <p class="post-content">{{ post.content }}</p>
+                <h3 class="course-title">{{ course.title }}</h3>
+                <p class="course-content">{{ course.content }}</p>
               </div>
 
               <!-- 썸네일 이미지 -->
-              <img :src="post.thumbnail" alt="Thumbnail" class="thumbnail" />
+              <img :src="course.thumbnail" alt="Thumbnail" class="thumbnail" />
             </div>
 
             <!-- 좋아요/댓글 카운트 -->
@@ -71,7 +74,7 @@
                     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
                   ></path>
                 </svg>
-                <span>{{ post.likes }}</span>
+                <span>{{ course.likes }}</span>
               </div>
               <div class="count-item">
                 <svg
@@ -89,7 +92,7 @@
                     d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
                   ></path>
                 </svg>
-                <span>{{ post.comments }}</span>
+                <span>{{ course.comments }}</span>
               </div>
             </div>
           </div>
@@ -123,11 +126,11 @@ export default {
   setup() {
     const router = useRouter()
     const searchQuery = ref('')
-    const posts = ref([])
+    const courses = ref([])
     const isFilterVisible = ref(false)
 
     // 더미 데이터 생성
-    const generateDummyPosts = () => {
+    const generateDummycourses = () => {
       return Array.from({ length: 5 }, (_, index) => ({
         id: index + 1,
         userProfile: DefaultProfile,
@@ -143,13 +146,13 @@ export default {
 
     // 초기 데이터 로드
     onMounted(() => {
-      posts.value = generateDummyPosts()
+      courses.value = generateDummycourses()
     })
 
     // 무한 스크롤
     const loadMore = () => {
-      const newPosts = generateDummyPosts()
-      posts.value.push(...newPosts)
+      const newcourses = generateDummycourses()
+      courses.value.push(...newcourses)
     }
 
     // 필터 관련 메서드
@@ -170,18 +173,23 @@ export default {
 
     // 글쓰기 페이지 이동
     const goToWrite = () => {
-      router.push('/course/write')
+      router.push({ name: 'CourseRegist' })
+    }
+
+    const goToDetail = (courseId) => {
+      router.push(`/course/detail/${courseId}`)
     }
 
     return {
       searchQuery,
-      posts,
+      courses,
       loadMore,
       isFilterVisible,
       toggleFilter,
       closeFilter,
       applyFilter,
-      goToWrite
+      goToWrite,
+      goToDetail
     }
   },
 }
@@ -254,19 +262,25 @@ export default {
   font-size: 14px;
 }
 
-.post-list {
+.course-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.post-item {
+.course-item {
   background: white;
   padding: 16px;
   border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.post-content-wrapper {
+.course-item:hover {
+  transform: translateY(-2px);
+}
+
+.course-content-wrapper {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -302,13 +316,13 @@ export default {
   color: #333;
 }
 
-.post-title {
+.course-title {
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 8px;
 }
 
-.post-content {
+.course-content {
   font-size: 14px;
   color: #666;
   line-height: 1.4;

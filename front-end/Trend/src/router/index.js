@@ -100,15 +100,18 @@ const router = createRouter({
           name: 'CourseList',
           component: () => import('@/views/course/CourseListView.vue'),
         },
-        // {
-        //   path: 'regist',
-        //   name: 'CourseRegist',
-        //   component: () => import('@/views/course/CourseRegistView.vue'),
-        //   meta: { 
-        //     layout: 'default',
-        //     requiresAuth: true 
-        //   }
-        // }
+        {
+          path: 'detail/:id',
+          name: 'CourseDetail',
+          component: () => import('@/views/course/CourseDetailView.vue'),
+          meta: { layout: 'default' },
+          props: true
+        },
+        {
+          path: 'regist',
+          name: 'CourseRegist',
+          component: () => import('@/views/course/CourseRegistView.vue'),
+        }
       ],
     },
   ],
