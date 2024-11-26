@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class ChatRoomResponseDto {
     private int roomId;
+    private int itemId;
     private String userId;
     private String userNickname;
     private String userProfileImg;

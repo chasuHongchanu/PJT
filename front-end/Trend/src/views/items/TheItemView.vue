@@ -126,7 +126,7 @@ onMounted(async () => {
   }
 });
 const registerItem = () => {
-  alert("Redirect to item registration page.");
+  router.push("/items/regist")
 };
 
 const goToMap = () => {

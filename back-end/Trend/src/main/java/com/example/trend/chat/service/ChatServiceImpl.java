@@ -71,6 +71,27 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    public void sendMessage(ChatMessageDto message) {
+        // 채팅방 권한이 있는 유저인지 확인
+        if (chatRoomMapper.isUserInChatRoom(message.getRoomId(), message.getSenderId()) == 0) {
+            throw new CustomException(ErrorCode.FAIL_TO_ACCESS_CHATROOM);
+        }
+
+        // image 저장
+        if (message.getImage() != null) {
+            String imageUrl = fileUtil.saveFileIntoStorage("chat", String.valueOf(message.getRoomId()), message.getImage());
+            message.setMessageImg(imageUrl);
+        }
+
+        // MySQL에 메시지 저장
+        chatMessageMapper.insertMessage(message);
+        message.setChatCreatedAt(chatMessageMapper.getCreatedAt(message.getMessageId()));
+
+        // FIrebase Realtime Database에 메시지 저장
+        chatRealtimeService.sendMessageToFirebase(message.getRoomId(), message);
+    }
+
+    @Override
     public Pagination<ChatMessageResponseDto> getChatMessages(int roomId, String userId, int page, int size) {
         try {
             int offset = (page - 1) * size;
@@ -90,25 +111,5 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
-    @Override
-    public void sendMessage(ChatMessageDto message) {
-        // 채팅방 권한이 있는 유저인지 확인
-        if (chatRoomMapper.isUserInChatRoom(message.getRoomId(), message.getSenderId()) == 0) {
-            throw new CustomException(ErrorCode.FAIL_TO_ACCESS_CHATROOM);
-        }
 
-        // image 저장
-        if (message.getImage() != null) {
-            String imageUrl = fileUtil.saveFileIntoStorage("chat", String.valueOf(message.getRoomId()), message.getImage());
-            message.setMessageImg(imageUrl);
-        }
-
-        // MySQL에 메시지 저장
-        chatMessageMapper.insertMessage(message);
-        message.setChatCreatedAt(chatMessageMapper.getCreatedAt(message.getMessageId()));
-
-        // FIrebase Realtime Database에 메시지 저장
-        chatRealtimeService.sendMessageToFirebase(message.getRoomId(), message);
-
-    }
 }

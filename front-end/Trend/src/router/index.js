@@ -70,6 +70,9 @@ const router = createRouter({
           path: 'regist',
           name: 'Regist',
           component: TheItemRegistView,
+          path: 'regist',
+          name: 'Regist',
+          component: TheItemRegistView,
         },
         {
           path: 'update/:id',

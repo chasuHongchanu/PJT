@@ -7,6 +7,7 @@ export const itemApi = {
     return axiosInstance.post('/item/rent', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`
       },
     })
   },
