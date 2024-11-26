@@ -30,7 +30,6 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const authStore = useAuthStore()
-    const router = useRouter()
 
     // refresh token API 요청 시에는 인터셉터 스킵
     if (error.config.url.includes('/refresh-token')) {
@@ -39,17 +38,13 @@ axiosInstance.interceptors.response.use(
 
     if (error.response?.status === 401) {
       try {
-        // 토큰 갱신 시도
         const newAccessToken = await authStore.refreshToken()
-
-        // 갱신된 토큰으로 원래 요청 재시도
         error.config.headers.Authorization = newAccessToken
         return axiosInstance(error.config)
       } catch (refreshError) {
-        // 토큰 갱신 실패 시 로그인 페이지로 리다이렉트
-        console.error('토큰 갱신 실패:', refreshError)
+        // 토큰 갱신 실패 시 로컬 스토리지 클리어 및 상태 초기화
         authStore.clearAuth()
-        router.push('/auth/login')
+        window.location.href = '/auth/login'  // router.push 대신 직접 리다이렉트
         return Promise.reject(refreshError)
       }
     }

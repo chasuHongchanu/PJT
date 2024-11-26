@@ -167,4 +167,12 @@ public class UserController {
         userService.resetPassword(userResetPwRequestDto);
         return ResponseEntity.ok("Reset Password Successful, 임시 비밀번호 전송 완료");
     }
+
+    @SkipJwt
+    @GetMapping("/{userId}/profile-image")
+    @Operation(summary = "유저 프로필 사진 조회")
+    public ResponseEntity<?> getUserProfileImage(@PathVariable String userId){
+        String userProfileImgUrl = userService.getUserProfileImage(userId);
+        return ResponseEntity.ok(userProfileImgUrl);
+    }
 }

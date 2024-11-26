@@ -28,6 +28,7 @@ public interface ChatRoomMapper {
     @Select("""
                 SELECT 
                     cr.room_id AS roomId,
+                    cr.item_id AS itemId,
                     u.user_id AS userId,
                     u.user_nickname AS userNickname,
                     u.user_profile_img AS userProfileImg,
