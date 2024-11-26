@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 public class TradeMyItemsResponseDto {
     private int itemId;
+    private int tradeId;
     private String itemName;
     private String itemPrice;
     private String availableRentalStartDate;
@@ -16,4 +17,6 @@ public class TradeMyItemsResponseDto {
     private String thumbnail;
     private String address;
     private String itemStatus;
+    private String tradeState;
+    private String paymentStatus;
 }
