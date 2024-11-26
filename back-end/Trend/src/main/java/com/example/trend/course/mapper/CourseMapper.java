@@ -61,7 +61,7 @@ public interface CourseMapper {
                     WHERE course_id = course.course_id) AS likesCount,
                    (SELECT COUNT(*)
                     FROM course_comment
-                    WHERE course_id = course.course_id AND parent_comment_id IS NULL) AS commentCount
+                    WHERE course_id = course.course_id AND parents_comment_id IS NULL) AS commentCount
             FROM course
                      LEFT JOIN user u
                                on course_writer_id = u.user_id

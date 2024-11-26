@@ -144,14 +144,6 @@ public class CourseServiceImpl implements CourseService {
             throw new CustomException(ErrorCode.NOT_FOUND_COURSE_INFO);
         }
 
-        // 이미지 정보 가져오기
-        try {
-            courseResponseDto.setCourseImages(courseMapper.selectCourseImages(courseId));
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.FAIL_TO_SELECT_COURSE_IMAGES);
-        }
-
-
         // 추천 관광지 정보 가져오기
         try {
             courseResponseDto.setSpots(spotMapper.selectCourseSpots(courseId));

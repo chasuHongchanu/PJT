@@ -19,6 +19,5 @@ public class CourseResponseDto {
     private int viewCount;
     private int likeCount;
     private int commentCount;
-    private List<String> courseImages;
     private List<CourseSpotDto> spots;
 }
