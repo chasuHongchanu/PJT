@@ -135,6 +135,7 @@ const loadImages = async (imageUrls) => {
 
 const handleReturn = async () => {
   await tradeApi.updateTradeStatusToReturn(tradeId)
+  router.push({ name: 'ItemList', params: { id: userId } })
 }
 
 const handleConfirmReturn = async () => {

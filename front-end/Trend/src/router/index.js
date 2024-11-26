@@ -109,9 +109,10 @@ const router = createRouter({
       name: 'Trade',
       children: [
         {
-          path: 'reservation',
+          path: 'reservation/:lessorId/:lesseeId/:itemId',
           name: 'Reservation',
           component: TheReservationRegist,
+          props: true, // route.params를 컴포넌트의 props로 전달하기 위해 추가
         },
         {
           path: 'detail/:id',

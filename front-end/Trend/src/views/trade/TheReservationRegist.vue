@@ -51,9 +51,9 @@ const reservationData = ref({
 })
 
 const formData = ref({
-  lessorId: 'user1',
-  lesseeId: 'user2',
-  itemId: 4,
+  lessorId: route.params.lessorId,
+  lesseeId: route.params.lesseeId,
+  itemId: parseInt(route.params.itemId),
 })
 
 // 데이터 로드

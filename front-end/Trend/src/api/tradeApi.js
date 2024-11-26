@@ -66,7 +66,7 @@ export const tradeApi = {
   },
 
   updateTradeStatusToReturn(tradeId) {
-    return axiosInstance.get(`/trade/return/${tradeId}`, {
+    return axiosInstance.put(`/trade/return/${tradeId}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `${localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).accessToken : ''}`,

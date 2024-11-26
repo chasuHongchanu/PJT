@@ -21,9 +21,6 @@
             <span class="date-separator">~</span>
             <span>{{ formatDate(item.availableRentalEndDate) }}</span>
           </div>
-          <span :class="['status-badge', getStatusClass(item.itemStatus)]">
-            {{ item.itemStatus }}
-          </span>
         </div>
       </div>
     </div>
@@ -92,26 +89,30 @@ const formatDate = (date) => {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
 }
 
-const getStatusClass = (status) => {
-  const statusMap = {
-    AVAILABLE: 'status-available',
-    RENTED: 'status-rented',
-    RESERVED: 'status-reserved',
-  }
-  return statusMap[status] || 'status-default'
-}
-
 const handleItemClick = (item) => {
-  if (props.tabId === 'registered') {
+  if (item.paymentStatus === '입금 전') {
+    router.push({
+      name: 'Pay',
+      params: { id: item.tradeId },
+    })
+  } else if (props.tabId === 'registered') {
     router.push({
       name: 'ItemDetail',
       params: { id: item.itemId },
     })
   } else if (props.tabId === 'renting' || props.tabId === 'rented') {
-    router.push({
-      name: 'StartDetail',
-      params: { id: item.tradeId },
-    })
+    // 임차 중인 물품이고 대여 전 상태일 때
+    if (props.tabId === 'rented' && item.tradeState === '대여 전') {
+      router.push({
+        name: 'Start',
+        params: { id: item.tradeId },
+      })
+    } else {
+      router.push({
+        name: 'StartDetail',
+        params: { id: item.tradeId },
+      })
+    }
   }
 }
 
@@ -120,6 +121,7 @@ onMounted(async () => {
     const response = await props.fetchItems(1)
     const itemsWithImages = await loadItemsWithImages(response.data)
     items.value = itemsWithImages
+    console.log(items.value)
   } catch (error) {
     console.error('Failed to fetch items:', error)
   }

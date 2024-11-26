@@ -47,10 +47,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 import { tradeApi } from '@/api/tradeApi'
 import { getStorage, ref as storageRef, getDownloadURL } from 'firebase/storage'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const router = useRouter()
@@ -59,6 +60,8 @@ const rating = ref(0)
 const reviewContent = ref('')
 const isLoading = ref(true)
 const tradeId = route.params.id
+const authStore = useAuthStore()
+const { userId } = storeToRefs(authStore)
 
 const getItemData = async () => {
   try {
@@ -106,7 +109,7 @@ const submitReview = async () => {
     console.log(requestBody)
     await tradeApi.insertReview(requestBody)
     alert('후기가 등록되었습니다.')
-    router.push('/reviews')
+    router.push({ name: 'ItemList', params: { id: userId } })
   } catch (error) {
     console.error('후기 등록 실패:', error)
     alert('후기 등록에 실패했습니다.')
