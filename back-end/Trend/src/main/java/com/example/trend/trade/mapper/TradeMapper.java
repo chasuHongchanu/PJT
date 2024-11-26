@@ -200,12 +200,13 @@ public interface TradeMapper {
                    t.rental_end_date AS availableRentalEndDate,
                    thumbnail,
                    address,
-                   item_status
+                   item_status,
+                   trade_state,
+                   payment_status
             FROM item i
             JOIN item_trade t
             ON i.item_id = t.item_id
             WHERE t.lessor_id = #{userId}
-            AND t.trade_state = "대여 중"
             """)
     List<TradeMyItemsResponseDto> selectLendItems(String userId);
 
@@ -218,12 +219,13 @@ public interface TradeMapper {
                    t.rental_end_date AS availableRentalEndDate,
                    thumbnail,
                    address,
-                   item_status
+                   item_status,
+                   trade_state,
+                   payment_status
             FROM item i
             JOIN item_trade t
             ON i.item_id = t.item_id
             WHERE t.lessee_id = #{userId}
-            AND t.trade_state = "대여 중"
             """)
     List<TradeMyItemsResponseDto> selectLeaseItems(String userId);
 
@@ -235,7 +237,7 @@ public interface TradeMapper {
                    available_rental_end_date,
                    thumbnail,
                    address,
-                   item_status
+                   item_statusㅕ
             FROM item i
             JOIN item_trade t
             ON i.item_id = t.item_id

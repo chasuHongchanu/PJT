@@ -17,4 +17,6 @@ public class TradeMyItemsResponseDto {
     private String thumbnail;
     private String address;
     private String itemStatus;
+    private String tradeState;
+    private String paymentStatus;
 }

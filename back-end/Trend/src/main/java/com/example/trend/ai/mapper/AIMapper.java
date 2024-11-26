@@ -31,13 +31,13 @@ public interface AIMapper {
 
     @Insert("""
             INSERT INTO ai_chat_message (room_id, sender, message_content)
-            VALUES (#{roomId}, '사용자', #{query})
+            VALUES (#{roomId}, '#{userId}', #{query})
             """)
-    void insertQuery(int roomId, String query);
+    void insertQuery(int roomId, String userId, String query);
 
     @Insert("""
             INSERT INTO ai_chat_message (room_id, sender, message_content)
-            VALUES (#{roomId}, 'ChatGPT', #{convertedResponse})
+            VALUES (#{roomId}, 'TrendGPT', #{convertedResponse})
             """)
     void insertResponse(int roomId, String convertedResponse);
 
