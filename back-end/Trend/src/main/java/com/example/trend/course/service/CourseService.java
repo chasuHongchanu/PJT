@@ -8,6 +8,8 @@ import com.example.trend.course.dto.comment.CourseCommentUpdateDto;
 import com.example.trend.util.Pagination;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 public interface CourseService {
     void registCourse(@Valid CourseRegistRequestDto courseRegistRequestDto);
 
@@ -44,4 +46,6 @@ public interface CourseService {
     Pagination<CourseCommentResponseDto> getCommentReplyList(int courseId, int commentId, int page, int size);
 
     Pagination<CourseListResponseDto> searchCourses(int page, int size, CourseSearchRequestDto courseSearchRequestDto);
+
+    List<SpotDto> getSpot(String keyWord);
 }

@@ -46,10 +46,6 @@ public class CourseServiceImpl implements CourseService {
 
         // 등록된 여행 코스 등록
         saveCourseSpots(courseRegistRequestDto.getSpotList(), courseId);
-
-        // 이미지 저장
-        saveCourseImages(courseRegistRequestDto.getImageList(), courseId);
-
     }
 
     @Override
@@ -73,13 +69,6 @@ public class CourseServiceImpl implements CourseService {
         spotMapper.deleteCourseSpotByCourseId(courseId);
         // 수정된 경유지 입력
         saveCourseSpots(courseUpdateRequestDto.getSpotList(), courseId);
-
-        // 이미지 수정(db와 storage 모두 기존 파일 삭제 후 새로 등록)
-        // 기존 이미지 파일 삭제
-        courseMapper.deleteCourseImage(courseId);
-        fileUtil.deleteFiles("courses", String.valueOf(courseId));
-        // 수정할 이미지 저장
-        saveCourseImages(courseUpdateRequestDto.getImageList(), courseId);
     }
 
     private void saveCourseSpots(List<CourseSpotDto> spotList, int courseId) {
@@ -93,27 +82,6 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-    private void saveCourseImages(List<MultipartFile> imageList, int courseId) {
-        // 이미지 저장
-        if (!(imageList.size() == 1 && imageList.get(0).isEmpty())) {
-            fileUtil.saveFilesIntoStorage("courses", courseId, imageList);
-
-
-            // 파일 이름을 추출하여 itemImageNames 리스트에 추가
-            List<String> courseImageNames = imageList.stream()
-                    .map(file -> "courses/" + courseId + "/" + file.getOriginalFilename())
-                    .toList();
-
-            // db에 이미지 경로 및 이름 저장
-            // Thumbnail 경로 및 이름 저장
-            String thumbnail = courseImageNames.get(0);
-            courseMapper.insertThumbnail(thumbnail, courseId);
-            // db에 물품 이미지 이름 정보 insert
-            for (String courseImageName : courseImageNames) {
-                courseMapper.insertCourseImage(courseId, courseImageName);
-            }
-        }
-    }
 
     @Override
     public void deleteCourse(int courseId, String userId) {
@@ -324,5 +292,11 @@ public class CourseServiceImpl implements CourseService {
         int totalItems = courseCommentMapper.countCommentRepliesByCourseId(courseId, commentId); // 총 데이터 수
         // 페이징 객체 반환
         return new Pagination<>(commentResponseDtos, totalItems, page, size);
+    }
+
+    @Override
+    public List<SpotDto> getSpot(String keyWord) {
+        List<SpotDto> spotDto = courseMapper.searchSpot(keyWord);
+        return spotDto;
     }
 }

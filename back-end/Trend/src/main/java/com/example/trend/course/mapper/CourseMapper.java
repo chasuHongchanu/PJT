@@ -7,7 +7,7 @@ import java.util.List;
 
 @Mapper
 public interface CourseMapper {
-    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, address) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{address})")
+    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, region) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{region})")
     @Options(useGeneratedKeys = true, keyProperty = "courseId")
     void insertCourse(CourseRegistRequestDto courseRegistRequestDto);
 
@@ -54,6 +54,7 @@ public interface CourseMapper {
                    u.user_nickname    AS writerNickname,
                    course_title       AS courseTitle,
                    course_content     AS courseContent,
+                    region,
                    course_created_at,
                    view_count,
                    (SELECT COUNT(*)
@@ -180,4 +181,12 @@ public interface CourseMapper {
             WHERE course_id = #{courseId}
             """)
     void updateViewCountByCourseId(int courseId);
+
+    @Select("""
+SELECT *
+FROM spot
+WHERE spot_name like CONCAT('%', #{keyWord}, '%') OR
+      spot_address like CONCAT('%', #{keyWord}, '%')
+""")
+    List<SpotDto> searchSpot(String keyWord);
 }
