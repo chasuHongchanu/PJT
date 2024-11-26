@@ -1,4 +1,3 @@
-```vue
 <!-- components/icons/ReputationIcons.vue -->
 <template>
   <div class="reputation-icon">
@@ -64,4 +63,3 @@ defineProps({
   height: 24px;
 }
 </style>
-```

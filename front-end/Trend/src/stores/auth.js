@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import { authApi } from '@/api/authApi'
 import axios from 'axios'
-import axiosInstance from '@/api/axiosInstance';
-import { storage } from '@/../firebase';
-import { ref as firebaseRef, getDownloadURL } from 'firebase/storage';
-import DefaultProfileImage from '@/assets/default-profile.svg';
+import { storage } from '@/firebase'
+import axiosInstance from '@/api/axiosInstance'
+import { ref as firebaseRef, getDownloadURL } from 'firebase/storage'
+import DefaultProfileImage from '@/assets/default-profile.svg'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
 
         if (accessToken) {
           // Firebase에서 프로필 이미지 미리 가져오기
-          const profileImage = await this.loadFirebaseImage(userData.profileImgUrl);
+          const profileImage = await this.loadFirebaseImage(userData.profileImgUrl)
 
           this.setAuthData(accessToken, userData, profileImage)
           this.saveToLocalStorage()
@@ -52,14 +52,14 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async loadFirebaseImage(imagePath) {
-      if (!imagePath) return DefaultProfileImage; // 기본 이미지 경로
+      if (!imagePath) return DefaultProfileImage // 기본 이미지 경로
       try {
-        const storageRef = firebaseRef(storage, imagePath);
-        const imageUrl = await getDownloadURL(storageRef);
-        return imageUrl;
+        const storageRef = firebaseRef(storage, imagePath)
+        const imageUrl = await getDownloadURL(storageRef)
+        return imageUrl
       } catch (error) {
-        console.error('Firebase에서 프로필 이미지를 가져오는 데 실패했습니다:', error);
-        return DefaultProfileImage;
+        console.error('Firebase에서 프로필 이미지를 가져오는 데 실패했습니다:', error)
+        return DefaultProfileImage
       }
     },
 
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore('auth', {
         const savedAuth = localStorage.getItem('auth')
         if (savedAuth) {
           const parsedAuth = JSON.parse(savedAuth)
-          
+
           // 먼저 저장된 상태 복원
           this.accessToken = parsedAuth.accessToken
           this.userId = parsedAuth.userId
@@ -80,39 +80,38 @@ export const useAuthStore = defineStore('auth', {
             // 토큰 유효성 검증을 위한 간단한 API 호출
             await axios.get('http://localhost:8080/api/user/userinfo', {
               headers: {
-                Authorization: this.accessToken
+                Authorization: this.accessToken,
               },
-              withCredentials: true
-            });
-            
+              withCredentials: true,
+            })
+
             // API 호출이 성공하면 토큰이 유효한 것
-            const profileImage = await this.loadFirebaseImage(parsedAuth.profileImgUrl);
-            this.profileImage = profileImage;
+            const profileImage = await this.loadFirebaseImage(parsedAuth.profileImgUrl)
+            this.profileImage = profileImage
           } catch (error) {
             if (error.response?.status === 401) {
               // 토큰이 만료된 경우 갱신 시도
-              console.log('토큰 만료. 갱신 시도...');
-              await this.refreshToken();
+              console.log('토큰 만료. 갱신 시도...')
+              await this.refreshToken()
             } else {
-              throw error;
+              throw error
             }
           }
         }
       } catch (error) {
-        console.error('인증 초기화 실패:', error);
-        this.clearAuth();
+        console.error('인증 초기화 실패:', error)
+        this.clearAuth()
       } finally {
-        this.isInitialized = true;
+        this.isInitialized = true
       }
     },
-
 
     async refreshToken() {
       try {
         const response = await authApi.refreshToken()
-        const newAccessToken = response.headers['authorization'] || 
-                              response.headers['Authorization']
-    
+        const newAccessToken =
+          response.headers['authorization'] || response.headers['Authorization']
+
         if (newAccessToken) {
           this.setAccessToken(newAccessToken)
           return newAccessToken
@@ -124,7 +123,7 @@ export const useAuthStore = defineStore('auth', {
         throw error
       }
     },
-    
+
     // 로그아웃 처리
     async logout() {
       try {
@@ -139,19 +138,19 @@ export const useAuthStore = defineStore('auth', {
     async updateProfile({ userNickname, userProfileImgUrl }) {
       try {
         if (userProfileImgUrl) {
-          this.profileImgUrl = userProfileImgUrl;
-          this.profileImage = await this.loadFirebaseImage(userProfileImgUrl);
+          this.profileImgUrl = userProfileImgUrl
+          this.profileImage = await this.loadFirebaseImage(userProfileImgUrl)
         }
-        
+
         if (userNickname) {
-          this.userNickname = userNickname;
+          this.userNickname = userNickname
         }
-    
+
         // 로컬 스토리지 업데이트
-        this.saveToLocalStorage();
+        this.saveToLocalStorage()
       } catch (error) {
-        console.error('프로필 상태 업데이트 실패:', error);
-        throw error;
+        console.error('프로필 상태 업데이트 실패:', error)
+        throw error
       }
     },
 
@@ -166,8 +165,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     setAccessToken(token) {
-      this.accessToken = token;
-      this.saveToLocalStorage();
+      this.accessToken = token
+      this.saveToLocalStorage()
     },
 
     // 상태 초기화

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Mapper
 public interface CourseMapper {
-    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, address) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{address})")
+    @Insert("INSERT INTO course (course_writer_id, course_title, course_content, region) VALUES (#{courseWriterId}, #{courseTitle}, #{courseContent}, #{region})")
     @Options(useGeneratedKeys = true, keyProperty = "courseId")
     void insertCourse(CourseRegistRequestDto courseRegistRequestDto);
 
@@ -37,8 +37,7 @@ public interface CourseMapper {
                 COUNT(DISTINCT cl.user_id) AS likeCount,
                 COUNT(DISTINCT cc.course_comment_id) AS commentCount,
                 c.course_title AS courseTitle,
-                c.course_content AS courseContent,
-                c.thumbnail
+                c.course_content AS courseContent
             FROM course c
                 left join course_comment cc on c.course_id = cc.course_id
                 left join course_like cl on c.course_id = cl.course_id
@@ -54,6 +53,7 @@ public interface CourseMapper {
                    u.user_nickname    AS writerNickname,
                    course_title       AS courseTitle,
                    course_content     AS courseContent,
+                    region,
                    course_created_at,
                    view_count,
                    (SELECT COUNT(*)
@@ -61,7 +61,7 @@ public interface CourseMapper {
                     WHERE course_id = course.course_id) AS likesCount,
                    (SELECT COUNT(*)
                     FROM course_comment
-                    WHERE course_id = course.course_id AND parent_comment_id IS NULL) AS commentCount
+                    WHERE course_id = course.course_id AND parents_comment_id IS NULL) AS commentCount
             FROM course
                      LEFT JOIN user u
                                on course_writer_id = u.user_id
@@ -180,4 +180,12 @@ public interface CourseMapper {
             WHERE course_id = #{courseId}
             """)
     void updateViewCountByCourseId(int courseId);
+
+    @Select("""
+SELECT *
+FROM spot
+WHERE spot_name like CONCAT('%', #{keyWord}, '%') OR
+      spot_address like CONCAT('%', #{keyWord}, '%')
+""")
+    List<SpotDto> searchSpot(String keyWord);
 }

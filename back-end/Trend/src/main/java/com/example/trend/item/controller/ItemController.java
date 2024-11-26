@@ -78,8 +78,7 @@ public class ItemController {
 
     @PutMapping("/rent")
     public ResponseEntity<?> update(@Valid @ModelAttribute("itemUpdateDto") ItemRequestDto itemUpdateDto, @RequestAttribute("userId") String userId) {
-
-             itemUpdateDto.setUserId(userId);
+            itemUpdateDto.setUserId(userId);
             // 가격이 비어있는 경우
             if(itemUpdateDto.getItemPrice() == 0) {
                 throw new CustomException(ErrorCode.MISSING_ITEM_PRICE);
@@ -141,7 +140,7 @@ public class ItemController {
     @SkipJwt
     @GetMapping("/rent/search")
     public ResponseEntity<?> search(@RequestParam(defaultValue = "1") int page,
-                                    @RequestParam(defaultValue = "3") int size,
+                                    @RequestParam(defaultValue = "20") int size,
                                     @ModelAttribute ItemSearchCriteria itemSearchCriteria) {
         // 최대 가격이 최소 가격보다 작으면 예외 발생
         Integer minPrice = itemSearchCriteria.getMinPrice();

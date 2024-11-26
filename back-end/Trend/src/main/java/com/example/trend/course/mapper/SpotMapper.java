@@ -10,7 +10,7 @@ import java.util.List;
 
 @Mapper
 public interface SpotMapper {
-    @Insert("INSERT INTO course_spot (spot_id, course_id, spot_name, visit_order, address, latitude, longitude)" +
+    @Insert("INSERT INTO course_spot (spot_id, course_id, spot_name, visit_order, spot_address, latitude, longitude)" +
             "VALUES (#{spotId}, #{courseId}, #{spotName}, #{visitOrder}, #{address}, #{latitude}, #{longitude})")
     void insertCourseSpot(CourseSpotDto courseSpotDto);
 
@@ -19,7 +19,7 @@ public interface SpotMapper {
 
     // 수정 필요!!
     @Select("""
-            SELECT course_spot_id, course_id, spot_name, visit_order, spot_address
+            SELECT course_spot_id, course_id, spot_id, spot_name, visit_order, spot_address, latitude, longitude
             FROM course_spot
             WHERE course_id = #{courseId}
             """)

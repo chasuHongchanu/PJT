@@ -17,9 +17,7 @@ public class CourseRegistRequestDto {
     @NotBlank(message = "내용은 필수입니다.")
     private String courseContent;
     @NotBlank(message = "주소 입력은 필수입니다.")
-    private String address;
+    private String region;
     private String spotListJson;
     private List<CourseSpotDto> spotList;
-    private List<MultipartFile> imageList;
-
 }

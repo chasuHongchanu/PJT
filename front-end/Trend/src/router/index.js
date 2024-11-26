@@ -1,10 +1,19 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import {createRouter, createWebHistory} from 'vue-router'
+import {useAuthStore} from '@/stores/auth'
 import TheItemView from '@/views/items/TheItemView.vue'
 import TheMapView from '@/views/items/TheMapView.vue'
 import TheItemDetailView from '@/views/items/TheItemDetailView.vue'
 import TheItemRegistView from '@/views/items/TheItemRegistView.vue'
 import TheItemEditView from '@/views/items/TheItemEditView.vue'
+import TheLessorProfile from '@/views/items/TheLessorProfile.vue'
+import TheReservationRegist from '@/views/trade/TheReservationRegist.vue'
+import TheReservationDetail from '@/views/trade/TheReservationDetail.vue'
+import TheReservationUpdate from '@/views/trade/TheReservationUpdate.vue'
+import ThePayView from '@/views/trade/ThePayView.vue'
+import TheTradeStart from '@/views/trade/TheTradeStart.vue'
+import TheTradeStartDetail from '@/views/trade/TheTradeStartDetail.vue'
+import TheReview from '@/views/trade/TheReview.vue'
+import TheTradeList from '@/views/trade/TheTradeList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,13 +35,13 @@ const router = createRouter({
               path: 'info',
               name: 'ProfileInfo',
               component: () => import('@/views/user/TheProfileInfoView.vue'),
-              meta: { requiresAuth: true },
+              meta: {requiresAuth: true},
             },
             {
               path: 'edit',
               name: 'ProfileEdit',
               component: () => import('@/views/user/TheProfileEditView.vue'),
-              meta: { requiresAuth: true },
+              meta: {requiresAuth: true},
             },
           ],
         },
@@ -54,10 +63,13 @@ const router = createRouter({
         },
         {
           path: 'detail/:id',
-          name: 'Detail',
+          name: 'ItemDetail',
           component: TheItemDetailView,
         },
         {
+          path: 'regist',
+          name: 'Regist',
+          component: TheItemRegistView,
           path: 'regist',
           name: 'Regist',
           component: TheItemRegistView,
@@ -66,6 +78,11 @@ const router = createRouter({
           path: 'update/:id',
           name: 'Update',
           component: TheItemEditView,
+        },
+        {
+          path: 'lessor/:id',
+          name: 'LessorProfile',
+          component: TheLessorProfile,
         },
       ],
     },
@@ -77,13 +94,13 @@ const router = createRouter({
           path: 'login',
           name: 'Login',
           component: () => import('@/views/auth/LoginView.vue'),
-          meta: { requiresGuest: true },
+          meta: {requiresGuest: true},
         },
         {
           path: 'signup',
           name: 'Signup',
           component: () => import('@/views/auth/SignupView.vue'),
-          meta: { requiresGuest: true },
+          meta: {requiresGuest: true},
         },
       ],
     },
@@ -93,22 +110,72 @@ const router = createRouter({
       children: [
         {
           path: '',
-          redirect: { name: 'CourseList' }
+          redirect: {name: 'CourseList'}
         },
         {
           path: 'list',
           name: 'CourseList',
           component: () => import('@/views/course/CourseListView.vue'),
         },
-        // {
-        //   path: 'regist',
-        //   name: 'CourseRegist',
-        //   component: () => import('@/views/course/CourseRegistView.vue'),
-        //   meta: { 
-        //     layout: 'default',
-        //     requiresAuth: true 
-        //   }
-        // }
+        {
+          path: 'detail/:id',
+          name: 'CourseDetail',
+          component: () => import('@/views/course/CourseDetailView.vue'),
+          meta: {layout: 'default'},
+          props: true
+        },
+        {
+          path: 'regist',
+          name: 'CourseRegist',
+          component: () => import('@/views/course/CourseRegistView.vue'),
+        }
+      ],
+    },
+    {
+      path: '/trade',
+      name: 'Trade',
+      children: [
+        {
+          path: 'reservation/:lessorId/:lesseeId/:itemId',
+          name: 'Reservation',
+          component: TheReservationRegist,
+          props: true, // route.params를 컴포넌트의 props로 전달하기 위해 추가
+        },
+        {
+          path: 'detail/:id',
+          name: 'Detail',
+          component: TheReservationDetail,
+        },
+        {
+          path: 'reservationUpdate/:id',
+          name: 'ReservationUpdate',
+          component: TheReservationUpdate,
+        },
+        {
+          path: 'pay/:id',
+          name: 'Pay',
+          component: ThePayView,
+        },
+        {
+          path: 'start/:id',
+          name: 'Start',
+          component: TheTradeStart,
+        },
+        {
+          path: 'startDetail/:id',
+          name: 'StartDetail',
+          component: TheTradeStartDetail,
+        },
+        {
+          path: 'review/:id',
+          name: 'Review',
+          component: TheReview,
+        },
+        {
+          path: 'itemList',
+          name: 'ItemList',
+          component: TheTradeList,
+        },
       ],
     },
   ],
@@ -123,7 +190,7 @@ router.beforeEach(async (to, from, next) => {
     if (!authStore.isAuthenticated) {
       next({
         path: '/auth/login',
-        query: { redirect: to.fullPath },
+        query: {redirect: to.fullPath},
       })
       return
     }
@@ -133,7 +200,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresGuest)) {
     // 이미 인증된 경우
     if (authStore.isAuthenticated) {
-      next({ path: '/' })
+      next({path: '/'})
       return
     }
   }

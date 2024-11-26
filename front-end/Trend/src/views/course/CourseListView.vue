@@ -1,11 +1,10 @@
 <template>
   <DefaultLayout>
     <div class="course-list-container">
-      <!-- 페이지 제목 -->
+      <!-- 기존 템플릿 코드는 유지 -->
       <h1 class="page-title">코스 전체 조회</h1>
       <h2 class="sub-title">여행 코스</h2>
 
-      <!-- 검색바 -->
       <div class="search-bar">
         <input v-model="searchQuery" type="text" class="search-input" placeholder="여행 코스" />
         <button class="search-button">
@@ -26,34 +25,39 @@
         </button>
       </div>
 
-      <!-- 필터/글쓰기 버튼 -->
       <div class="button-container">
         <button class="filter-button" @click="toggleFilter">필터</button>
         <button class="write-button" @click="goToWrite">글쓰기</button>
       </div>
 
-      <!-- 게시물 목록 부분만 수정 -->
-      <div class="post-list" v-infinite-scroll="loadMore">
-        <div v-for="post in posts" :key="post.id" class="post-item">
-          <div class="post-content-wrapper">
-            <!-- 유저 정보 -->
+      <!-- 게시물 목록 -->
+      <div 
+        class="course-list" 
+        v-infinite-scroll="loadMore"
+        :infinite-scroll-disabled="loading || !hasNextPage"
+        :infinite-scroll-distance="10"
+      >
+        <div 
+          v-for="course in courses" 
+          :key="course.courseId" 
+          class="course-item"
+          @click="goToDetail(course.courseId)"
+        >
+          <div class="course-content-wrapper">
             <div class="user-info">
-              <img :src="post.userProfile" alt="Profile" class="profile-image" />
-              <span class="nickname">{{ post.nickname }}</span>
+              <img :src="course.userProfileImg || DefaultProfile" alt="Profile" class="profile-image" />
+              <span class="nickname">{{ course.userNickname }}</span>
             </div>
 
-            <!-- 게시글 컨텐츠 영역 -->
             <div class="content-layout">
               <div class="text-content">
-                <h3 class="post-title">{{ post.title }}</h3>
-                <p class="post-content">{{ post.content }}</p>
+                <h3 class="course-title">{{ course.courseTitle }}</h3>
+                <p class="course-content">{{ course.courseContent }}</p>
               </div>
 
-              <!-- 썸네일 이미지 -->
-              <img :src="post.thumbnail" alt="Thumbnail" class="thumbnail" />
+              <img :src="DefaultMap" alt="Course Map" class="thumbnail" />
             </div>
 
-            <!-- 좋아요/댓글 카운트 -->
             <div class="interaction-counts">
               <div class="count-item">
                 <svg
@@ -67,11 +71,9 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                  ></path>
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
-                <span>{{ post.likes }}</span>
+                <span>{{ course.likeCount }}</span>
               </div>
               <div class="count-item">
                 <svg
@@ -85,17 +87,20 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <path
-                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                  ></path>
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                 </svg>
-                <span>{{ post.comments }}</span>
+                <span>{{ course.commentCount }}</span>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- 로딩 표시 -->
+        <div v-if="loading" class="loading">
+          Loading...
+        </div>
       </div>
-      <!-- 필터 팝업 -->
+
       <FilterPopup 
         :is-visible="isFilterVisible"
         @close="closeFilter"
@@ -109,9 +114,11 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import DefaultImage from '@/assets/default-image.svg'
+import DefaultMap from '@/assets/default-map.svg'
 import DefaultProfile from '@/assets/default-profile.svg'
 import FilterPopup from '@/components/course/FilterPopup.vue'
+import { courseApi } from '@/api/courseApi'
+import { firebaseUtils } from '@/utils/firebaseUtils'
 
 export default {
   name: 'CourseListView',
@@ -123,33 +130,69 @@ export default {
   setup() {
     const router = useRouter()
     const searchQuery = ref('')
-    const posts = ref([])
+    const courses = ref([])
     const isFilterVisible = ref(false)
+    const currentPage = ref(1)
+    const loading = ref(false)
+    const hasNextPage = ref(true)
+    const pageSize = 10
 
-    // 더미 데이터 생성
-    const generateDummyPosts = () => {
-      return Array.from({ length: 5 }, (_, index) => ({
-        id: index + 1,
-        userProfile: DefaultProfile,
-        nickname: `여행러${index + 1}`,
-        title: `여행 코스 타이틀 ${index + 1}`,
-        content:
-          '본문 내용이 여기에 들어갑니다. 본문 내용이 여기에 들어갑니다. 본문 내용이 여기에 들어갑니다. 본문 내용이 여기에 들어갑니다.',
-        thumbnail: DefaultImage,
-        likes: 256,
-        comments: 256,
-      }))
+    // 이미지 URL 로드 (프로필 이미지만 처리)
+    const loadImageUrls = async (courseData) => {
+      const updatedCourses = await Promise.all(
+        courseData.map(async (course) => {
+          // 프로필 이미지만 Firebase에서 로드
+          const profileUrl = await firebaseUtils.getProfileImageUrl(course.userProfileImg);
+          
+          return {
+            ...course,
+            userProfileImg: profileUrl
+          };
+        })
+      );
+      return updatedCourses;
+    };
+
+    // 코스 목록 조회
+    const fetchCourses = async () => {
+      if (loading.value || !hasNextPage.value) return
+
+      try {
+        loading.value = true
+        const response = await courseApi.getCourseList(currentPage.value)
+        
+        if (response.data && response.data.data) {
+          // Firebase에서 이미지 URL 로드
+          const updatedCourseData = await loadImageUrls(response.data.data);
+          
+          // 첫 페이지가 아닌 경우 기존 데이터에 추가
+          if (currentPage.value === 1) {
+            courses.value = updatedCourseData;
+          } else {
+            courses.value = [...courses.value, ...updatedCourseData];
+          }
+
+          // 다음 페이지 존재 여부 확인
+          hasNextPage.value = response.data.currentPage < response.data.totalPages
+          currentPage.value++
+        }
+      } catch (error) {
+        console.error('Failed to fetch courses:', error)
+      } finally {
+        loading.value = false
+      }
     }
 
     // 초기 데이터 로드
     onMounted(() => {
-      posts.value = generateDummyPosts()
+      fetchCourses()
     })
 
     // 무한 스크롤
     const loadMore = () => {
-      const newPosts = generateDummyPosts()
-      posts.value.push(...newPosts)
+      if (!loading.value && hasNextPage.value) {
+        fetchCourses()
+      }
     }
 
     // 필터 관련 메서드
@@ -161,27 +204,57 @@ export default {
       isFilterVisible.value = false
     }
 
-    const applyFilter = (filterData) => {
-      console.log('Applied filters:', filterData)
-      // TODO: 필터 적용 로직 구현
-      // 예: API 호출하여 필터링된 데이터 가져오기
-      closeFilter()
+    // 필터 적용
+    const applyFilter = async (filterData) => {
+      try {
+        loading.value = true
+        currentPage.value = 1
+        
+        const response = await courseApi.searchCourses({
+          ...filterData,
+          page: currentPage.value,
+          size: pageSize
+        })
+        
+        if (response.data && response.data.data) {
+          // Firebase에서 이미지 URL 로드
+          const updatedCourseData = await loadImageUrls(response.data.data);
+          courses.value = updatedCourseData;
+          hasNextPage.value = response.data.currentPage < response.data.totalPages
+          currentPage.value++
+        }
+      } catch (error) {
+        console.error('Failed to apply filters:', error)
+      } finally {
+        loading.value = false
+        closeFilter()
+      }
     }
 
     // 글쓰기 페이지 이동
     const goToWrite = () => {
-      router.push('/course/write')
+      router.push({ name: 'CourseRegist' })
+    }
+
+    // 상세 페이지 이동
+    const goToDetail = (courseId) => {
+      router.push(`/course/detail/${courseId}`)
     }
 
     return {
       searchQuery,
-      posts,
+      courses,
       loadMore,
+      loading,
+      hasNextPage,
       isFilterVisible,
       toggleFilter,
       closeFilter,
       applyFilter,
-      goToWrite
+      goToWrite,
+      goToDetail,
+      DefaultMap,
+      DefaultProfile
     }
   },
 }
@@ -195,13 +268,13 @@ export default {
 }
 
 .page-title {
-  font-size: 14px;
+  font-size: 16px;  /* 14px -> 16px */
   color: #333;
   margin-bottom: 8px;
 }
 
 .sub-title {
-  font-size: 20px;
+  font-size: 24px;  /* 20px -> 24px */
   font-weight: bold;
   margin-bottom: 16px;
 }
@@ -254,104 +327,134 @@ export default {
   font-size: 14px;
 }
 
-.post-list {
+.course-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;  /* 12px -> 16px */
 }
 
-.post-item {
+.course-item {
   background: white;
-  padding: 16px;
+  padding: 20px;  /* 16px -> 20px */
   border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);  /* 그림자 효과 추가 */
 }
 
-.post-content-wrapper {
+.course-content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;  /* 12px -> 16px */
+}
+
+.course-item:hover {
+  transform: translateY(-2px);
 }
 
 .content-layout {
   display: flex;
-  gap: 16px;
+  gap: 20px;  /* 16px -> 20px */
   align-items: flex-start;
 }
 
 .text-content {
   flex: 1;
-  min-width: 0; /* 텍스트 오버플로우 방지 */
+  min-width: 0;
 }
+
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 12px;  /* 8px -> 12px */
+  margin-bottom: 16px;  /* 12px -> 16px */
 }
 
 .profile-image {
-  width: 24px;
-  height: 24px;
+  width: 40px;  /* 24px -> 40px */
+  height: 40px;  /* 24px -> 40px */
   border-radius: 50%;
   object-fit: cover;
 }
 
 .nickname {
-  font-size: 14px;
+  font-size: 16px;  /* 14px -> 16px */
   color: #333;
+  font-weight: 500;  /* 글씨 약간 더 진하게 */
 }
 
-.post-title {
-  font-size: 16px;
+.course-title {
+  font-size: 20px;  /* 16px -> 20px */
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 12px;  /* 8px -> 12px */
+  line-height: 1.4;
 }
 
-.post-content {
-  font-size: 14px;
+.course-content {
+  font-size: 16px;  /* 14px -> 16px */
   color: #666;
-  line-height: 1.4;
+  line-height: 1.5;  /* 1.4 -> 1.5 */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin-bottom: 16px;  /* 하단 여백 추가 */
 }
 
 .thumbnail {
   width: 120px;
   height: 120px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 7px;
   flex-shrink: 0; /* 이미지 크기 고정 */
 }
 
 .interaction-counts {
   display: flex;
-  gap: 16px;
+  gap: 24px;  /* 16px -> 24px */
+  margin-top: 8px;  /* 상단 여백 추가 */
 }
 
 .count-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;  /* 4px -> 6px */
   color: #666;
-  font-size: 14px;
+  font-size: 16px;  /* 14px -> 16px */
 }
 
 .count-item svg {
+  width: 20px;  /* 16px -> 20px */
+  height: 20px;  /* 16px -> 20px */
   color: #666;
 }
 
 /* 반응형 스타일 */
 @media (max-width: 640px) {
   .content-layout {
-    gap: 12px;
+    gap: 16px;
   }
 
   .thumbnail {
     width: 100px;
     height: 100px;
   }
+  
+  .course-title {
+    font-size: 18px;  /* 모바일에서는 약간 작게 */
+  }
+  
+  .course-content {
+    font-size: 15px;  /* 모바일에서는 약간 작게 */
+  }
+}
+
+/* 로딩 표시 스타일 */
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 16px;  /* 로딩 텍스트도 크게 */
 }
 </style>

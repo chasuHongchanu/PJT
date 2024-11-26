@@ -257,20 +257,19 @@ public interface ItemMapper {
                 u.user_nickname AS lessorNickname,
                 u.user_rating AS lessorReputation,
                 u.user_profile_img AS lessorProfileImg,
-                COALESCE(t.trade_count, 0) AS lessorTradeCount,
+                COALESCE(i.item_count, 0) AS lessorTradeCount, -- 판매된 물품 개수
                 COALESCE(r.review_count, 0) AS lessorReviewCount
             FROM user u
             LEFT JOIN (
-                SELECT lessor_id, COUNT(*) AS trade_count
-                FROM item_trade
-                GROUP BY lessor_id
-            ) t ON u.user_id = t.lessor_id
+                SELECT user_id, COUNT(*) AS item_count
+                FROM item
+                GROUP BY user_id
+            ) i ON u.user_id = i.user_id
             LEFT JOIN (
                 SELECT lessor_id, COUNT(*) AS review_count
                 FROM trade_review
                 GROUP BY lessor_id
             ) r ON u.user_id = r.lessor_id
-            
             WHERE u.user_id = #{userId};
             """)
     ItemLessorInfoDto selectItemLessorInfoByLessorId(String lessorId);
@@ -299,7 +298,7 @@ public interface ItemMapper {
     int countLessorReviews(String lessorId);
 
     @Select("""
-            SELECT article_id, article_title
+            SELECT article_id, article_title, article_content
             FROM article
             WHERE writer_id = #{lessorId}
             LIMIT #{size}

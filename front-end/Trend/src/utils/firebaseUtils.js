@@ -1,4 +1,4 @@
-import { storage } from '@/../firebase';
+import { storage } from '@/firebase';
 import { ref, getDownloadURL } from 'firebase/storage';
 import DefaultProfileImage from '@/assets/default-profile.svg';
 import DefaultImage from '@/assets/default-image.svg';
