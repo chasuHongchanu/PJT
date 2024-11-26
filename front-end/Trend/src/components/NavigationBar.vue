@@ -64,14 +64,18 @@
         </button>
 
         <Transition name="fade" mode="out-in">
-          <ChatRoom
-            v-if="selectedRoomId"
+          <ChatRoom 
+            v-if="selectedRoomId" 
             :key="'room-' + selectedRoomId"
             :room-id="selectedRoomId"
             :item-id="selectedItemId"
             @back="closeRoom"
           />
-          <ChatList v-else :key="'list'" @select-room="selectRoom" />
+          <ChatList 
+            v-else 
+            :key="'list'" 
+            @select-room="selectRoom"
+          />
         </Transition>
       </div>
     </div>
@@ -87,7 +91,6 @@ import SideMenu from './menu/SideMenu.vue'
 import NavProfilePop from './NavProfilePop.vue'
 import ChatList from '@/components/chat/ChatList.vue'
 import ChatRoom from '@/components/chat/ChatRoom.vue'
-import { useChatStore } from '@/stores/chat'
 
 export default {
   name: 'NavigationBar',
@@ -106,21 +109,23 @@ export default {
     const isProfilePopupOpen = ref(false)
 
     // 채팅 관련 상태
+    const isChatOpen = ref(false)
+    const selectedRoomId = ref(null)
+    const selectedItemId = ref(null)
     const isMobile = ref(window.innerWidth < 768)
-    const chatStore = useChatStore()
-    const { isChatOpen, selectedRoomId, selectedItemId } = storeToRefs(chatStore)
 
     // 채팅 기능
     const toggleChat = () => {
-      if (isChatOpen.value) {
-        chatStore.closeChat()
-      } else {
-        chatStore.openChat()
+      isChatOpen.value = !isChatOpen.value
+      if (!isChatOpen.value) {
+        selectedRoomId.value = null
+        selectedItemId.value = null
       }
     }
 
     const selectRoom = (roomId, itemId) => {
-      chatStore.selectRoom(roomId, itemId)
+      selectedRoomId.value = roomId
+      selectedItemId.value = itemId
     }
 
     const closeRoom = () => {

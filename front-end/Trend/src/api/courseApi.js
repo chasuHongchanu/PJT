@@ -1,30 +1,14 @@
 // src/api/courseApi.js
-import axiosInstance from './axiosInstance'
+import axiosInstance from './axiosInstance'  // 수정: default import 사용
 
 export const courseApi = {
-  // 코스 목록 조회 (page는 1부터 시작)
-  getCourseList: (page = 1, size = 10) => {
-    return axiosInstance.get('/course/list', {
-      params: {
-        page,
-        size
-      }
-    })
+  // 코스 목록 조회
+  getCourseList: (page = 1) => {
+    return axiosInstance.get(`/course/list?page=${page}`)  // 수정: 중복 api 경로 제거
   },
 
   // 코스 검색
   searchCourses: (searchParams) => {
-    return axiosInstance.get('/course/search', { 
-      params: {
-        ...searchParams,
-        page: searchParams.page || 1,
-        size: searchParams.size || 10
-      }
-    })
-  },
-
-  // 코스 상세 조회
-  getCourseDetail: (courseId) => {
-    return axiosInstance.get(`/course/detail/${courseId}`)
+    return axiosInstance.get('/course/search', { params: searchParams })  // 수정: 중복 api 경로 제거
   }
 }

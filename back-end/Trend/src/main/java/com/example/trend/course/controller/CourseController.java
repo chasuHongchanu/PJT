@@ -221,13 +221,4 @@ public class CourseController {
         boolean result = courseService.isLikeCourseComment(courseCommentId, userId);
         return ResponseEntity.ok("댓글 좋아요 여부: " + result);
     }
-
-    @SkipJwt
-    @GetMapping("/spot")
-    @Operation(summary = "관광지 검색 api")
-    public ResponseEntity<?> getSpot(@RequestParam String keyWord){
-        log.info("keyWord: ", keyWord);
-        List<SpotDto> spotDto = courseService.getSpot(keyWord);
-        return ResponseEntity.ok(spotDto);
-    }
 }

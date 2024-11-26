@@ -10,9 +10,9 @@ public class CourseListResponseDto {
     private String userProfileImg;
     private String userId;
     private String userNickname;
+    private String thumbnail;
     private int likeCount;
     private int commentCount;
     private String courseTitle;
     private String courseContent;
-    private String thumbnail;
 }

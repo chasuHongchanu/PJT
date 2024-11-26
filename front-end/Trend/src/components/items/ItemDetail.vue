@@ -9,7 +9,11 @@
         v-if="imageUrl"
       />
       <div v-else class="image-placeholder">
-        <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" viewBox="0 0 24 24">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="placeholder-icon"
+          viewBox="0 0 24 24"
+        >
           <path
             d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
           />
@@ -32,13 +36,12 @@
 </template>
 
 <script setup>
-import { defineProps, ref, onMounted } from 'vue'
-import { storage } from '@/firebase'
-import { ref as storageRef, getDownloadURL } from 'firebase/storage'
-import DefaultImage from '@/assets/default-image.svg'
-import { useRouter } from 'vue-router'
+import { defineProps, ref, onMounted } from "vue";
+import { storage } from "@/firebase";
+import { ref as storageRef, getDownloadURL } from "firebase/storage";
+import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 const props = defineProps({
   itemId: {
@@ -61,33 +64,36 @@ const props = defineProps({
     type: String,
     required: true,
   },
-})
+});
 
-const imageUrl = ref(null)
+const imageUrl = ref(null);
 
 const formatPrice = (price) => {
-  return new Intl.NumberFormat('ko-KR').format(price)
-}
+  return new Intl.NumberFormat("ko-KR").format(price);
+};
 
 const handleImageError = () => {
-  console.error('Image failed to load')
-  imageUrl.value = null
-}
+  console.error("Image failed to load");
+  imageUrl.value = null;
+};
 
 const goToDetailPage = (itemId) => {
-  router.push({ name: 'ItemDetail', params: { id: itemId } })
-}
+  router.push(`/items/detail/${itemId}`);
+};
 
 onMounted(async () => {
   try {
     // Firebase Storage의 이미지 경로로부터 URL 가져오기
-    const imageReference = storageRef(storage, `/${props.itemImage}`)
-    const url = await getDownloadURL(imageReference)
-    imageUrl.value = url
+    const imageReference = storageRef(storage, `/${props.itemImage}`);
+    const url = await getDownloadURL(imageReference);
+    imageUrl.value = url;
   } catch (error) {
-    imageUrl.value = DefaultImage
+    // console.error("Error loading image:", error);
+    const imageReference = storageRef(storage, "/items/3/Precourse_수료증.png");
+    const url = await getDownloadURL(imageReference);
+    imageUrl.value = url;
   }
-})
+});
 </script>
 
 <style scoped>
@@ -97,9 +103,7 @@ onMounted(async () => {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   height: 100%;
 }
 

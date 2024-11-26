@@ -52,23 +52,21 @@
           />
         </div>
         <div v-else class="empty-state">
-          <div class="empty-content">
-            <div class="icon-container">
-              <!-- 더 심플한 아이콘으로 변경 -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                class="empty-icon"
-                fill="none"
-                stroke="currentColor"
-              >
-                <circle cx="12" cy="12" r="10" stroke-width="2" />
-                <path d="M15 9l-6 6M9 9l6 6" stroke-width="2" stroke-linecap="round" />
-              </svg>
-            </div>
-            <h2 class="empty-title">검색 결과가 없습니다</h2>
-            <p class="empty-description">다른 검색어로 다시 시도해보세요</p>
-          </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="empty-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <p class="empty-text">검색 결과가 없습니다.</p>
         </div>
       </div>
 
@@ -341,42 +339,5 @@ const applyFilters = async (filters) => {
   .search-wrapper {
     padding: 0 12px;
   }
-}
-
-.empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  background-color: #f8f9fa;
-  border-radius: 16px;
-  min-height: 300px;
-}
-
-.empty-content {
-  text-align: center;
-}
-
-.icon-container {
-  margin-bottom: 24px;
-}
-
-.empty-icon {
-  width: 48px;
-  height: 48px;
-  color: #ccc;
-}
-
-.empty-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 12px 0;
-}
-
-.empty-description {
-  font-size: 16px;
-  color: #666;
-  margin: 0;
 }
 </style>

@@ -13,5 +13,4 @@ public class ArticleSimpleInfo {
     private int articleId;
     private String articleTitle;
     private List<String> articleImages;
-    private String articleContent;
 }

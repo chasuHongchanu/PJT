@@ -53,8 +53,8 @@ public class TradeServiceImpl implements TradeService{
 
         // item 테이블의 item_status를 예약 중으로 변경
         tradeMapper.updateItemStatusToReservation(tradeReservationRegistRequestDto.getItemId());
-        int result = tradeMapper.insertReservation(tradeReservationRegistRequestDto);
-        return tradeReservationRegistRequestDto.getTradeId();
+
+        return tradeMapper.insertReservation(tradeReservationRegistRequestDto);
     }
 
     @Transactional

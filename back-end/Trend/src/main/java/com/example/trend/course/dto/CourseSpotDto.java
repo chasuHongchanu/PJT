@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class CourseSpotDto {
     // 관광지 정보를 담아 요청받을 DTO
-    private int courseSpotId;
+    // open API를 통해 관광지 정보를 불러와 저장하는 것이 우선.
     private int spotId;
     private int courseId;
     private String spotName;
