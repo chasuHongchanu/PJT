@@ -7,13 +7,6 @@
       </button>
       <span v-if="itemInfo" class="seller-name">{{ itemInfo.lessorNickname }}</span>
       <span v-else class="seller-name">로딩중...</span>
-      <button
-        v-if="itemInfo && itemInfo.lessorId === currentUserId"
-        class="reservation-button"
-        @click="handleReservation"
-      >
-        예약하기
-      </button>
     </div>
 
     <!-- 물품 정보 -->
@@ -162,13 +155,7 @@ import { userApi } from '@/api/userApi'
 import { firebaseUtils } from '@/utils/firebaseUtils'
 import DefaultProfileImg from '@/assets/default-profile.svg'
 import DefaultImage from '@/assets/default-image.svg'
-import { useRouter } from 'vue-router'
-import { useChatStore } from '@/stores/chat' // import 추가
 
-// setup 내부에 chatStore 추가
-const chatStore = useChatStore()
-
-const router = useRouter()
 const props = defineProps({
   roomId: {
     type: String,
@@ -239,10 +226,10 @@ const getUserProfileImage = async (userId) => {
 
     // 사용자의 프로필 이미지 경로 조회
     const imagePath = await userApi.getUserProfileImg(userId)
-
+    
     // Firebase Storage에서 이미지 URL 가져오기
     const imageUrl = await firebaseUtils.getProfileImageUrl(imagePath)
-
+    
     // 캐시 저장
     imageCache.value.set(`profile_${userId}`, imageUrl)
     return imageUrl
@@ -259,13 +246,13 @@ const getMessageImage = async (messageId, messageImg) => {
     if (imageCache.value.has(`message_${messageId}`)) {
       return imageCache.value.get(`message_${messageId}`)
     }
-
+    
     if (!messageImg) {
       return null
     }
 
     const imageUrl = await firebaseUtils.getImageUrl(messageImg)
-
+    
     // 캐시 저장
     imageCache.value.set(`message_${messageId}`, imageUrl)
     return imageUrl
@@ -298,16 +285,13 @@ const setupMessageListener = () => {
         return
       }
 
-      const messageEntries = Object.entries(roomData).sort(
-        ([, a], [, b]) => new Date(a.chatCreatedAt) - new Date(b.chatCreatedAt),
-      )
+      const messageEntries = Object.entries(roomData)
+        .sort(([, a], [, b]) => new Date(a.chatCreatedAt) - new Date(b.chatCreatedAt))
 
       const processedMessages = await Promise.all(
         messageEntries.map(async ([key, msg]) => {
           const userProfileImg = await getUserProfileImage(msg.senderId)
-          let messageImg = msg.messageImg
-            ? await getMessageImage(msg.messageId || key, msg.messageImg)
-            : null
+          let messageImg = msg.messageImg ? await getMessageImage(msg.messageId || key, msg.messageImg) : null
 
           return {
             messageId: msg.messageId || key,
@@ -316,9 +300,9 @@ const setupMessageListener = () => {
             senderProfileImg: userProfileImg,
             messageContent: msg.messageContent,
             messageImg: messageImg,
-            chatCreatedAt: msg.chatCreatedAt,
+            chatCreatedAt: msg.chatCreatedAt
           }
-        }),
+        })
       )
 
       if (isInitialLoad.value) {
@@ -330,11 +314,12 @@ const setupMessageListener = () => {
         await nextTick()
         scrollToBottom()
       } else {
-        const lastExistingMessageTime =
-          messages.value.length > 0 ? messages.value[messages.value.length - 1].chatCreatedAt : 0
+        const lastExistingMessageTime = messages.value.length > 0 
+          ? messages.value[messages.value.length - 1].chatCreatedAt 
+          : 0
 
         const newMessages = processedMessages.filter(
-          (msg) => new Date(msg.chatCreatedAt) > new Date(lastExistingMessageTime),
+          msg => new Date(msg.chatCreatedAt) > new Date(lastExistingMessageTime)
         )
 
         if (newMessages.length > 0) {
@@ -363,7 +348,7 @@ const loadMoreMessages = async () => {
       roomRef,
       orderByChild('chatCreatedAt'),
       endBefore(oldestMessageTime.value),
-      limitToLast(PAGE_SIZE),
+      limitToLast(PAGE_SIZE)
     )
 
     const snapshot = await get(olderMessagesQuery)
@@ -389,10 +374,11 @@ const loadMoreMessages = async () => {
           senderProfileImg: userProfileImg,
           messageContent: msg.messageContent,
           messageImg: messageImg,
-          chatCreatedAt: msg.chatCreatedAt,
+          chatCreatedAt: msg.chatCreatedAt
         }
-      }),
-    ).sort((a, b) => new Date(a.chatCreatedAt) - new Date(b.chatCreatedAt))
+      })
+    )
+    .sort((a, b) => new Date(a.chatCreatedAt) - new Date(b.chatCreatedAt))
 
     if (olderMessageArray.length > 0) {
       oldestMessageTime.value = olderMessageArray[0].chatCreatedAt
@@ -434,7 +420,6 @@ const loadItemInfo = async () => {
   try {
     const response = await axios.get(`/item/rent/${props.itemId}`)
     itemInfo.value = response.data
-    console.log(itemInfo.value)
   } catch (error) {
     console.error('물품 정보 로드 실패:', error)
   }
@@ -547,21 +532,6 @@ const formatFileSize = (size) => {
   return parseFloat((size / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-// 예약하기 버튼 핸들러 추가
-const handleReservation = () => {
-  // chatStore를 통해 채팅창 닫기
-  chatStore.closeChat()
-
-  router.push({
-    name: 'Reservation',
-    params: {
-      lessorId: currentUserId.value,
-      lesseeId: messages.value[messages.value.length - 1]?.senderId,
-      itemId: props.itemId.toString(),
-    },
-  })
-}
-
 // 생명주기 훅
 onMounted(async () => {
   try {
@@ -602,7 +572,6 @@ onUnmounted(() => {
   padding: 15px;
   border-bottom: 1px solid #eee;
   background: white;
-  justify-content: space-between; /* 추가 */
 }
 
 .back-button {
@@ -897,20 +866,5 @@ onUnmounted(() => {
   align-items: center;
   padding: 20px;
   color: #666;
-}
-
-.reservation-button {
-  background: #ff3b30;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-left: auto; /* 추가 */
-}
-
-.reservation-button:hover {
-  background: #ff1a1a;
 }
 </style>

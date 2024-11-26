@@ -14,7 +14,6 @@ public class TradeReservationRegistRequestDto {
     private int itemId;
     private String lessorId;
     private String lesseeId;
-    private int tradeId;
 
     @NotNull(message = "대여료는 필수입니다.")
     @Min(value = -1, message = "대여료는 0원 이상이어야 합니다.")

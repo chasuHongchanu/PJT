@@ -35,7 +35,9 @@
                 class="image-preview-wrapper"
               >
                 <img :src="image" class="image-preview" />
-                <button type="button" class="remove-image" @click="removeImage(index)">×</button>
+                <button type="button" class="remove-image" @click="removeImage(index)">
+                  ×
+                </button>
               </div>
 
               <!-- 이미지 추가 버튼 -->
@@ -48,7 +50,11 @@
                   @change="handleImageUpload"
                   class="hidden"
                 />
-                <svg xmlns="http://www.w3.org/2000/svg" class="upload-icon" viewBox="0 0 24 24">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="upload-icon"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     d="M12 5v13M5 12h14"
                     stroke="currentColor"
@@ -77,9 +83,17 @@
           <div class="form-group">
             <label>카테고리</label>
             <div class="category-selects">
-              <select v-model="selectedMainCategory" @change="updateSubCategories" required>
+              <select
+                v-model="selectedMainCategory"
+                @change="updateSubCategories"
+                required
+              >
                 <option value="">대분류 선택</option>
-                <option v-for="category in categories" :key="category.name" :value="category">
+                <option
+                  v-for="category in categories"
+                  :key="category.name"
+                  :value="category"
+                >
                   {{ category.name }}
                 </option>
               </select>
@@ -91,7 +105,11 @@
                 required
               >
                 <option value="">중분류 선택</option>
-                <option v-for="category in subCategories" :key="category.name" :value="category">
+                <option
+                  v-for="category in subCategories"
+                  :key="category.name"
+                  :value="category"
+                >
                   {{ category.name }}
                 </option>
               </select>
@@ -116,7 +134,9 @@
                 placeholder="지도에서 위치를 선택해주세요"
                 required
               />
-              <button type="button" class="map-button" @click="openMapModal">위치 수정하기</button>
+              <button type="button" class="map-button" @click="openMapModal">
+                위치 수정하기
+              </button>
             </div>
           </div>
 
@@ -148,7 +168,7 @@
             <button type="submit" class="submit-button" :disabled="isSubmitting">
               <div class="button-content">
                 <div v-if="isSubmitting" class="loading-spinner"></div>
-                <span>{{ isSubmitting ? '수정 중...' : '수정하기' }}</span>
+                <span>{{ isSubmitting ? "수정 중..." : "수정하기" }}</span>
               </div>
             </button>
           </div>
@@ -168,7 +188,11 @@
               <div ref="mapContainer" style="width: 100%; height: 400px"></div>
             </div>
             <div class="modal-footer">
-              <button class="confirm-button" @click="confirmLocation" :disabled="!selectedLocation">
+              <button
+                class="confirm-button"
+                @click="confirmLocation"
+                :disabled="!selectedLocation"
+              >
                 위치 선택 완료
               </button>
             </div>
@@ -180,72 +204,72 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import { GoogleMap, Marker } from 'vue3-google-map'
-import { Loader } from '@googlemaps/js-api-loader'
-import { storage } from '@/firebase'
-import { ref as storageRef, getDownloadURL } from 'firebase/storage'
-import categoriesData from '@/data/categories.json'
+import { ref, onMounted, watch, nextTick } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import { GoogleMap, Marker } from "vue3-google-map";
+import { Loader } from "@googlemaps/js-api-loader";
+import { storage } from "@/firebase";
+import { ref as storageRef, getDownloadURL } from "firebase/storage";
+import categoriesData from "@/data/categories.json";
 import { itemApi } from '@/api/itemApi'
 import { useAuthStore } from '@/stores/auth'
 
-const router = useRouter()
-const route = useRoute()
-const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY
+const router = useRouter();
+const route = useRoute();
+const apiKey = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY;
 
 // 상태 관리 스토어 초기화
 const authStore = useAuthStore()
 
 // 상태 관리
-const isLoading = ref(true)
-const isSubmitting = ref(false)
-const itemId = route.params.id
+const isLoading = ref(true);
+const isSubmitting = ref(false);
+const itemId = route.params.id;
 
 // 폼 데이터
 const formData = ref({
   itemId: null,
-  itemName: '',
-  itemPrice: '',
-  itemMainCategory: '',
-  itemSubCategory: '',
-  itemSubsubCategory: '',
+  itemName: "",
+  itemPrice: "",
+  itemMainCategory: "",
+  itemSubCategory: "",
+  itemSubsubCategory: "",
   latitude: null,
   longitude: null,
-  address: '',
-  itemContent: '',
-  availableRentalStartDate: '',
-  availableRentalEndDate: '',
-})
+  address: "",
+  itemContent: "",
+  availableRentalStartDate: "",
+  availableRentalEndDate: "",
+});
 
 // 이미지 관련
-const fileInput = ref(null)
-const imageFiles = ref([])
-const previewImages = ref([])
+const fileInput = ref(null);
+const imageFiles = ref([]);
+const previewImages = ref([]);
 
 // 카테고리 관련
-const categories = ref(categoriesData.categories)
-const subCategories = ref([])
-const items = ref([])
-const selectedMainCategory = ref(null)
-const selectedSubCategory = ref(null)
-const selectedItem = ref('')
+const categories = ref(categoriesData.categories);
+const subCategories = ref([]);
+const items = ref([]);
+const selectedMainCategory = ref(null);
+const selectedSubCategory = ref(null);
+const selectedItem = ref("");
 
 // 지도 관련
-const showMapModal = ref(false)
-const mapCenter = ref({ lat: 37.5665, lng: 126.978 })
-const selectedLocation = ref(null)
+const showMapModal = ref(false);
+const mapCenter = ref({ lat: 37.5665, lng: 126.978 });
+const selectedLocation = ref(null);
 
 // 초기 데이터 로드 함수
 const loadItemData = async () => {
   try {
-    const response = await itemApi.getItemForEdit(itemId)
-    const data = response.data
+    const response = await itemApi.getItemForEdit(itemId);
+    const data = response.data;
 
     // 응답 데이터 검증
     if (!data) {
-      throw new Error('No data received from server')
+      throw new Error('No data received from server');
     }
 
     // 기본 데이터 설정
@@ -254,29 +278,33 @@ const loadItemData = async () => {
       itemId: parseInt(itemId),
       availableRentalStartDate: formatDate(data.availableRentalStartDate),
       availableRentalEndDate: formatDate(data.availableRentalEndDate),
-    }
+    };
 
     // 카테고리 설정
     if (data.itemMainCategory) {
-      const mainCat = categories.value.find((cat) => cat.name === data.itemMainCategory)
+      const mainCat = categories.value.find(
+        (cat) => cat.name === data.itemMainCategory
+      );
       if (mainCat) {
-        selectedMainCategory.value = mainCat
-        subCategories.value = mainCat.subCategories || []
+        selectedMainCategory.value = mainCat;
+        subCategories.value = mainCat.subCategories || [];
 
-        await nextTick()
+        await nextTick();
 
         if (data.itemSubCategory) {
-          const subCat = subCategories.value.find((cat) => cat.name === data.itemSubCategory)
+          const subCat = subCategories.value.find(
+            (cat) => cat.name === data.itemSubCategory
+          );
           if (subCat) {
-            selectedSubCategory.value = subCat
-            items.value = subCat.items || []
+            selectedSubCategory.value = subCat;
+            items.value = subCat.items || [];
 
-            await nextTick()
+            await nextTick();
 
             if (data.itemSubsubCategory) {
-              const item = items.value.find((i) => i === data.itemSubsubCategory)
+              const item = items.value.find((i) => i === data.itemSubsubCategory);
               if (item) {
-                selectedItem.value = item
+                selectedItem.value = item;
               }
             }
           }
@@ -289,261 +317,263 @@ const loadItemData = async () => {
       previewImages.value = await Promise.all(
         data.itemImageNames.map(async (path) => {
           try {
-            return await getDownloadURL(storageRef(storage, path))
+            return await getDownloadURL(storageRef(storage, path));
           } catch (error) {
-            console.error('Error loading image:', error)
-            return null
+            console.error('Error loading image:', error);
+            return null;
           }
-        }),
-      ).then((urls) => urls.filter((url) => url !== null))
+        })
+      ).then(urls => urls.filter(url => url !== null));
     }
+
   } catch (error) {
-    console.error('Error loading item:', error)
+    console.error('Error loading item:', error);
     if (error.response?.status === 401) {
-      alert('로그인이 필요합니다.')
-      router.push('/auth/login')
+      alert('로그인이 필요합니다.');
+      router.push('/auth/login');
     } else {
-      alert('물품 정보를 불러오는데 실패했습니다.')
+      alert('물품 정보를 불러오는데 실패했습니다.');
     }
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // 날짜 형식을 변환하는 유틸리티 함수 추가
 const formatDate = (dateString) => {
-  if (!dateString) return ''
-  return dateString.split(' ')[0] // YYYY-MM-DD 부분만 추출
-}
+  if (!dateString) return "";
+  return dateString.split(" ")[0]; // YYYY-MM-DD 부분만 추출
+};
 
 // 이미지 핸들러
 const handleImageUpload = (event) => {
-  const files = Array.from(event.target.files)
-  const remainingSlots = 5 - previewImages.value.length
-  const filesToAdd = files.slice(0, remainingSlots)
+  const files = Array.from(event.target.files);
+  const remainingSlots = 5 - previewImages.value.length;
+  const filesToAdd = files.slice(0, remainingSlots);
 
   filesToAdd.forEach((file) => {
-    imageFiles.value.push(file)
-    const reader = new FileReader()
+    imageFiles.value.push(file);
+    const reader = new FileReader();
     reader.onload = (e) => {
-      previewImages.value.push(e.target.result)
-    }
-    reader.readAsDataURL(file)
-  })
+      previewImages.value.push(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
 
-  event.target.value = ''
-}
+  event.target.value = "";
+};
 
 const removeImage = (index) => {
-  imageFiles.value.splice(index, 1)
-  previewImages.value.splice(index, 1)
-}
+  imageFiles.value.splice(index, 1);
+  previewImages.value.splice(index, 1);
+};
 
 // 카테고리 핸들러
 const updateSubCategories = () => {
   if (selectedMainCategory.value) {
-    subCategories.value = selectedMainCategory.value.subCategories || []
-    selectedSubCategory.value = null
-    items.value = []
-    selectedItem.value = ''
-    formData.value.itemMainCategory = selectedMainCategory.value.name
+    subCategories.value = selectedMainCategory.value.subCategories || [];
+    selectedSubCategory.value = null;
+    items.value = [];
+    selectedItem.value = "";
+    formData.value.itemMainCategory = selectedMainCategory.value.name;
   }
-}
+};
 
 const updateItems = () => {
   if (selectedSubCategory.value) {
-    items.value = selectedSubCategory.value.items || []
-    selectedItem.value = ''
-    formData.value.itemSubCategory = selectedSubCategory.value.name
+    items.value = selectedSubCategory.value.items || [];
+    selectedItem.value = "";
+    formData.value.itemSubCategory = selectedSubCategory.value.name;
   }
-}
+};
 
 // Google Maps 관련
-const mapContainer = ref(null)
-const map = ref(null)
-const marker = ref(null)
+const mapContainer = ref(null);
+const map = ref(null);
+const marker = ref(null);
 const loader = new Loader({
   apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
-  version: 'weekly',
-})
+  version: "weekly",
+});
 
 // Google Maps 초기화
 const initMap = async () => {
   try {
-    await loader.load()
-    const { Map } = await google.maps.importLibrary('maps')
-    const { Marker } = await google.maps.importLibrary('marker')
+    await loader.load();
+    const { Map } = await google.maps.importLibrary("maps");
+    const { Marker } = await google.maps.importLibrary("marker");
 
     map.value = new Map(mapContainer.value, {
       center: mapCenter.value,
       zoom: 14,
-    })
+    });
 
     if (selectedLocation.value) {
       marker.value = new Marker({
         position: selectedLocation.value,
         map: map.value,
-        title: '선택한 위치',
-      })
+        title: "선택한 위치",
+      });
     }
 
-    map.value.addListener('click', (e) => {
+    map.value.addListener("click", (e) => {
       const location = {
         lat: e.latLng.lat(),
         lng: e.latLng.lng(),
-      }
-      selectedLocation.value = location
+      };
+      selectedLocation.value = location;
 
       if (marker.value) {
-        marker.value.setPosition(location)
+        marker.value.setPosition(location);
       } else {
         marker.value = new Marker({
           position: location,
           map: map.value,
-          title: '선택한 위치',
-        })
+          title: "선택한 위치",
+        });
       }
-    })
+    });
   } catch (error) {
-    console.error('Error initializing map:', error)
+    console.error("Error initializing map:", error);
   }
-}
+};
 
 // 지도 모달 관련 함수 수정
 const openMapModal = async () => {
-  showMapModal.value = true
-  document.body.style.overflow = 'hidden'
+  showMapModal.value = true;
+  document.body.style.overflow = "hidden";
   // 모달이 열린 후 지도 초기화
-  await nextTick()
+  await nextTick();
   if (!map.value) {
-    await initMap()
+    await initMap();
   }
-}
+};
 
 const closeMapModal = () => {
-  showMapModal.value = false
-  document.body.style.overflow = ''
-}
+  showMapModal.value = false;
+  document.body.style.overflow = "";
+};
 
 const confirmLocation = async () => {
   if (selectedLocation.value) {
     try {
-      const { lat, lng } = selectedLocation.value
-      formData.value.latitude = lat
-      formData.value.longitude = lng
+      const { lat, lng } = selectedLocation.value;
+      formData.value.latitude = lat;
+      formData.value.longitude = lng;
 
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=ko`,
-      )
-      const data = await response.json()
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=ko`
+      );
+      const data = await response.json();
       if (data.results[0]) {
-        formData.value.address = data.results[0].formatted_address
+        formData.value.address = data.results[0].formatted_address;
       }
-      closeMapModal()
+      closeMapModal();
     } catch (error) {
-      console.error('Error getting address:', error)
+      console.error("Error getting address:", error);
     }
   }
-}
+};
 
 // 폼 제출 핸들러
 const handleSubmit = async () => {
-  if (isSubmitting.value) return
+  if (isSubmitting.value) return;
 
   try {
-    isSubmitting.value = true
+    isSubmitting.value = true;
 
-    const formDataToSend = new FormData()
+    const formDataToSend = new FormData();
 
     // 기본 데이터 추가
     const requestData = {
       ...formData.value,
       userId: authStore.userId,
-      itemStatus: formData.value.itemStatus || 'AVAILABLE',
+      itemStatus: formData.value.itemStatus || "AVAILABLE",
       itemImageNames: [], // 기존 이미지 이름 배열
-    }
+    };
 
     // FormData에 JSON 데이터 추가
-    Object.keys(requestData).forEach((key) => {
+    Object.keys(requestData).forEach(key => {
       if (key !== 'itemImages') {
-        formDataToSend.append(key, requestData[key])
+        formDataToSend.append(key, requestData[key]);
       }
-    })
+    });
 
     // 새로운 이미지 파일 추가
-    imageFiles.value.forEach((file) => {
-      formDataToSend.append('itemImages', file)
-    })
+    imageFiles.value.forEach(file => {
+      formDataToSend.append('itemImages', file);
+    });
 
-    await itemApi.updateItem(formDataToSend)
-
-    alert('물품이 성공적으로 수정되었습니다.')
-    router.push(`/items/view`)
+    await itemApi.updateItem(formDataToSend);
+    
+    alert('물품이 성공적으로 수정되었습니다.');
+    router.push(`/items/view`);
+    
   } catch (error) {
-    console.error('Error updating item:', error)
+    console.error('Error updating item:', error);
     if (error.response?.status === 401) {
-      router.push('/auth/login')
+      router.push('/auth/login');
     } else {
-      alert('물품 수정 중 오류가 발생했습니다. 다시 시도해주세요.')
+      alert('물품 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
-}
+};
 
 // 뒤로가기
 const goBack = () => {
   router.push({
-    name: 'ItemDetail',
+    name: "Detail",
     params: { id: itemId },
-  })
-}
+  });
+};
 
 // 컴포넌트 마운트
 onMounted(() => {
-  loadItemData()
-  console.log(formData)
-})
+  loadItemData();
+  console.log(formData);
+});
 
 // 지도 모달 감시
 watch(showMapModal, async (newValue) => {
   if (newValue && mapContainer.value && !map.value) {
-    await initMap()
+    await initMap();
   }
-})
+});
 
 // watch 추가하여 카테고리 값이 변경될 때마다 formData 업데이트
 watch(selectedMainCategory, (newValue) => {
   if (newValue) {
-    formData.value.itemMainCategory = newValue.name
-    subCategories.value = newValue.subCategories || []
-    selectedSubCategory.value = null
-    items.value = []
-    selectedItem.value = ''
+    formData.value.itemMainCategory = newValue.name;
+    subCategories.value = newValue.subCategories || [];
+    selectedSubCategory.value = null;
+    items.value = [];
+    selectedItem.value = "";
   }
-})
+});
 
 watch(selectedSubCategory, (newValue) => {
   if (newValue) {
-    formData.value.itemSubCategory = newValue.name
-    items.value = newValue.items || []
-    selectedItem.value = ''
+    formData.value.itemSubCategory = newValue.name;
+    items.value = newValue.items || [];
+    selectedItem.value = "";
   }
-})
+});
 
 watch(selectedItem, (newValue) => {
   if (newValue) {
-    formData.value.itemSubsubCategory = newValue
+    formData.value.itemSubsubCategory = newValue;
   }
-})
+});
 
 watch(selectedMainCategory, (newValue) => {
-  if (!newValue) return // 초기화되지 않은 상태에서는 실행하지 않음
-  subCategories.value = newValue.subCategories || []
-  selectedSubCategory.value = null
-  items.value = []
-  selectedItem.value = ''
-})
+  if (!newValue) return; // 초기화되지 않은 상태에서는 실행하지 않음
+  subCategories.value = newValue.subCategories || [];
+  selectedSubCategory.value = null;
+  items.value = [];
+  selectedItem.value = "";
+});
 </script>
 
 <style scoped>
